@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Get a Free Wiam Engines API key by email. Confirm your inbox. We mail the key once.">
-  <title>Get a Free key — Wiam Engines API</title>
+  <meta name="description" content="Free Pulse keys live on a WiamSports account. Register, confirm your email, then the key is yours.">
+  <title>Get a Free key — WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
   <link rel="stylesheet" href="/engines.css">
@@ -18,59 +18,25 @@
       <a href="/">Home</a>
       <a href="/engines/">Engines</a>
       <a href="/pricing/">Pricing</a>
-      <a class="active" href="/get-key/">Get key</a>
+      <a href="/register/">Register</a>
+      <a href="/login/">Sign in</a>
       <a href="/docs/">Docs</a>
       <a href="/legal/">Legal</a>
     </div>
     <div class="badge">Free key</div>
-    <h1>We’ll mail a confirm link, then your key</h1>
+    <h1>The key lives on your WiamSports account</h1>
     <p class="subtitle">
-      One active Free key per email. The key is the login — there is no password.
-      If you already have a key, this rotates it (the old one dies).
+      Register with email and a password. Confirm the inbox. We mail the Free Pulse key once.
+      One active key per account. Signing up again rotates it.
     </p>
-    <section>
-      <h2>Your email</h2>
-      <form id="key-form" class="form-row">
-        <input id="email" type="email" name="email" required autocomplete="email" placeholder="you@company.com">
-        <button class="btn btn-primary" type="submit" id="submit">Send confirm link</button>
-      </form>
-      <p class="msg" id="msg"></p>
-      <p class="note">If that inbox exists, we sent a confirm link. Check spam. 18+.</p>
-    </section>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/register/">Create account</a>
+      <a class="btn" href="/login/">Sign in</a>
+    </div>
     <footer>
       <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
       <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
     </footer>
   </div>
-  <script src="/config.js"></script>
-  <script>
-    const form = document.getElementById("key-form");
-    const msg = document.getElementById("msg");
-    const btn = document.getElementById("submit");
-    form.addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      msg.textContent = "";
-      msg.className = "msg";
-      btn.disabled = true;
-      try {
-        const res = await fetch((window.WIAM_ENGINES_API || "") + "/v1/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: document.getElementById("email").value }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          msg.className = "msg err";
-          msg.textContent = data.message || "Could not send that just now. Try again shortly.";
-        } else {
-          msg.textContent = data.message || "If that inbox exists, we sent a confirm link.";
-        }
-      } catch (err) {
-        msg.className = "msg err";
-        msg.textContent = "Could not reach the key desk. Try again shortly.";
-      }
-      btn.disabled = false;
-    });
-  </script>
 </body>
 </html>

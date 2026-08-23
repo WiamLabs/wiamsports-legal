@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Your WiamSports account — Free Pulse key prefix and remaining calls.">
+  <title>Account — WiamSports</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="masthead" href="/">
+      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+    </a>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/register/">Register</a>
+      <a class="active" href="/account/">Account</a>
+      <a href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">Your account</div>
+    <h1>WiamSports</h1>
+    <p class="subtitle" id="sub">Loading…</p>
+    <section>
+      <p class="msg" id="msg"></p>
+      <p><strong>Email</strong><br><span id="email">—</span></p>
+      <p><strong>Plan</strong><br><span id="plan">—</span></p>
+      <p><strong>Key prefix</strong><br><span id="prefix">We mailed the full key once. We only keep a hash.</span></p>
+      <p><strong>Calls left today</strong><br><span id="left">—</span></p>
+      <p class="note">Use <code>GET /v1/me</code> with your key for remaining calls in your app. <a href="/docs/">Docs</a>.</p>
+      <p><button class="btn" type="button" id="out">Sign out</button></p>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    const msg = document.getElementById("msg");
+    const sub = document.getElementById("sub");
+    if (!WiamAuth.session()) location.replace("/login/");
+    document.getElementById("out").addEventListener("click", () => {
+      WiamAuth.clear();
+      location.replace("/login/");
+    });
+    async function load() {
+      try {
+        const res = await fetch(WiamAuth.api() + "/v1/account/me", {
+          headers: WiamAuth.headers(),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          WiamAuth.clear();
+          location.replace("/login/");
+          return;
+        }
+        sub.textContent = "Signed in.";
+        document.getElementById("email").textContent = data.email || "—";
+        document.getElementById("plan").textContent = data.plan || "free";
+        document.getElementById("prefix").textContent = data.key_prefix
+          ? data.key_prefix + "…"
+          : "Confirm your email if you have not yet — then we mail the key once.";
+        document.getElementById("left").textContent =
+          data.daily_remaining == null ? "—" : String(data.daily_remaining);
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = "Could not load the account. Try again shortly.";
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

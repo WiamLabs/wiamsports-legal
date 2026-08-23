@@ -19,7 +19,8 @@
       <a href="/">Home</a>
       <a href="/engines/">Engines</a>
       <a href="/pricing/">Pricing</a>
-      <a href="/get-key/">Get key</a>
+      <a href="/register/">Register</a>
+      <a href="/login/">Sign in</a>
       <a href="/docs/">Docs</a>
       <a href="/legal/">Legal</a>
     </div>
@@ -47,7 +48,7 @@
     async function run() {
       if (!token) {
         msg.className = "msg err";
-        msg.textContent = "Missing confirm token. Request a new link from Get key.";
+        msg.textContent = "Missing confirm token. Request a new link from Register.";
         return;
       }
       try {
@@ -62,11 +63,15 @@
           msg.textContent = data.message || "This link is used or expired. Request a new one.";
           return;
         }
+        if (data.session) {
+          try { localStorage.setItem("wiam_sess", data.session); } catch (e) {}
+        }
         sub.textContent = "Your Free Pulse key";
-        msg.textContent = "Copy this now.";
+        msg.textContent = "Copy this now. You are signed in.";
         box.hidden = false;
         box.textContent = data.key;
         hint.hidden = false;
+        hint.insertAdjacentHTML("afterend", '<p><a class="btn btn-primary" href="/account/">Open account</a></p>');
       } catch (err) {
         msg.className = "msg err";
         msg.textContent = "Could not reach the key desk. Try the link again.";

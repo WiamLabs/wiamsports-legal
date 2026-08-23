@@ -46,7 +46,21 @@
   font-size: 15px;
   font-family: inherit;
 }
-.form-row input:focus { outline: 1px solid var(--green); }
+.form-row input:focus,
+.stack-form input:focus { outline: 1px solid var(--green); }
+.stack-form { display: flex; flex-direction: column; gap: 8px; max-width: 420px; margin: 14px 0; }
+.stack-form label { font-size: 13px; color: var(--muted); }
+.stack-form input[type="email"],
+.stack-form input[type="password"] {
+  background: #08150e;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+}
+.stack-form .btn { align-self: flex-start; margin-top: 6px; }
 pre {
   background: #08150e;
   border: 1px solid var(--line);

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to your WiamSports account to see your Free Pulse key and remaining calls.">
+  <title>Sign in — WiamSports</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="masthead" href="/">
+      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+    </a>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/register/">Register</a>
+      <a class="active" href="/login/">Sign in</a>
+      <a href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">WiamSports account</div>
+    <h1>Sign in</h1>
+    <p class="subtitle">Same account as the one you confirmed by email. Your Free key lives here.</p>
+    <section>
+      <h2>Welcome back</h2>
+      <form id="login-form" class="stack-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required autocomplete="email" placeholder="you@company.com">
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" required autocomplete="current-password">
+        <button class="btn btn-primary" type="submit" id="submit">Sign in</button>
+      </form>
+      <p class="msg" id="msg"></p>
+      <p class="note">New here? <a id="reg-link" href="/register/">Create an account</a>. 18+.</p>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code = params.get("c") || "";
+    const regLink = document.getElementById("reg-link");
+    if (code) regLink.href = "/register/?c=" + encodeURIComponent(code);
+    if (WiamAuth.session()) location.replace("/account/");
+    const form = document.getElementById("login-form");
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("submit");
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      msg.textContent = "";
+      msg.className = "msg";
+      btn.disabled = true;
+      try {
+        const res = await fetch(WiamAuth.api() + "/v1/account/login", {
+          method: "POST",
+          headers: WiamAuth.headers(),
+          body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            c: code,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.session) {
+          msg.className = "msg err";
+          msg.textContent = data.message || "Could not sign in.";
+        } else {
+          WiamAuth.setSession(data.session);
+          location.replace("/account/");
+        }
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = "Could not reach WiamSports. Try again shortly.";
+      }
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>

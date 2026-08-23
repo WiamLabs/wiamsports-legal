@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a WiamSports account. Confirm your email. Your Free Pulse key lives on the account.">
+  <title>Register — WiamSports</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="masthead" href="/">
+      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+    </a>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a class="active" href="/register/">Register</a>
+      <a href="/login/">Sign in</a>
+      <a href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">WiamSports account</div>
+    <h1>Create your account</h1>
+    <p class="subtitle">
+      Email and a password. Confirm the inbox. Then your Free Pulse key is on the account.
+      One person, one account, one active Free key.
+    </p>
+    <section>
+      <h2>Register</h2>
+      <form id="reg-form" class="stack-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required autocomplete="email" placeholder="you@company.com">
+        <label for="password">Password (8+ characters)</label>
+        <input id="password" type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <button class="btn btn-primary" type="submit" id="submit">Create account</button>
+      </form>
+      <p class="msg" id="msg"></p>
+      <p class="note">If that inbox exists, we sent a confirm link. Check spam. Already have an account? <a id="login-link" href="/login/">Sign in</a>. 18+.</p>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code = params.get("c") || "";
+    const loginLink = document.getElementById("login-link");
+    if (code) loginLink.href = "/login/?c=" + encodeURIComponent(code);
+    const form = document.getElementById("reg-form");
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("submit");
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      msg.textContent = "";
+      msg.className = "msg";
+      btn.disabled = true;
+      try {
+        const res = await fetch(WiamAuth.api() + "/v1/account/register", {
+          method: "POST",
+          headers: WiamAuth.headers(),
+          body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            c: code,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          msg.className = "msg err";
+          msg.textContent = data.message || "Could not create that just now. Try again shortly.";
+        } else {
+          msg.textContent = data.message || "If that inbox exists, we sent a confirm link.";
+        }
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = "Could not reach WiamSports. Try again shortly.";
+      }
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>
