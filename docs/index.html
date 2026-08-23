@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wiam Engines API docs — Bearer key, Pulse predict, remaining requests.">
+  <title>Docs — Wiam Engines API</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="masthead" href="/">
+      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+    </a>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/get-key/">Get key</a>
+      <a class="active" href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">Docs</div>
+    <h1>Call Pulse. Check remaining.</h1>
+    <p class="subtitle">Hosted read. Authorization header. Free is Pulse, tomorrow, one league, 1–64%. <a href="/docs/free/">Free limits</a>.</p>
+    <section>
+      <h2>Auth</h2>
+      <pre>Authorization: Bearer YOUR_KEY</pre>
+    </section>
+    <section>
+      <h2>Health</h2>
+      <pre>GET /v1/health</pre>
+    </section>
+    <section>
+      <h2>You and quota</h2>
+      <pre>GET /v1/me</pre>
+      <p>Returns plan, daily used, daily remaining. Same idea as “requests left”.</p>
+    </section>
+    <section>
+      <h2>Tomorrow’s Free-band matches</h2>
+      <pre>GET /v1/matches?league=PL</pre>
+      <p>League codes: PL, PD, SA, BL1, FL1, CL, WC.</p>
+    </section>
+    <section>
+      <h2>Predict</h2>
+      <pre>POST /v1/predict
+Content-Type: application/json
+
+{ "engine": "pulse", "league": "PL" }</pre>
+      <p><code>engine=tide</code> or <code>engine=wiamiq</code> on Free returns 403. A 65%+ fixture returns 403. We do not invent a number.</p>
+    </section>
+    <section>
+      <h2>Usage today</h2>
+      <pre>GET /v1/usage</pre>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+    </footer>
+  </div>
+</body>
+</html>

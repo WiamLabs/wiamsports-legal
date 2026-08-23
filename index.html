@@ -3,31 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Legal — WiamSports by WiamLabs</title>
+  <meta name="description" content="Wiam Engines API — hosted Pulse football reads for your app. Free key by email. Tide and WiamIQ coming on paid plans.">
+  <title>Wiam Engines API — Pulse by WiamLabs</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
-  <style>
-    body { font-family: system-ui, sans-serif; background: #07140c; color: #e8f5ee; line-height: 1.7; }
-  </style>
+  <link rel="stylesheet" href="/engines.css">
 </head>
 <body>
-  <div class="wrap">
-    <a class="masthead" href="/legal">
+  <div class="wrap wrap-wide">
+    <a class="masthead" href="/">
       <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
     </a>
-    <div class="badge">Official legal notice</div>
-    <h1>WiamSports legal</h1>
+    <div class="topnav">
+      <a class="active" href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/get-key/">Get key</a>
+      <a href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">Wiam Engines API</div>
+    <h1>Hosted Pulse reads for your app</h1>
     <p class="subtitle">
-      Privacy Policy and Terms &amp; Conditions for the WiamLabs sports product on Telegram.
+      One API key. Your code calls us. We run the engine. You get JSON.
+      You do not download Pulse, Tide, or WiamIQ — same idea as a hosted model API.
     </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/get-key/">Get a Free key</a>
+      <a class="btn" href="/docs/">Read the docs</a>
+    </div>
+    <div class="grid-3">
+      <section class="card">
+        <p class="status">Live</p>
+        <h3>Pulse</h3>
+        <p>Form, Elo, injuries, and the market mix. This is the number Free can call today — tomorrow’s fixtures, 1–64% band, one league.</p>
+      </section>
+      <section class="card soon">
+        <p class="status">Coming soon</p>
+        <h3>Tide</h3>
+        <p>Market-first brake. Silence when there are no odds. Unlocks on Pro. Asking for it on Free returns 403.</p>
+      </section>
+      <section class="card soon">
+        <p class="status">Trains — not live</p>
+        <h3>WiamIQ</h3>
+        <p>Learns on our warehouse at night. It does not print a live 1X2 until we ship it on purpose. Not a download.</p>
+      </section>
+    </div>
     <section>
-      <p><a href="/privacy-policy">Privacy Policy</a> — what we collect and why.</p>
-      <p><a href="/terms-of-use">Terms &amp; Conditions</a> — Free Channel, VIP (Telegram Stars), affiliate, and the private workspace.</p>
-      <p><a href="https://t.me/WiamSportsBot">Open @WiamSportsBot</a></p>
+      <h2>How you use it</h2>
+      <p>Email us for a Free key. Confirm the inbox. Call <code>POST /v1/predict</code> with <code>engine=pulse</code>. Check remaining requests on <code>GET /v1/me</code>.</p>
+      <p>Entertainment. Not a bookmaker. Not a lock. 18+.</p>
     </section>
     <footer>
       <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
       <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+      <p class="links"><a href="/privacy-policy/">Privacy</a> · <a href="/terms-of-use/">Terms</a></p>
     </footer>
   </div>
 </body>

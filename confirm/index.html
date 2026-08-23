@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Confirm your Wiam Engines email and receive a Free API key.">
+  <title>Confirm email — Wiam Engines API</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="masthead" href="/">
+      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+    </a>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/engines/">Engines</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/get-key/">Get key</a>
+      <a href="/docs/">Docs</a>
+      <a href="/legal/">Legal</a>
+    </div>
+    <div class="badge">Confirm</div>
+    <h1>Confirming your inbox</h1>
+    <p class="subtitle" id="sub">One moment.</p>
+    <section>
+      <p class="msg" id="msg">Working…</p>
+      <div class="key-box" id="key-box" hidden></div>
+      <p id="hint" hidden>Shown once on this page. We also mailed it. Store it. We only keep a hash. Check remaining calls with <code>GET /v1/me</code>.</p>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const token = params.get("t") || "";
+    const msg = document.getElementById("msg");
+    const box = document.getElementById("key-box");
+    const hint = document.getElementById("hint");
+    const sub = document.getElementById("sub");
+    async function run() {
+      if (!token) {
+        msg.className = "msg err";
+        msg.textContent = "Missing confirm token. Request a new link from Get key.";
+        return;
+      }
+      try {
+        const res = await fetch((window.WIAM_ENGINES_API || "") + "/v1/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: token }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.key) {
+          msg.className = "msg err";
+          msg.textContent = data.message || "This link is used or expired. Request a new one.";
+          return;
+        }
+        sub.textContent = "Your Free Pulse key";
+        msg.textContent = "Copy this now.";
+        box.hidden = false;
+        box.textContent = data.key;
+        hint.hidden = false;
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = "Could not reach the key desk. Try the link again.";
+      }
+    }
+    run();
+  </script>
+</body>
+</html>

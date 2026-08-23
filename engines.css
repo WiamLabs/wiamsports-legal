@@ -1,0 +1,72 @@
+/* Extra layout for the Engines brochure. legal.css stays the source of truth. */
+.wrap-wide { max-width: 1040px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 22px; }
+.btn {
+  display: inline-block;
+  background: #123322;
+  color: var(--green);
+  border: 1px solid #1f5a38;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn:hover { color: var(--gold); border-color: var(--gold); }
+.btn-primary { background: #1a5a36; color: #e8f5ee; border-color: var(--green); }
+.btn-primary:hover { color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.grid-3, .grid-4 { display: grid; gap: 14px; margin: 8px 0 4px; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 860px) {
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .grid-4 { grid-template-columns: 1fr; }
+}
+.card h3 { margin-top: 0; }
+.card .status { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+.card.soon { opacity: 0.72; }
+.card.soon .status { color: var(--gold); }
+.price { font-size: 1.6rem; font-weight: 800; color: var(--text); margin: 6px 0 10px; }
+.price span { font-size: 14px; font-weight: 600; color: var(--muted); }
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0; }
+.form-row input[type="email"] {
+  flex: 1 1 240px;
+  min-width: 200px;
+  background: #08150e;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+}
+.form-row input:focus { outline: 1px solid var(--green); }
+pre {
+  background: #08150e;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  color: #cfe8d8;
+  margin: 12px 0;
+}
+.key-box {
+  background: #08150e;
+  border: 1px dashed var(--green);
+  border-radius: 12px;
+  padding: 14px 16px;
+  word-break: break-all;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.msg { margin-top: 10px; }
+.msg.err { color: var(--gold); }
+.topnav a.sep { color: var(--line); pointer-events: none; }
