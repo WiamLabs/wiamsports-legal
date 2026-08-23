@@ -26,16 +26,30 @@
     <div class="badge">WiamSports account</div>
     <h1>Create your account</h1>
     <p class="subtitle">
-      Email and a password. Confirm the inbox. Then your Free Pulse key is on the account.
-      One person, one account, one active Free key.
+      One person. One account. Confirm your inbox. Then your Free Pulse key lives here.
+      Tide and WiamIQ are coming on paid plans. 18+.
     </p>
     <section>
       <h2>Register</h2>
       <form id="reg-form" class="stack-form">
+        <label for="full_name">Full name</label>
+        <input id="full_name" type="text" required minlength="2" maxlength="80" autocomplete="name" placeholder="Your name">
         <label for="email">Email</label>
-        <input id="email" type="email" name="email" required autocomplete="email" placeholder="you@company.com">
+        <input id="email" type="email" required autocomplete="email" placeholder="you@company.com">
         <label for="password">Password (8+ characters)</label>
-        <input id="password" type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <input id="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <label for="age">Age</label>
+        <input id="age" type="number" required min="18" max="100" placeholder="20">
+        <label for="birth_year">Year you were born</label>
+        <input id="birth_year" type="number" required min="1926" max="2008" placeholder="2006">
+        <label for="country">Country</label>
+        <select id="country" required></select>
+        <div id="other-box" hidden>
+          <label for="country_name">Country name</label>
+          <input id="country_name" type="text" maxlength="64" placeholder="Country">
+          <label for="country_emoji">Flag emoji</label>
+          <input id="country_emoji" type="text" maxlength="8" placeholder="🇬🇭">
+        </div>
         <button class="btn btn-primary" type="submit" id="submit">Create account</button>
       </form>
       <p class="msg" id="msg"></p>
@@ -49,10 +63,31 @@
   <script src="/config.js"></script>
   <script src="/auth.js"></script>
   <script>
+    const COUNTRIES = [
+      ["GH","Ghana","🇬🇭"],["NG","Nigeria","🇳🇬"],["KE","Kenya","🇰🇪"],
+      ["ZA","South Africa","🇿🇦"],["CI","Côte d'Ivoire","🇨🇮"],["SN","Senegal","🇸🇳"],
+      ["EG","Egypt","🇪🇬"],["MA","Morocco","🇲🇦"],["TZ","Tanzania","🇹🇿"],
+      ["UG","Uganda","🇺🇬"],["GB","United Kingdom","🇬🇧"],["US","United States","🇺🇸"],
+      ["FR","France","🇫🇷"],["DE","Germany","🇩🇪"],["IT","Italy","🇮🇹"],
+      ["ES","Spain","🇪🇸"],["BR","Brazil","🇧🇷"],["IN","India","🇮🇳"],["CA","Canada","🇨🇦"]
+    ];
+    const sel = document.getElementById("country");
+    sel.innerHTML = '<option value="">Choose your country</option>' +
+      COUNTRIES.map(([c,n,f]) => `<option value="${c}">${f} ${n}</option>`).join("") +
+      '<option value="OT">Other</option>';
+    const otherBox = document.getElementById("other-box");
+    sel.addEventListener("change", () => {
+      otherBox.hidden = sel.value !== "OT";
+    });
     const params = new URLSearchParams(location.search);
     const code = params.get("c") || "";
     const loginLink = document.getElementById("login-link");
     if (code) loginLink.href = "/login/?c=" + encodeURIComponent(code);
+    const year = new Date().getUTCFullYear();
+    function agesMatch(age, born) {
+      const expected = year - born;
+      return age >= 18 && (age === expected || age === expected - 1);
+    }
     const form = document.getElementById("reg-form");
     const msg = document.getElementById("msg");
     const btn = document.getElementById("submit");
@@ -60,14 +95,53 @@
       ev.preventDefault();
       msg.textContent = "";
       msg.className = "msg";
+      const age = Number(document.getElementById("age").value);
+      const born = Number(document.getElementById("birth_year").value);
+      if (age < 18) {
+        msg.className = "msg err";
+        msg.textContent = "WiamSports is for people aged 18 and over.";
+        return;
+      }
+      if (!agesMatch(age, born)) {
+        msg.className = "msg err";
+        msg.textContent = "That year does not match the age you gave.";
+        return;
+      }
+      const cc = sel.value;
+      let cname = "";
+      let cflag = "";
+      if (cc === "OT") {
+        cname = document.getElementById("country_name").value.trim();
+        cflag = document.getElementById("country_emoji").value.trim();
+        if (!cname || !cflag) {
+          msg.className = "msg err";
+          msg.textContent = "Please type the country name and a flag emoji.";
+          return;
+        }
+      } else {
+        const hit = COUNTRIES.find((row) => row[0] === cc);
+        if (!hit) {
+          msg.className = "msg err";
+          msg.textContent = "Please choose a country.";
+          return;
+        }
+        cname = hit[1];
+        cflag = hit[2];
+      }
       btn.disabled = true;
       try {
         const res = await fetch(WiamAuth.api() + "/v1/account/register", {
           method: "POST",
           headers: WiamAuth.headers(),
           body: JSON.stringify({
+            full_name: document.getElementById("full_name").value,
             email: document.getElementById("email").value,
             password: document.getElementById("password").value,
+            age: age,
+            birth_year: born,
+            country_code: cc,
+            country_name: cname,
+            country_emoji: cflag,
             c: code,
           }),
         });
