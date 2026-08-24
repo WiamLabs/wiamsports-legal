@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Wiam Engines API — hosted Pulse football reads for your app. Create a WiamSports account. Tide and WiamIQ coming on paid plans.">
-  <title>Wiam Engines API — Pulse by WiamLabs</title>
+  <meta name="description" content="Wiam Engines API — hosted football reads for your app. Create a WiamSports account. Free is open. Paid plans coming soon.">
+  <title>Wiam Engines API — WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
   <link rel="stylesheet" href="/engines.css">
@@ -16,7 +16,7 @@
     </a>
     <div class="topnav">
       <a class="active" href="/">Home</a>
-      <a href="/engines/">Engines</a>
+      <a href="/engines/">Product</a>
       <a href="/pricing/">Pricing</a>
       <a href="/register/">Register</a>
       <a href="/login/">Sign in</a>
@@ -24,10 +24,10 @@
       <a href="/legal/">Legal</a>
     </div>
     <div class="badge">Wiam Engines API</div>
-    <h1>Hosted Pulse reads for your app</h1>
+    <h1>Football reads for your app</h1>
     <p class="subtitle">
-      One API key. Your code calls us. We run the engine. You get JSON.
-      You do not download Pulse, Tide, or WiamIQ — same idea as a hosted model API.
+      One API key. Your code calls us. We return JSON.
+      You do not download a model — same idea as a hosted API.
     </p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="/register/">Create a WiamSports account</a>
@@ -36,18 +36,18 @@
     <div class="grid-3">
       <section class="card">
         <p class="status">Live</p>
-        <h3>Pulse</h3>
-        <p>Form, Elo, injuries, and the market mix. This is the number Free can call today — tomorrow’s fixtures, 1–64% band, one league.</p>
+        <h3>Free</h3>
+        <p>Tomorrow’s matches. One league per call. 50 requests a day. Entertainment, not a lock.</p>
       </section>
       <section class="card soon">
         <p class="status">Coming soon</p>
-        <h3>Tide</h3>
-        <p>Market-first brake. Silence when there are no odds. Unlocks on Pro. Asking for it on Free returns 403.</p>
+        <h3>Paid plans</h3>
+        <p>More matches, more leagues, higher limits. Checkout is not open yet.</p>
       </section>
-      <section class="card soon">
-        <p class="status">Trains — not live</p>
-        <h3>WiamIQ</h3>
-        <p>Learns on our warehouse at night. It does not print a live 1X2 until we ship it on purpose. Not a download.</p>
+      <section class="card">
+        <p class="status">Hosted</p>
+        <h3>Your key, our servers</h3>
+        <p>The key lives on your WiamSports account. We run the read. There is nothing to install.</p>
       </section>
     </div>
     <section>
@@ -61,12 +61,12 @@
         <section class="card">
           <p class="status">2</p>
           <h3>Confirm the inbox</h3>
-          <p>We mail a confirm link. After you confirm, you are signed in and the Free Pulse key is shown once.</p>
+          <p>We mail a confirm link. After you confirm, you are signed in and the Free key is shown once.</p>
         </section>
         <section class="card">
           <p class="status">3</p>
           <h3>Call the API</h3>
-          <p><code>POST /v1/predict</code> with <code>engine=pulse</code>. Remaining calls on <code>GET /v1/me</code>.</p>
+          <p><code>POST /v1/predict</code> with <code>engine=wiamsports</code>. Remaining calls on <code>GET /v1/me</code>.</p>
         </section>
       </div>
       <p>Entertainment. Not a bookmaker. Not a lock. 18+.</p>

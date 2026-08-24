@@ -17,7 +17,7 @@
     </a>
     <div class="topnav">
       <a href="/">Home</a>
-      <a href="/engines/">Engines</a>
+      <a href="/engines/">Product</a>
       <a href="/pricing/">Pricing</a>
       <a href="/register/">Register</a>
       <a href="/login/">Sign in</a>
@@ -66,7 +66,7 @@
         if (data.session) {
           try { localStorage.setItem("wiam_sess", data.session); } catch (e) {}
         }
-        sub.textContent = "Your Free Pulse key";
+        sub.textContent = "Your Free API key";
         msg.textContent = "Copy this now. You are signed in.";
         box.hidden = false;
         box.textContent = data.key;

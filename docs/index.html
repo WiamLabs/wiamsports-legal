@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Wiam Engines API docs — Bearer key, Pulse predict, remaining requests.">
+  <meta name="description" content="Wiam Engines API docs — Bearer key, predict, remaining requests.">
   <title>Docs — Wiam Engines API</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
@@ -16,7 +16,7 @@
     </a>
     <div class="topnav">
       <a href="/">Home</a>
-      <a href="/engines/">Engines</a>
+      <a href="/engines/">Product</a>
       <a href="/pricing/">Pricing</a>
       <a href="/register/">Register</a>
       <a href="/login/">Sign in</a>
@@ -24,8 +24,8 @@
       <a href="/legal/">Legal</a>
     </div>
     <div class="badge">Docs</div>
-    <h1>Call Pulse. Check remaining.</h1>
-    <p class="subtitle">Hosted read. Authorization header. Free is Pulse, tomorrow, one league, 1–64%. <a href="/docs/free/">Free limits</a>.</p>
+    <h1>Call the API. Check remaining.</h1>
+    <p class="subtitle">Hosted read. Authorization header. Free is tomorrow, one league. <a href="/docs/free/">Free limits</a>.</p>
     <section>
       <h2>Auth</h2>
       <pre>Authorization: Bearer YOUR_KEY</pre>
@@ -37,10 +37,10 @@
     <section>
       <h2>You and quota</h2>
       <pre>GET /v1/me</pre>
-      <p>Returns plan, daily used, daily remaining. Same idea as “requests left”.</p>
+      <p>Returns plan, daily used, daily remaining.</p>
     </section>
     <section>
-      <h2>Tomorrow’s Free-band matches</h2>
+      <h2>Tomorrow’s matches</h2>
       <pre>GET /v1/matches?league=PL</pre>
       <p>League codes: PL, PD, SA, BL1, FL1, CL, WC.</p>
     </section>
@@ -49,8 +49,8 @@
       <pre>POST /v1/predict
 Content-Type: application/json
 
-{ "engine": "pulse", "league": "PL" }</pre>
-      <p><code>engine=tide</code> or <code>engine=wiamiq</code> on Free returns 403. A 65%+ fixture returns 403. We do not invent a number.</p>
+{ "engine": "wiamsports", "league": "PL" }</pre>
+      <p>Some fixtures are not on Free. Those return 403. We do not invent a pick.</p>
     </section>
     <section>
       <h2>Usage today</h2>
