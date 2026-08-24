@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <meta name="description" content="Your WiamSports account — Free key prefix and remaining calls.">
-  <title>Account — WiamSports</title>
+  <meta name="description" content="Your WiamSports dashboard — profile, API usage, channels, Affiliate, and settings.">
+  <title>Dashboard — WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
   <link rel="stylesheet" href="/engines.css">
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap wrap-wide">
     <a class="masthead" href="/">
       <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
     </a>
@@ -19,22 +19,73 @@
       <a href="/">Home</a>
       <a href="/engines/">Product</a>
       <a href="/pricing/">Pricing</a>
-      <a href="/register/">Register</a>
-      <a class="active" href="/account/">Account</a>
       <a href="/docs/">Docs</a>
+      <a class="active" href="/account/">Dashboard</a>
       <a href="/legal/">Legal</a>
     </div>
-    <div class="badge">Your account</div>
+    <div class="badge">Your dashboard</div>
     <h1>WiamSports</h1>
-    <p class="subtitle" id="sub">Loading…</p>
-    <section>
-      <p class="msg" id="msg"></p>
+    <p class="subtitle" id="sub">Loading your profile…</p>
+    <nav class="dash-nav" aria-label="Dashboard">
+      <a href="#profile">Profile</a>
+      <a href="#api">API</a>
+      <a href="#channels">Channels</a>
+      <a href="#affiliate">Affiliate</a>
+      <a href="#settings">Settings</a>
+    </nav>
+    <p class="msg" id="msg"></p>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Plan</div><div class="v" id="plan">—</div></div>
+      <div class="stat"><div class="k">Calls today</div><div class="v" id="used">—</div></div>
+      <div class="stat"><div class="k">Remaining</div><div class="v" id="left">—</div></div>
+      <div class="stat"><div class="k">Daily limit</div><div class="v" id="limit">—</div></div>
+    </div>
+    <section id="profile">
+      <h2>Profile</h2>
+      <p><strong>Name</strong><br><span id="name">—</span></p>
       <p><strong>Email</strong><br><span id="email">—</span></p>
-      <p><strong>Plan</strong><br><span id="plan">—</span></p>
-      <p><strong>Key prefix</strong><br><span id="prefix">We mailed the full key once. We only keep a hash.</span></p>
-      <p><strong>Calls left today</strong><br><span id="left">—</span></p>
-      <p class="note">Use <code>GET /v1/me</code> with your key for remaining calls in your app. <a href="/docs/">Docs</a>.</p>
-      <p><button class="btn" type="button" id="out">Sign out</button></p>
+      <p><strong>Country</strong><br><span id="country">—</span></p>
+      <p><strong>Telegram</strong><br><span id="tg">Not linked yet. Open the bot, create or confirm your account there, and this will show Linked.</span></p>
+      <p><strong>Email confirmed</strong><br><span id="verified">—</span></p>
+    </section>
+    <section id="api">
+      <h2>API</h2>
+      <p>Your key lives on this account. We mailed the full key once. We only keep a prefix and a hash.</p>
+      <p><strong>Key prefix</strong><br><span id="prefix">—</span></p>
+      <p><strong>Burst</strong><br><span id="burst">—</span> calls per minute</p>
+      <div class="usage-bar" aria-hidden="true"><span id="bar" style="width:0%"></span></div>
+      <p class="note">Use <code>GET /v1/me</code> with your key for remaining calls in your app. <a href="/docs/">Docs</a> · <a href="/pricing/">Pricing</a>.</p>
+      <h3>Recent calls today</h3>
+      <div id="calls"><p class="note">No calls yet today.</p></div>
+    </section>
+    <section id="channels">
+      <h2>Channels</h2>
+      <p>Picks are posted on Telegram, not on this page.</p>
+      <div class="dash-actions">
+        <a class="btn" id="free-ch" href="#">Free Channel</a>
+        <a class="btn" id="vip-ch" href="#">VIP Channel</a>
+      </div>
+    </section>
+    <section id="affiliate">
+      <h2>Affiliate</h2>
+      <p id="aff-copy">Share WiamSports. Unique Free and VIP links pay in prediction cards, not cash. The desk lives in Telegram.</p>
+      <p><strong>Joins credited</strong><br><span id="aff-joins">—</span></p>
+      <p><strong>Cards waiting</strong><br><span id="aff-wait">—</span></p>
+      <p><strong>Cards sent</strong><br><span id="aff-paid">—</span></p>
+      <p class="note" id="aff-note">Open the WiamSports bot on Telegram → Affiliate to run your desk.</p>
+    </section>
+    <section id="settings">
+      <h2>Settings</h2>
+      <p>Same account on the website and in Telegram.</p>
+      <form id="pw-form" class="stack-form">
+        <label for="password">New password</label>
+        <input id="password" type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="8 or more characters">
+        <button class="btn btn-primary" type="submit" id="pw-btn">Save password</button>
+      </form>
+      <p class="msg" id="pw-msg"></p>
+      <div class="dash-actions">
+        <button class="btn" type="button" id="out">Sign out</button>
+      </div>
     </section>
     <footer>
       <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
@@ -51,6 +102,22 @@
       WiamAuth.clear();
       location.replace("/login/");
     });
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value == null || value === "" ? "—" : String(value);
+    }
+    function renderCalls(rows) {
+      const box = document.getElementById("calls");
+      if (!rows || !rows.length) {
+        box.innerHTML = "<p class=\"note\">No calls yet today.</p>";
+        return;
+      }
+      const body = rows.map((r) => {
+        const at = r.at ? new Date(r.at).toLocaleTimeString() : "—";
+        return "<tr><td><code>" + (r.route || "—") + "</code></td><td>" + (r.status || "—") + "</td><td>" + at + "</td></tr>";
+      }).join("");
+      box.innerHTML = "<table><thead><tr><th>Route</th><th>Status</th><th>Time</th></tr></thead><tbody>" + body + "</tbody></table>";
+    }
     async function load() {
       try {
         const res = await fetch(WiamAuth.api() + "/v1/account/me", {
@@ -62,19 +129,67 @@
           location.replace("/login/");
           return;
         }
-        sub.textContent = "Signed in.";
-        document.getElementById("email").textContent = data.email || "—";
-        document.getElementById("plan").textContent = data.plan || "free";
-        document.getElementById("prefix").textContent = data.key_prefix
-          ? data.key_prefix + "…"
-          : "Confirm your email if you have not yet — then we mail the key once.";
-        document.getElementById("left").textContent =
-          data.daily_remaining == null ? "—" : String(data.daily_remaining);
+        const name = data.full_name || data.email || "there";
+        sub.textContent = "Welcome back, " + name + ".";
+        setText("email", data.email);
+        setText("name", data.full_name);
+        setText("country", ((data.country_emoji || "") + " " + (data.country || "")).trim());
+        setText("plan", data.plan || "free");
+        setText("prefix", data.key_prefix ? data.key_prefix + "…" : "Confirm your email if you have not yet — then we mail the key once.");
+        setText("used", data.daily_used);
+        setText("left", data.daily_remaining);
+        setText("limit", data.daily_limit);
+        setText("burst", data.burst_per_min);
+        setText("verified", data.email_verified ? "Yes" : "Not yet — check the inbox.");
+        setText("tg", data.telegram_linked ? "Linked" : "Not linked yet. Open the bot and use the same email.");
+        const used = Number(data.daily_used || 0);
+        const limit = Number(data.daily_limit || 50) || 50;
+        document.getElementById("bar").style.width = Math.min(100, Math.round((used / limit) * 100)) + "%";
+        renderCalls(data.recent_calls);
+        const ch = data.channels || {};
+        const free = document.getElementById("free-ch");
+        const vip = document.getElementById("vip-ch");
+        if (ch.free) free.href = ch.free; else { free.removeAttribute("href"); free.textContent = "Free Channel — link soon"; }
+        if (ch.vip) vip.href = ch.vip; else { vip.removeAttribute("href"); vip.textContent = "VIP Channel — link soon"; }
+        const aff = data.affiliate || {};
+        setText("aff-joins", aff.joins);
+        setText("aff-wait", aff.waiting);
+        setText("aff-paid", aff.paid);
+        document.getElementById("aff-note").textContent = aff.open
+          ? "Open the WiamSports bot on Telegram → Affiliate to copy today’s unique links."
+          : "Affiliate is coming soon. Your account is ready when we open the desk.";
       } catch (err) {
         msg.className = "msg err";
-        msg.textContent = "Could not load the account. Try again shortly.";
+        msg.textContent = "Could not load the dashboard. Try again shortly.";
       }
     }
+    document.getElementById("pw-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const pwMsg = document.getElementById("pw-msg");
+      const btn = document.getElementById("pw-btn");
+      pwMsg.textContent = "";
+      pwMsg.className = "msg";
+      btn.disabled = true;
+      try {
+        const res = await fetch(WiamAuth.api() + "/v1/account/set-password", {
+          method: "POST",
+          headers: WiamAuth.headers(),
+          body: JSON.stringify({ password: document.getElementById("password").value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          pwMsg.className = "msg err";
+          pwMsg.textContent = data.message || "Could not save the password.";
+        } else {
+          pwMsg.textContent = "Password saved.";
+          document.getElementById("password").value = "";
+        }
+      } catch (err) {
+        pwMsg.className = "msg err";
+        pwMsg.textContent = "Could not reach WiamSports. Try again shortly.";
+      }
+      btn.disabled = false;
+    });
     load();
   </script>
 </body>
