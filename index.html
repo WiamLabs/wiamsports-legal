@@ -3,75 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Wiam Engines API — hosted football reads for your app. Create a WiamSports account. Free is open. Paid plans coming soon.">
-  <title>Wiam Engines API — WiamSports</title>
+  <meta name="description" content="WiamSports News — live stories from the desk. Foreign Sports and Local Sports, including boxing.">
+  <title>WiamSports News</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
-  <link rel="stylesheet" href="/engines.css">
+  <link rel="stylesheet" href="/news/news.css">
 </head>
-<body>
-  <div class="wrap wrap-wide">
-    <header class="site-head">
+<body class="news-page">
+  <header class="news-top">
+    <div class="news-shell news-top-inner">
       <a class="masthead" href="/">
-        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports">
       </a>
       <nav class="topnav" data-nav="home"></nav>
-    </header>
-    <div class="badge">Wiam Engines API</div>
-    <h1>Football reads for your app</h1>
-    <p class="subtitle">
-      One API key. Your code calls us. We return JSON.
-      You do not download a model — same idea as a hosted API.
-    </p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="/register/">Create a WiamSports account</a>
-      <a class="btn" href="/login/">Sign in</a>
     </div>
-    <div class="grid-3">
-      <section class="card">
-        <p class="status">Live</p>
-        <h3>Free</h3>
-        <p>Tomorrow’s matches. One league per call. 50 requests a day. Entertainment, not a lock.</p>
-      </section>
-      <section class="card soon">
-        <p class="status">Coming soon</p>
-        <h3>Paid plans</h3>
-        <p>More matches, more leagues, higher limits. Checkout is not open yet.</p>
-      </section>
-      <section class="card">
-        <p class="status">Hosted</p>
-        <h3>Your key, our servers</h3>
-        <p>The key lives on your WiamSports account. We run the read. There is nothing to install.</p>
-      </section>
-    </div>
-    <section>
-      <h2>How you use it</h2>
-      <div class="grid-3">
-        <section class="card">
-          <p class="status">1</p>
-          <h3>Create an account</h3>
-          <p>Email and a password on this site. That is the WiamSports account. The key lives on it.</p>
-        </section>
-        <section class="card">
-          <p class="status">2</p>
-          <h3>Confirm the inbox</h3>
-          <p>We mail a confirm link. After you confirm, you are signed in and the Free key is shown once.</p>
-        </section>
-        <section class="card">
-          <p class="status">3</p>
-          <h3>Call the API</h3>
-          <p><code>POST /v1/predict</code> with <code>engine=wiamsports</code>. Remaining calls on <code>GET /v1/me</code>.</p>
-        </section>
+    <div class="news-brandbar">
+      <div class="news-shell news-brandbar-inner">
+        <strong>NEWS</strong>
+        <button class="menu-btn" type="button" id="menu-btn">Sports</button>
       </div>
-      <p>Entertainment. Not a bookmaker. Not a lock. 18+.</p>
-    </section>
-    <footer>
-      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
-      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
-      <p class="links"><a href="/privacy-policy/">Privacy</a> · <a href="/terms-of-use/">Terms</a></p>
-    </footer>
-  </div>
+    </div>
+    <nav class="news-desks news-shell" id="desks"></nav>
+    <nav class="news-menu" id="menu" aria-label="Sports"></nav>
+    <nav class="news-sports news-shell" id="sports"></nav>
+    <form class="news-search news-shell" action="/search/" method="get">
+      <input type="search" name="q" placeholder="Search news" aria-label="Search news">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <main class="news-feed" id="feed"></main>
+  <footer class="news-foot">
+    <div class="news-shell">
+      <div class="foot-grid">
+        <div>
+          <h2>News</h2>
+          <a href="/news/foreign/football/">Foreign Sports</a>
+          <a href="/news/local/football/">Local Sports</a>
+          <a href="/news/local/boxing/">Local boxing</a>
+        </div>
+        <div>
+          <h2>Boards</h2>
+          <a href="/scores/">Scores</a>
+          <a href="/table/">Table</a>
+          <a href="/odds/">Odds</a>
+        </div>
+        <div>
+          <h2>WiamSports</h2>
+          <a href="/engines/">Product</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/legal/">Legal</a>
+        </div>
+      </div>
+      <div class="legal-row">
+        <a href="/privacy-policy/">Privacy Policy</a>
+        <a href="/terms-of-use/">Terms of Use</a>
+        <a href="/register/">Create account</a>
+        <a href="/login/">Sign in</a>
+      </div>
+      <p class="copy">© 2026 WiamLabs. Entertainment. 18+.</p>
+    </div>
+  </footer>
   <script src="/config.js"></script>
   <script src="/auth.js"></script>
+  <script src="/news/news.js"></script>
 </body>
 </html>

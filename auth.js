@@ -42,6 +42,10 @@ window.WiamAuth = {
         ? [
             ["/", "Home", "home"],
             ["/news/", "News", "news"],
+            ["/scores/", "Scores", "scores"],
+            ["/table/", "Table", "table"],
+            ["/odds/", "Odds", "odds"],
+            ["/follow/", "Follow", "follow"],
             ["/engines/", "Product", "product"],
             ["/pricing/", "Pricing", "pricing"],
             ["/account/", "Dashboard", "account"],
@@ -50,6 +54,9 @@ window.WiamAuth = {
         : [
             ["/", "Home", "home"],
             ["/news/", "News", "news"],
+            ["/scores/", "Scores", "scores"],
+            ["/table/", "Table", "table"],
+            ["/odds/", "Odds", "odds"],
             ["/engines/", "Product", "product"],
             ["/pricing/", "Pricing", "pricing"],
             ["/register/", "Register", "register"],
@@ -63,6 +70,24 @@ window.WiamAuth = {
           return "<a" + (on ? ' class="active"' : "") + ' href="' + row[0] + '">' + row[1] + "</a>";
         })
         .join("");
+      nav.classList.remove("open");
+      var head = nav.closest(".site-head, .news-top-inner, header") || nav.parentElement;
+      if (!head) return;
+      var btn = head.querySelector(".nav-toggle");
+      if (!btn) {
+        btn = document.createElement("button");
+        btn.className = "nav-toggle";
+        btn.type = "button";
+        btn.setAttribute("aria-label", "Menu");
+        btn.innerHTML = "<span></span><span></span><span></span>";
+        nav.parentNode.insertBefore(btn, nav);
+        btn.addEventListener("click", function () {
+          var open = !nav.classList.contains("open");
+          nav.classList.toggle("open", open);
+          btn.classList.toggle("open", open);
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+      }
     });
   },
 };

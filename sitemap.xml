@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://sports.wiamlabs.com/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/news/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/news/foreign/football/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/news/local/football/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/news/local/boxing/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/scores/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/table/</loc></url>
+  <url><loc>https://sports.wiamlabs.com/odds/</loc></url>
   <url><loc>https://sports.wiamlabs.com/engines/</loc></url>
   <url><loc>https://sports.wiamlabs.com/pricing/</loc></url>
   <url><loc>https://sports.wiamlabs.com/get-key/</loc></url>

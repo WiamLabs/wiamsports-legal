@@ -1,4 +1,4 @@
-/* WiamSports News mock data. Sample stories only. */
+/* WiamSports News — live desk. Stories come from Studio, not sample copy. */
 window.WiamNews = (function () {
   var SPORTS = {
     foreign: [
@@ -13,233 +13,63 @@ window.WiamNews = (function () {
       ["basketball", "Basketball"],
       ["tennis", "Tennis"],
       ["athletics", "Athletics"],
+      ["boxing", "Boxing"],
     ],
   };
 
-  var STORIES = [
-    {
-      id: "ff1",
-      desk: "foreign",
-      sport: "football",
-      live: true,
-      title: "Night kick-off: a late winner splits a tight European tie",
-      summary: "One image from the desk. Floodlights, a packed stand, and a finish that decided the tie in added time.",
-      body: "This is a layout sample. When News is live, the desk will send the story from Telegram with one photograph. The site will show that picture, the headline, and the sport — nothing extra invented around it.",
-      image: "/news/img/news-foreign-football-hero.png",
-      time: "12 min",
-    },
-    {
-      id: "ff2",
-      desk: "foreign",
-      sport: "football",
-      title: "Midfield duel: two sides refuse to give the air",
-      summary: "A set-piece afternoon that turned on the second ball.",
-      body: "Sample copy for the football desk. Live stories will arrive from Telegram, one photograph each.",
-      image: "/news/img/news-foreign-football-2.png",
-      time: "1 h",
-    },
-    {
-      id: "ff3",
-      desk: "foreign",
-      sport: "football",
-      title: "What the second half changed — and what it did not",
-      summary: "Shape held. The finish did not.",
-      body: "Sample copy for the football desk.",
-      image: "/news/img/news-foreign-football-2.png",
-      time: "3 h",
-    },
-    {
-      id: "fb1",
-      desk: "foreign",
-      sport: "basketball",
-      title: "Last possession: the rim decides it",
-      summary: "A packed arena, one trip to the line, and a finish at the horn.",
-      body: "Sample basketball story. One photograph from the desk.",
-      image: "/news/img/news-basketball.png",
-      time: "40 min",
-    },
-    {
-      id: "fb2",
-      desk: "foreign",
-      sport: "basketball",
-      title: "Inside the paint: why this side keeps winning ugly",
-      summary: "Rebounds first. The rest follows.",
-      body: "Sample basketball story.",
-      image: "/news/img/news-basketball.png",
-      time: "5 h",
-    },
-    {
-      id: "ft1",
-      desk: "foreign",
-      sport: "tennis",
-      title: "Grass-court afternoon: a hold that would not break",
-      summary: "Long games, short points, and a tie-break that ran long.",
-      body: "Sample tennis story. One photograph from the desk.",
-      image: "/news/img/news-tennis.png",
-      time: "2 h",
-    },
-    {
-      id: "ft2",
-      desk: "foreign",
-      sport: "tennis",
-      title: "The return that flipped the set",
-      summary: "One swing from the baseline changed the afternoon.",
-      body: "Sample tennis story.",
-      image: "/news/img/news-tennis.png",
-      time: "6 h",
-    },
-    {
-      id: "fa1",
-      desk: "foreign",
-      sport: "athletics",
-      title: "Out of the blocks: a championship 100m that stayed bunched",
-      summary: "Eight lanes, one dip, and a photo that the desk will run as the story.",
-      body: "Sample athletics story. One photograph from the desk.",
-      image: "/news/img/news-athletics.png",
-      time: "25 min",
-    },
-    {
-      id: "fa2",
-      desk: "foreign",
-      sport: "athletics",
-      title: "Lap times, not noise: what the 800m actually showed",
-      summary: "The kick came off the last bend.",
-      body: "Sample athletics story.",
-      image: "/news/img/news-athletics.png",
-      time: "4 h",
-    },
-    {
-      id: "fx1",
-      desk: "foreign",
-      sport: "boxing",
-      title: "Under the lights: a clinch, then the round that mattered",
-      summary: "The ring photograph is the story. The desk will not dress it with extra graphics.",
-      body: "Sample boxing story. Boxing sits on Foreign Sports only in this mock.",
-      image: "/news/img/news-boxing.png",
-      time: "18 min",
-    },
-    {
-      id: "fx2",
-      desk: "foreign",
-      sport: "boxing",
-      title: "Judges’ cards and the round people will argue",
-      summary: "Close. Honest. One picture from ringside.",
-      body: "Sample boxing story.",
-      image: "/news/img/news-boxing.png",
-      time: "8 h",
-    },
-    {
-      id: "lf1",
-      desk: "local",
-      sport: "football",
-      title: "Local derby afternoon: the stand was the story before kick-off",
-      summary: "Ghana football on the local desk. One photograph, one headline.",
-      body: "Sample local football story. Live posts will come from Telegram with one image. This page is the arrangement — not a live score feed.",
-      image: "/news/img/news-local-football.png",
-      time: "9 min",
-    },
-    {
-      id: "lf2",
-      desk: "local",
-      sport: "football",
-      title: "Black Stars week: who is in, who is waiting",
-      summary: "A camp photograph and a clean list. Nothing more until the desk files.",
-      body: "Sample local football story.",
-      image: "/news/img/news-local-football.png",
-      time: "2 h",
-    },
-    {
-      id: "lf3",
-      desk: "local",
-      sport: "football",
-      title: "League Saturday: three matches, three pictures",
-      summary: "The local desk files one image per match story.",
-      body: "Sample local football story.",
-      image: "/news/img/news-local-football.png",
-      time: "7 h",
-    },
-    {
-      id: "lb1",
-      desk: "local",
-      sport: "basketball",
-      title: "Accra court: the run that closed the fourth",
-      summary: "Local basketball, one photograph, no extra collage.",
-      body: "Sample local basketball story.",
-      image: "/news/img/news-local-basketball.png",
-      time: "33 min",
-    },
-    {
-      id: "lb2",
-      desk: "local",
-      sport: "basketball",
-      title: "Youth side by side with the senior sheet",
-      summary: "Same court. Different hour.",
-      body: "Sample local basketball story.",
-      image: "/news/img/news-local-basketball.png",
-      time: "1 d",
-    },
-    {
-      id: "lt1",
-      desk: "local",
-      sport: "tennis",
-      title: "Home hard court: a junior final that ran long",
-      summary: "Local tennis on the same white feed as the foreign desk.",
-      body: "Sample local tennis story.",
-      image: "/news/img/news-tennis.png",
-      time: "4 h",
-    },
-    {
-      id: "la1",
-      desk: "local",
-      sport: "athletics",
-      title: "National trials: the 400m that the stand came to see",
-      summary: "Athletics on the local desk. Boxing is not on this tap.",
-      body: "Sample local athletics story. Local Sports in this mock is Football, Basketball, Tennis, and Athletics.",
-      image: "/news/img/news-athletics.png",
-      time: "55 min",
-    },
-    {
-      id: "la2",
-      desk: "local",
-      sport: "athletics",
-      title: "Field events before the lights",
-      summary: "One photograph from the pit. The desk keeps it that way.",
-      body: "Sample local athletics story.",
-      image: "/news/img/news-athletics.png",
-      time: "11 h",
-    },
-  ];
-
-  function params() {
-    var q = new URLSearchParams(location.search);
-    var fromStory = byId(q.get("id") || "");
-    if (fromStory) return { desk: fromStory.desk, sport: fromStory.sport };
-    var desk = q.get("desk") === "local" ? "local" : "foreign";
-    var allowed = SPORTS[desk].map(function (row) { return row[0]; });
-    var sport = q.get("sport") || allowed[0];
-    if (allowed.indexOf(sport) === -1) sport = allowed[0];
-    return { desk: desk, sport: sport };
+  function api() {
+    return window.WIAM_ENGINES_API || "";
   }
 
-  function href(desk, sport) {
-    return "/news/?desk=" + desk + "&sport=" + sport;
-  }
-
-  function storyHref(id) {
-    return "/news/story/?id=" + encodeURIComponent(id);
-  }
-
-  function filtered(desk, sport) {
-    return STORIES.filter(function (s) {
-      return s.desk === desk && s.sport === sport;
+  function esc(s) {
+    return String(s || "").replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
 
-  function byId(id) {
-    for (var i = 0; i < STORIES.length; i++) {
-      if (STORIES[i].id === id) return STORIES[i];
+  function photoSrc(path) {
+    if (!path) return "";
+    if (/^https?:/i.test(path)) return path;
+    return api() + path;
+  }
+
+  function ago(iso) {
+    var t = Date.parse(iso || "");
+    if (!t) return "";
+    var m = Math.round((Date.now() - t) / 60000);
+    if (m < 1) return "now";
+    if (m < 60) return m + " min";
+    var h = Math.round(m / 60);
+    if (h < 48) return h + " h";
+    return Math.round(h / 24) + " d";
+  }
+
+  function parsePath() {
+    var p = (location.pathname || "/").replace(/\/+$/, "") || "/";
+    var parts = p.split("/").filter(Boolean);
+    if (parts[0] === "news" && parts[1] === "story" && parts[2]) {
+      return { mode: "story", slug: decodeURIComponent(parts[2]) };
     }
-    return null;
+    if (parts[0] === "news" && parts[1] && parts[2]) {
+      var desk = parts[1] === "local" ? "local" : "foreign";
+      var allowed = SPORTS[desk].map(function (row) { return row[0]; });
+      var sport = allowed.indexOf(parts[2]) >= 0 ? parts[2] : "football";
+      return { mode: "feed", desk: desk, sport: sport };
+    }
+    if (parts[0] === "search") {
+      return { mode: "search", q: new URLSearchParams(location.search).get("q") || "" };
+    }
+    if (p === "/" || p === "") return { mode: "home" };
+    if (parts[0] === "news") return { mode: "hub" };
+    return { mode: "home" };
+  }
+
+  function href(desk, sport) {
+    return "/news/" + desk + "/" + sport + "/";
+  }
+
+  function storyHref(slug) {
+    return "/news/story/" + encodeURIComponent(slug) + "/";
   }
 
   function sportLabel(desk, sport) {
@@ -250,106 +80,81 @@ window.WiamNews = (function () {
     return sport;
   }
 
-  function meta(story) {
-    var live = story.live
-      ? '<span class="cat">Live</span> · '
-      : "";
+  function meta(story, live) {
+    var mark = live ? '<span class="cat">Live</span> · ' : "";
     return (
       '<p class="meta-line">' +
-      live +
+      mark +
       '<span class="cat">' +
-      sportLabel(story.desk, story.sport) +
+      esc(story.sport_label || sportLabel(story.desk, story.sport)) +
       "</span> · " +
-      story.time +
+      esc(ago(story.published_at)) +
       "</p>"
     );
   }
 
-  function paintChrome() {
-    var p = params();
+  function storyCard(story, kind, live) {
+    var img = photoSrc(story.photo);
+    var pic = img
+      ? '<img src="' + esc(img) + '" alt="">'
+      : '<div class="thumb-empty"></div>';
+    if (kind === "hero") {
+      return (
+        '<a class="hero" href="' + esc(storyHref(story.slug)) + '">' +
+        '<div class="hero-frame">' + pic + "</div>" +
+        '<p class="hero-kicker">' + esc(story.desk_label || "") + "</p>" +
+        "<h1>" + esc(story.title) + "</h1>" +
+        '<p class="dek">' + esc(story.summary || "") + "</p>" +
+        meta(story, live) +
+        "</a>"
+      );
+    }
+    if (kind === "grid") {
+      return (
+        '<a class="card-story" href="' + esc(storyHref(story.slug)) + '">' +
+        '<div class="thumb">' + pic + "</div>" +
+        "<h3>" + esc(story.title) + "</h3>" +
+        meta(story, false) +
+        "</a>"
+      );
+    }
+    return (
+      '<a class="story-row" href="' + esc(storyHref(story.slug)) + '">' +
+      pic +
+      "<div><h3>" + esc(story.title) + "</h3>" + meta(story, false) + "</div>" +
+      "</a>"
+    );
+  }
+
+  function emptyDesk(title, copy) {
+    return (
+      "<h1>" + esc(title) + "</h1>" +
+      '<p class="dek">' + esc(copy) + "</p>"
+    );
+  }
+
+  function paintChrome(p) {
     var desks = document.getElementById("desks");
     var sports = document.getElementById("sports");
     var menu = document.getElementById("menu");
+    var desk = (p && p.desk) || "foreign";
+    var sport = (p && p.sport) || "football";
     if (desks) {
       desks.innerHTML =
-        '<a class="' + (p.desk === "foreign" ? "active" : "") + '" href="' + href("foreign", "football") + '">Foreign Sports</a>' +
-        '<a class="' + (p.desk === "local" ? "active" : "") + '" href="' + href("local", "football") + '">Local Sports</a>';
+        '<a class="' + (desk === "foreign" ? "active" : "") + '" href="' + href("foreign", "football") + '">Foreign Sports</a>' +
+        '<a class="' + (desk === "local" ? "active" : "") + '" href="' + href("local", "football") + '">Local Sports</a>';
     }
     function sportLinks(into) {
-      into.innerHTML = SPORTS[p.desk]
+      if (!into) return;
+      into.innerHTML = SPORTS[desk]
         .map(function (row) {
-          var on = row[0] === p.sport ? "active" : "";
-          return '<a class="' + on + '" href="' + href(p.desk, row[0]) + '">' + row[1] + "</a>";
+          var on = row[0] === sport ? "active" : "";
+          return '<a class="' + on + '" href="' + href(desk, row[0]) + '">' + row[1] + "</a>";
         })
         .join("");
     }
-    if (sports) sportLinks(sports);
-    if (menu) sportLinks(menu);
-  }
-
-  function paintFeed() {
-    var root = document.getElementById("feed");
-    if (!root) return;
-    var p = params();
-    var rows = filtered(p.desk, p.sport);
-    var deskName = p.desk === "local" ? "Local Sports" : "Foreign Sports";
-    var label = sportLabel(p.desk, p.sport);
-    if (!rows.length) {
-      root.innerHTML =
-        '<p class="mock-note">Sample layout — not live news. The desk has not filed this sport yet.</p>' +
-        "<h1>" + deskName + " · " + label + "</h1>" +
-        "<p>Stories will appear here when the news desk files them from Telegram — one image each.</p>";
-      return;
-    }
-    var hero = rows[0];
-    var rest = rows.slice(1);
-    var grid = rest.slice(0, 2);
-    var list = rest.slice(2);
-    var html = "";
-    html += '<p class="mock-note">Sample layout — not live news. One image per story, the way the desk will file from Telegram.</p>';
-    html += '<a class="hero" href="' + storyHref(hero.id) + '">';
-    html += '<div class="hero-frame"><img src="' + hero.image + '" alt=""></div>';
-    html += '<p class="hero-kicker">' + deskName + "</p>";
-    html += "<h1>" + hero.title + "</h1>";
-    html += '<p class="dek">' + hero.summary + "</p>";
-    html += meta(hero);
-    html += "</a>";
-    if (grid.length) {
-      html += "<h2>More " + label + "</h2>";
-      html += '<div class="grid-2">';
-      grid.forEach(function (s) {
-        html += '<a class="card-story" href="' + storyHref(s.id) + '">';
-        html += '<div class="thumb"><img src="' + s.image + '" alt=""></div>';
-        html += "<h3>" + s.title + "</h3>";
-        html += meta(s);
-        html += "</a>";
-      });
-      html += "</div>";
-    }
-    list.forEach(function (s) {
-      html += '<a class="story-row" href="' + storyHref(s.id) + '">';
-      html += '<img src="' + s.image + '" alt="">';
-      html += "<div><h3>" + s.title + "</h3>" + meta(s) + "</div>";
-      html += "</a>";
-    });
-    root.innerHTML = html;
-  }
-
-  function paintStory() {
-    var root = document.getElementById("article");
-    if (!root) return;
-    var id = new URLSearchParams(location.search).get("id") || "";
-    var story = byId(id) || STORIES[0];
-    var deskName = story.desk === "local" ? "Local Sports" : "Foreign Sports";
-    root.innerHTML =
-      '<p class="mock-note"><a href="' + href(story.desk, story.sport) + '">← ' + deskName + " · " + sportLabel(story.desk, story.sport) + "</a></p>" +
-      '<p class="hero-kicker">' + deskName + "</p>" +
-      "<h1>" + story.title + "</h1>" +
-      meta(story) +
-      '<div class="frame"><img src="' + story.image + '" alt=""></div>' +
-      '<p class="dek">' + story.summary + "</p>" +
-      '<p class="body">' + story.body + "</p>" +
-      '<p class="body">WiamSports News will stay on this white page so the photograph is the picture, not a decoration on a dark card. The green and gold stay in the bars above.</p>';
+    sportLinks(sports);
+    sportLinks(menu);
   }
 
   function bindMenu() {
@@ -361,11 +166,194 @@ window.WiamNews = (function () {
     });
   }
 
+  function getJson(path) {
+    return fetch(api() + path).then(function (r) {
+      return r.json();
+    });
+  }
+
+  function paintFeedList(root, stories, title, liveSlug) {
+    if (!stories.length) {
+      root.innerHTML = emptyDesk(
+        title,
+        "The desk has not filed this sport yet. When Studio publishes, the story appears here."
+      );
+      return;
+    }
+    var hero = stories[0];
+    var rest = stories.slice(1);
+    var grid = rest.slice(0, 2);
+    var list = rest.slice(2);
+    var html = "";
+    html += storyCard(hero, "hero", liveSlug ? hero.slug === liveSlug : true);
+    if (grid.length) {
+      html += "<h2>More</h2><div class=\"grid-2\">";
+      grid.forEach(function (s) {
+        html += storyCard(s, "grid", false);
+      });
+      html += "</div>";
+    }
+    list.forEach(function (s) {
+      html += storyCard(s, "row", false);
+    });
+    root.innerHTML = html;
+  }
+
+  function paintHome() {
+    var root = document.getElementById("feed");
+    if (!root) return;
+    paintChrome({ desk: "foreign", sport: "football" });
+    getJson("/v1/public/news/home")
+      .then(function (data) {
+        var live = data.live;
+        var feed = data.feed || [];
+        var trending = data.trending || [];
+        if (!live && !feed.length) {
+          root.innerHTML = emptyDesk(
+            "WiamSports News",
+            "Live stories land here for 48 hours after the desk publishes. Nothing is invented to fill the page."
+          );
+          return;
+        }
+        var html = "";
+        if (live) html += storyCard(live, "hero", true);
+        if (feed.length) {
+          html += "<h2>Latest</h2>";
+          var grid = feed.slice(0, 2);
+          var list = feed.slice(2);
+          if (grid.length) {
+            html += '<div class="grid-2">';
+            grid.forEach(function (s) {
+              html += storyCard(s, "grid", false);
+            });
+            html += "</div>";
+          }
+          list.forEach(function (s) {
+            html += storyCard(s, "row", false);
+          });
+        }
+        if (trending.length) {
+          html += "<h2>Trending</h2>";
+          trending.forEach(function (s) {
+            html += storyCard(s, "row", false);
+          });
+        } else {
+          html += '<p class="mock-note">Trending fills when people actually open stories. We do not seed it.</p>';
+        }
+        root.innerHTML = html;
+      })
+      .catch(function () {
+        root.innerHTML = emptyDesk("WiamSports News", "News is not reachable right now.");
+      });
+  }
+
+  function paintHub() {
+    var root = document.getElementById("feed");
+    if (!root) return;
+    paintChrome({ desk: "foreign", sport: "football" });
+    root.innerHTML =
+      "<h1>News</h1>" +
+      '<p class="dek">Foreign Sports and Local Sports. Football, basketball, tennis, athletics, boxing on both desks.</p>' +
+      '<div class="grid-2">' +
+      '<a class="card-story" href="/news/foreign/football/"><h3>Foreign Sports</h3><p class="meta-line">World desks</p></a>' +
+      '<a class="card-story" href="/news/local/football/"><h3>Local Sports</h3><p class="meta-line">Ghana desks · boxing included</p></a>' +
+      "</div>";
+  }
+
+  function paintFeed() {
+    var root = document.getElementById("feed");
+    if (!root) return;
+    var p = parsePath();
+    paintChrome(p);
+    var title = (p.desk === "local" ? "Local Sports" : "Foreign Sports") + " · " + sportLabel(p.desk, p.sport);
+    getJson("/v1/public/news/feed?desk=" + encodeURIComponent(p.desk) + "&sport=" + encodeURIComponent(p.sport))
+      .then(function (data) {
+        paintFeedList(root, data.stories || [], title, null);
+      })
+      .catch(function () {
+        root.innerHTML = emptyDesk(title, "News is not reachable right now.");
+      });
+  }
+
+  function paintStory() {
+    var root = document.getElementById("article");
+    if (!root) return;
+    var p = parsePath();
+    var slug = p.slug || "";
+    getJson("/v1/public/news/story/" + encodeURIComponent(slug))
+      .then(function (data) {
+        var story = data.story;
+        if (!story) {
+          root.innerHTML = emptyDesk("Story", "That story is not on the site.");
+          return;
+        }
+        paintChrome({ desk: story.desk, sport: story.sport });
+        var img = photoSrc(story.photo);
+        root.innerHTML =
+          '<p class="mock-note"><a href="' + href(story.desk, story.sport) + '">← ' +
+          esc(story.desk_label) + " · " + esc(story.sport_label) + "</a></p>" +
+          '<p class="hero-kicker">' + esc(story.desk_label) + "</p>" +
+          "<h1>" + esc(story.title) + "</h1>" +
+          meta(story, false) +
+          (img ? '<div class="frame"><img src="' + esc(img) + '" alt=""></div>' : "") +
+          '<p class="dek">' + esc(story.summary || "") + "</p>" +
+          '<p class="body">' + esc(story.body || "").replace(/\n/g, "</p><p class=\"body\">") + "</p>";
+        fetch(api() + "/v1/public/news/view/" + encodeURIComponent(story.slug), { method: "POST" }).catch(function () {});
+      })
+      .catch(function () {
+        root.innerHTML = emptyDesk("Story", "News is not reachable right now.");
+      });
+  }
+
+  function paintSearch() {
+    var root = document.getElementById("feed") || document.getElementById("article");
+    if (!root) return;
+    var q = new URLSearchParams(location.search).get("q") || "";
+    paintChrome({ desk: "foreign", sport: "football" });
+    if (q.length < 2) {
+      root.innerHTML = emptyDesk("Search", "Type at least two letters.");
+      return;
+    }
+    getJson("/v1/public/news/search?q=" + encodeURIComponent(q))
+      .then(function (data) {
+        var rows = data.stories || [];
+        if (!rows.length) {
+          root.innerHTML = emptyDesk("Search", "No story matched “" + q + "”.");
+          return;
+        }
+        var html = "<h1>Search</h1>";
+        rows.forEach(function (s) {
+          html += storyCard(s, "row", false);
+        });
+        root.innerHTML = html;
+      })
+      .catch(function () {
+        root.innerHTML = emptyDesk("Search", "News is not reachable right now.");
+      });
+  }
+
+  function redirectLegacyQuery() {
+    var q = new URLSearchParams(location.search);
+    var desk = q.get("desk");
+    var sport = q.get("sport");
+    var id = q.get("id");
+    if (id && location.pathname.indexOf("/news/story") === 0) return false;
+    if (desk || sport) {
+      location.replace(href(desk === "local" ? "local" : "foreign", sport || "football"));
+      return true;
+    }
+    return false;
+  }
+
   function boot() {
-    paintChrome();
-    paintFeed();
-    paintStory();
+    if (redirectLegacyQuery()) return;
     bindMenu();
+    var p = parsePath();
+    if (p.mode === "story") paintStory();
+    else if (p.mode === "feed") paintFeed();
+    else if (p.mode === "search") paintSearch();
+    else if (p.mode === "hub") paintHub();
+    else paintHome();
   }
 
   if (document.readyState === "loading") {
@@ -374,5 +362,5 @@ window.WiamNews = (function () {
     boot();
   }
 
-  return { params: params, byId: byId };
+  return { parsePath: parsePath, href: href };
 })();

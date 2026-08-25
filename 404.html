@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiamSports</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css">
+  <link rel="stylesheet" href="/news/news.css">
+</head>
+<body class="news-page">
+  <header class="news-top">
+    <div class="news-shell news-top-inner">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports">
+      </a>
+      <nav class="topnav" data-nav="home"></nav>
+    </div>
+    <div class="news-brandbar">
+      <div class="news-shell news-brandbar-inner">
+        <strong>WIAMSPORTS</strong>
+        <button class="menu-btn" type="button" id="menu-btn">Sports</button>
+      </div>
+    </div>
+    <nav class="news-desks news-shell" id="desks"></nav>
+    <nav class="news-menu" id="menu" aria-label="Sports"></nav>
+    <nav class="news-sports news-shell" id="sports"></nav>
+  </header>
+  <main class="news-feed" id="feed"></main>
+  <article class="article" id="article"></article>
+  <main class="news-feed" id="board"></main>
+  <p class="news-feed" id="not-found" hidden style="padding:24px 16px">That page is not on this site. <a href="/">Home</a></p>
+  <footer class="news-foot">
+    <div class="news-shell">
+      <p class="copy">© 2026 WiamLabs. Entertainment. 18+.</p>
+    </div>
+  </footer>
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    (function () {
+      var p = location.pathname || "/";
+      if (/^\/news\/story\//.test(p) || /^\/news\//.test(p) || p === "/" || /^\/search\//.test(p)) {
+        var s = document.createElement("script");
+        s.src = "/news/news.js";
+        document.body.appendChild(s);
+        return;
+      }
+      if (/^\/(scores|table|odds|follow)\//.test(p)) {
+        var b = document.createElement("script");
+        b.src = "/scores/board.js";
+        document.body.appendChild(b);
+        return;
+      }
+      var nf = document.getElementById("not-found");
+      if (nf) nf.hidden = false;
+    })();
+  </script>
+</body>
+</html>
