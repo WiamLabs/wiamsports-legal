@@ -226,6 +226,12 @@ window.WiamBoard = (function () {
   }
 
   function boot() {
+    document.querySelectorAll(".news-boards a").forEach(function (a) {
+      var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+      var here = (location.pathname || "/").replace(/\/+$/, "") || "/";
+      var on = href !== "/news" && here.indexOf(href) === 0;
+      a.classList.toggle("active", on);
+    });
     var root = document.getElementById("board");
     if (!root) return;
     var k = kind();

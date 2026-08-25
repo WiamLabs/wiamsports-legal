@@ -42,10 +42,6 @@ window.WiamAuth = {
         ? [
             ["/", "Home", "home"],
             ["/news/", "News", "news"],
-            ["/scores/", "Scores", "scores"],
-            ["/table/", "Table", "table"],
-            ["/odds/", "Odds", "odds"],
-            ["/follow/", "Follow", "follow"],
             ["/engines/", "Product", "product"],
             ["/pricing/", "Pricing", "pricing"],
             ["/account/", "Dashboard", "account"],
@@ -54,9 +50,6 @@ window.WiamAuth = {
         : [
             ["/", "Home", "home"],
             ["/news/", "News", "news"],
-            ["/scores/", "Scores", "scores"],
-            ["/table/", "Table", "table"],
-            ["/odds/", "Odds", "odds"],
             ["/engines/", "Product", "product"],
             ["/pricing/", "Pricing", "pricing"],
             ["/register/", "Register", "register"],

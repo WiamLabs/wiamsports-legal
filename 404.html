@@ -18,10 +18,17 @@
     </div>
     <div class="news-brandbar">
       <div class="news-shell news-brandbar-inner">
-        <strong>WIAMSPORTS</strong>
+        <a class="news-word" href="/news/"><strong>NEWS</strong></a>
         <button class="menu-btn" type="button" id="menu-btn">Sports</button>
       </div>
     </div>
+    <nav class="news-boards news-shell" aria-label="News home and boards">
+      <a href="/news/">Home</a>
+      <a href="/scores/">Scores</a>
+      <a href="/table/">Table</a>
+      <a href="/odds/">Odds</a>
+      <a href="/follow/">Follow</a>
+    </nav>
     <nav class="news-desks news-shell" id="desks"></nav>
     <nav class="news-menu" id="menu" aria-label="Sports"></nav>
     <nav class="news-sports news-shell" id="sports"></nav>
@@ -40,7 +47,7 @@
   <script>
     (function () {
       var p = location.pathname || "/";
-      if (/^\/news\/story\//.test(p) || /^\/news\//.test(p) || p === "/" || /^\/search\//.test(p)) {
+      if (/^\/news\//.test(p) || /^\/search\//.test(p)) {
         var s = document.createElement("script");
         s.src = "/news/news.js";
         document.body.appendChild(s);

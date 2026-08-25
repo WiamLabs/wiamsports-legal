@@ -56,12 +56,11 @@ window.WiamNews = (function () {
       var sport = allowed.indexOf(parts[2]) >= 0 ? parts[2] : "football";
       return { mode: "feed", desk: desk, sport: sport };
     }
-    if (parts[0] === "search") {
+    if (parts[0] === "search" || (parts[0] === "news" && parts[1] === "search")) {
       return { mode: "search", q: new URLSearchParams(location.search).get("q") || "" };
     }
-    if (p === "/" || p === "") return { mode: "home" };
-    if (parts[0] === "news") return { mode: "hub" };
-    return { mode: "home" };
+    if (parts[0] === "news") return { mode: "home" };
+    return { mode: "none" };
   }
 
   function href(desk, sport) {
@@ -155,6 +154,14 @@ window.WiamNews = (function () {
     }
     sportLinks(sports);
     sportLinks(menu);
+    document.querySelectorAll(".news-boards a").forEach(function (a) {
+      var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+      var here = (location.pathname || "/").replace(/\/+$/, "") || "/";
+      var on = false;
+      if (href === "/news" && here === "/news") on = true;
+      if (href !== "/news" && here.indexOf(href) === 0) on = true;
+      a.classList.toggle("active", on);
+    });
   }
 
   function bindMenu() {
@@ -247,19 +254,6 @@ window.WiamNews = (function () {
       });
   }
 
-  function paintHub() {
-    var root = document.getElementById("feed");
-    if (!root) return;
-    paintChrome({ desk: "foreign", sport: "football" });
-    root.innerHTML =
-      "<h1>News</h1>" +
-      '<p class="dek">Foreign Sports and Local Sports. Football, basketball, tennis, athletics, boxing on both desks.</p>' +
-      '<div class="grid-2">' +
-      '<a class="card-story" href="/news/foreign/football/"><h3>Foreign Sports</h3><p class="meta-line">World desks</p></a>' +
-      '<a class="card-story" href="/news/local/football/"><h3>Local Sports</h3><p class="meta-line">Ghana desks · boxing included</p></a>' +
-      "</div>";
-  }
-
   function paintFeed() {
     var root = document.getElementById("feed");
     if (!root) return;
@@ -349,10 +343,10 @@ window.WiamNews = (function () {
     if (redirectLegacyQuery()) return;
     bindMenu();
     var p = parsePath();
+    if (p.mode === "none") return;
     if (p.mode === "story") paintStory();
     else if (p.mode === "feed") paintFeed();
     else if (p.mode === "search") paintSearch();
-    else if (p.mode === "hub") paintHub();
     else paintHome();
   }
 

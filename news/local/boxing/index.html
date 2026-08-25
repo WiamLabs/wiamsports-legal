@@ -19,14 +19,21 @@
     </div>
     <div class="news-brandbar">
       <div class="news-shell news-brandbar-inner">
-        <strong>NEWS</strong>
+      <a class="news-word" href="/news/"><strong>NEWS</strong></a>
         <button class="menu-btn" type="button" id="menu-btn">Sports</button>
       </div>
     </div>
+    <nav class="news-boards news-shell" aria-label="News home and boards">
+      <a href="/news/">Home</a>
+      <a href="/scores/">Scores</a>
+      <a href="/table/">Table</a>
+      <a href="/odds/">Odds</a>
+      <a href="/follow/">Follow</a>
+    </nav>
     <nav class="news-desks news-shell" id="desks"></nav>
     <nav class="news-menu" id="menu" aria-label="Sports"></nav>
     <nav class="news-sports news-shell" id="sports"></nav>
-    <form class="news-search news-shell" action="/search/" method="get">
+    <form class="news-search news-shell" action="/news/search/" method="get">
       <input type="search" name="q" placeholder="Search news" aria-label="Search news">
       <button type="submit">Search</button>
     </form>
@@ -37,20 +44,21 @@
       <div class="foot-grid">
         <div>
           <h2>News</h2>
+          <a href="/news/">News home</a>
           <a href="/news/foreign/football/">Foreign Sports</a>
           <a href="/news/local/football/">Local Sports</a>
-          <a href="/news/foreign/boxing/">Boxing</a>
-        </div>
-        <div>
-          <h2>Sports</h2>
-          <a href="/news/foreign/football/">Football</a>
-          <a href="/news/foreign/basketball/">Basketball</a>
           <a href="/news/local/boxing/">Local boxing</a>
         </div>
         <div>
-          <h2>WiamSports</h2>
-          <a href="/">Home</a>
+          <h2>Boards</h2>
           <a href="/scores/">Scores</a>
+          <a href="/table/">Table</a>
+          <a href="/odds/">Odds</a>
+        </div>
+        <div>
+          <h2>WiamSports</h2>
+          <a href="/">WiamSports</a>
+          <a href="/engines/">Product</a>
           <a href="/legal/">Legal</a>
         </div>
       </div>
