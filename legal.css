@@ -13,47 +13,65 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: radial-gradient(ellipse 90% 50% at 50% -10%, rgba(61, 220, 132, 0.12), transparent),
-              linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
   color: var(--text);
-  line-height: 1.7;
+  line-height: 1.65;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
-.wrap { max-width: 840px; margin: 0 auto; padding: 36px 20px 88px; }
+.wrap { max-width: 840px; margin: 0 auto; padding: 28px 22px 88px; }
+.site-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 36px;
+  padding: 4px 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.site-head .masthead { margin: 0; text-align: left; }
+.site-head .brand-mark {
+  width: 104px;
+  margin: 0;
+  filter: none;
+}
+.site-head .topnav { margin: 0; justify-content: flex-end; }
 .masthead { display: block; text-align: center; margin: 0 auto 20px; }
 .brand-mark {
   display: block;
   margin: 0 auto;
-  width: min(260px, 68vw);
+  width: min(160px, 48vw);
   height: auto;
-  filter: drop-shadow(0 16px 32px rgba(61, 220, 132, 0.28));
 }
 .footer-mark {
-  width: min(140px, 42vw);
+  width: 88px;
   margin-bottom: 14px;
-  filter: drop-shadow(0 8px 18px rgba(61, 220, 132, 0.2));
 }
-.topnav { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; align-items: center; margin-bottom: 28px; }
+.topnav { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; align-items: center; margin-bottom: 28px; }
 .brand { font-weight: 800; letter-spacing: 0.04em; color: var(--green); text-decoration: none; }
-.topnav a { color: var(--muted); text-decoration: none; font-size: 14px; }
+.topnav a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.01em; }
 .topnav a:hover, .topnav a.active { color: var(--green); }
 .badge {
   display: inline-block; background: #123322; color: var(--green);
   font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 8px 16px; border-radius: 999px; border: 1px solid #1f5a38; margin-bottom: 16px;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid #1f5a38; margin-bottom: 16px;
 }
-h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
+h1 { font-size: clamp(1.7rem, 4.2vw, 2.25rem); font-weight: 700; letter-spacing: -0.04em; margin-bottom: 12px; }
 .subtitle { color: var(--muted); max-width: 620px; margin-bottom: 18px; }
 .meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: var(--label); margin-bottom: 36px; }
 .meta span { background: var(--panel); border: 1px solid var(--line); padding: 6px 12px; border-radius: 10px; }
 nav.toc { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 28px; margin-bottom: 28px; }
 nav.toc h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--label); margin-bottom: 12px; border: 0; padding: 0; }
 nav.toc ol { columns: 2; column-gap: 28px; padding-left: 20px; }
-@media (max-width: 640px) { nav.toc ol { columns: 1; } }
+@media (max-width: 640px) {
+  nav.toc ol { columns: 1; }
+  .site-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .site-head .topnav { justify-content: flex-start; }
+}
 nav.toc a { color: var(--green); text-decoration: none; font-size: 14px; }
 nav.toc a:hover { text-decoration: underline; color: var(--gold); }
-section { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 28px 32px; margin-bottom: 16px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px 28px; margin-bottom: 14px; }
 h2 { font-size: 1.25rem; color: var(--green-dim); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 h3 { font-size: 1rem; color: var(--gold); margin: 18px 0 8px; }
 p, li { color: #d5e8dc; font-size: 15px; margin-bottom: 10px; }

@@ -11,19 +11,12 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="masthead" href="/">
-      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
-    </a>
-    <div class="topnav">
-      <a href="/">Home</a>
-      <a href="/engines/">Product</a>
-      <a href="/pricing/">Pricing</a>
-      <a href="/register/">Register</a>
-      <a class="active" href="/login/">Sign in</a>
-      <a href="/account/">Dashboard</a>
-      <a href="/docs/">Docs</a>
-      <a href="/legal/">Legal</a>
-    </div>
+    <header class="site-head">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+      </a>
+      <nav class="topnav" data-nav="login"></nav>
+    </header>
     <div class="badge">WiamSports account</div>
     <h1>Sign in</h1>
     <p class="subtitle">Same account as the one you confirmed by email. Your Free key lives here.</p>
@@ -49,9 +42,10 @@
   <script>
     const params = new URLSearchParams(location.search);
     const code = params.get("c") || "";
+    const next = WiamAuth.safeNext(params.get("next"));
     const regLink = document.getElementById("reg-link");
     if (code) regLink.href = "/register/?c=" + encodeURIComponent(code);
-    if (WiamAuth.session()) location.replace("/account/");
+    if (WiamAuth.session()) location.replace(next);
     const form = document.getElementById("login-form");
     const msg = document.getElementById("msg");
     const btn = document.getElementById("submit");
@@ -76,7 +70,7 @@
           msg.textContent = data.message || "Could not sign in.";
         } else {
           WiamAuth.setSession(data.session);
-          location.replace("/account/");
+          location.replace(next);
         }
       } catch (err) {
         msg.className = "msg err";

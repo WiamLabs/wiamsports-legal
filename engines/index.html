@@ -11,18 +11,12 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="masthead" href="/">
-      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
-    </a>
-    <div class="topnav">
-      <a href="/">Home</a>
-      <a class="active" href="/engines/">Product</a>
-      <a href="/pricing/">Pricing</a>
-      <a href="/register/">Register</a>
-      <a href="/login/">Sign in</a>
-      <a href="/docs/">Docs</a>
-      <a href="/legal/">Legal</a>
-    </div>
+    <header class="site-head">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+      </a>
+      <nav class="topnav" data-nav="product"></nav>
+    </header>
     <div class="badge">Wiam Engines</div>
     <h1>A hosted read. Not a file to install.</h1>
     <p class="subtitle">Name <code>wiamsports</code> in the request. We run it on our side and return JSON.</p>
@@ -43,5 +37,7 @@
       <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
     </footer>
   </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
 </body>
 </html>

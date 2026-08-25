@@ -8,23 +8,28 @@
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
   <link rel="stylesheet" href="/engines.css">
+  <script src="/config.js"></script>
+  <script src="/auth.js"></script>
+  <script>WiamAuth.requireSession();</script>
 </head>
 <body>
-  <div class="wrap">
-    <a class="masthead" href="/">
-      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
-    </a>
-    <div class="topnav">
-      <a href="/">Home</a>
-      <a href="/engines/">Product</a>
-      <a href="/pricing/">Pricing</a>
-      <a href="/register/">Register</a>
-      <a href="/login/">Sign in</a>
-      <a class="active" href="/docs/">Docs</a>
-      <a href="/legal/">Legal</a>
-    </div>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+      </a>
+      <nav class="topnav" data-nav="docs"></nav>
+    </header>
     <div class="badge">Free plan</div>
     <h1>What Free actually gives</h1>
+    <nav class="dash-nav" aria-label="Dashboard">
+      <a href="/account/#profile">Profile</a>
+      <a href="/account/#api">API</a>
+      <a href="/account/#channels">Channels</a>
+      <a href="/account/#affiliate">Affiliate</a>
+      <a class="active" href="/docs/">Docs</a>
+      <a href="/account/#settings">Settings</a>
+    </nav>
     <section>
       <ul>
         <li>Ghana tomorrow</li>
@@ -33,7 +38,7 @@
         <li>Max 5 fixtures per call</li>
       </ul>
       <p>Some matches are not on Free. Those return 403. That is enough to integrate. It is not our full product.</p>
-      <p><a href="/register/">Create a WiamSports account</a> · <a href="/docs/">All docs</a></p>
+      <p><a href="/docs/">All docs</a></p>
     </section>
     <footer>
       <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">

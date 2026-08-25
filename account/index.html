@@ -12,17 +12,12 @@
 </head>
 <body>
   <div class="wrap wrap-wide">
-    <a class="masthead" href="/">
-      <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
-    </a>
-    <div class="topnav">
-      <a href="/">Home</a>
-      <a href="/engines/">Product</a>
-      <a href="/pricing/">Pricing</a>
-      <a href="/docs/">Docs</a>
-      <a class="active" href="/account/">Dashboard</a>
-      <a href="/legal/">Legal</a>
-    </div>
+    <header class="site-head">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+      </a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
     <div class="badge">Your dashboard</div>
     <h1>WiamSports</h1>
     <p class="subtitle" id="sub">Loading your profile…</p>
@@ -31,6 +26,7 @@
       <a href="#api">API</a>
       <a href="#channels">Channels</a>
       <a href="#affiliate">Affiliate</a>
+      <a href="/docs/">Docs</a>
       <a href="#settings">Settings</a>
     </nav>
     <p class="msg" id="msg"></p>
@@ -97,7 +93,7 @@
   <script>
     const msg = document.getElementById("msg");
     const sub = document.getElementById("sub");
-    if (!WiamAuth.session()) location.replace("/login/");
+    if (!WiamAuth.session()) location.replace("/login/?next=" + encodeURIComponent("/account/"));
     document.getElementById("out").addEventListener("click", () => {
       WiamAuth.clear();
       location.replace("/login/");
@@ -127,6 +123,18 @@
         if (!res.ok) {
           WiamAuth.clear();
           location.replace("/login/");
+          return;
+        }
+        if (!data.email_verified) {
+          sub.textContent = "Confirm your email first. Open the link we sent, then come back here.";
+          const nav = document.querySelector(".dash-nav");
+          if (nav) nav.hidden = true;
+          const stats = document.querySelector(".stat-grid");
+          if (stats) stats.hidden = true;
+          ["profile", "api", "channels", "affiliate", "settings"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.hidden = true;
+          });
           return;
         }
         const name = data.full_name || data.email || "there";
