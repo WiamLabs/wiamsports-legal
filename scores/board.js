@@ -57,7 +57,6 @@ window.WiamBoard = (function () {
     getJson("/v1/public/catalog").then(function (data) {
       var html = "<h1>" + esc(title) + "</h1>";
       html += '<p class="dek">' + esc(copy) + "</p>";
-      html += '<p class="mock-note">' + esc(data.note || "") + "</p>";
       html += '<div class="league-list">';
       (data.competitions || []).forEach(function (row) {
         html += '<a href="' + prefix + row.slug + '/">' + esc(row.name) + "</a>";
@@ -65,17 +64,16 @@ window.WiamBoard = (function () {
       html += "</div>";
       root.innerHTML = html;
     }).catch(function () {
-      root.innerHTML = "<h1>" + esc(title) + "</h1><p>Board is not reachable right now.</p>";
+      root.innerHTML = "<h1>" + esc(title) + "</h1><p>Please try again shortly.</p>";
     });
   }
 
   function paintScores(root, s) {
     getJson("/v1/public/scores/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Scores") + "</h1>";
-      html += '<p class="mock-note">' + esc(data.note || "") + "</p>";
       var rows = data.matches || [];
       if (!rows.length) {
-        html += "<p>No stored fixtures in this window. We do not invent a sheet.</p>";
+        html += "<p>No matches in this window.</p>";
         root.innerHTML = html;
         return;
       }
@@ -93,17 +91,16 @@ window.WiamBoard = (function () {
       });
       root.innerHTML = html;
     }).catch(function () {
-      root.innerHTML = "<p>Scores are not reachable right now.</p>";
+      root.innerHTML = "<p>Please try again shortly.</p>";
     });
   }
 
   function paintTable(root, s) {
     getJson("/v1/public/table/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Table") + "</h1>";
-      html += '<p class="mock-note">' + esc(data.note || "") + "</p>";
       var tables = data.tables || [];
       if (!tables.length) {
-        html += "<p>No table in yet. We do not invent positions.</p>";
+        html += "<p>No table for this competition right now.</p>";
         root.innerHTML = html;
         return;
       }
@@ -121,17 +118,16 @@ window.WiamBoard = (function () {
       });
       root.innerHTML = html;
     }).catch(function () {
-      root.innerHTML = "<p>Table is not reachable right now.</p>";
+      root.innerHTML = "<p>Please try again shortly.</p>";
     });
   }
 
   function paintOdds(root, s) {
     getJson("/v1/public/odds/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Odds") + "</h1>";
-      html += '<p class="mock-note">' + esc(data.note || "") + "</p>";
       var rows = data.matches || [];
       if (!rows.length) {
-        html += "<p>No stored odds for upcoming matches in this competition.</p>";
+        html += "<p>No odds for upcoming matches in this competition.</p>";
         root.innerHTML = html;
         return;
       }
@@ -148,7 +144,7 @@ window.WiamBoard = (function () {
       });
       root.innerHTML = html;
     }).catch(function () {
-      root.innerHTML = "<p>Odds are not reachable right now.</p>";
+      root.innerHTML = "<p>Please try again shortly.</p>";
     });
   }
 
@@ -165,7 +161,7 @@ window.WiamBoard = (function () {
       var mine = (pair[0].teams || []);
       var comps = pair[1].competitions || [];
       var html = "<h1>Follow your team</h1>";
-      html += '<p class="dek">Football clubs we already store. Sign-in only. This is not a prediction alert.</p>';
+      html += '<p class="dek">Follow a club you care about.</p>';
       if (mine.length) {
         html += "<h2>Following</h2><ul class='follow-mine'>";
         mine.forEach(function (row) {
@@ -188,7 +184,7 @@ window.WiamBoard = (function () {
           if (!box) return;
           var list = data.teams || [];
           if (!list.length) {
-            box.innerHTML = "<p>No clubs stored for this competition yet.</p>";
+            box.innerHTML = "<p>No clubs in this competition yet.</p>";
             return;
           }
           box.innerHTML = list
@@ -221,7 +217,7 @@ window.WiamBoard = (function () {
         }
       });
     }).catch(function () {
-      root.innerHTML = "<p>Follow is not reachable right now.</p>";
+      root.innerHTML = "<p>Please try again shortly.</p>";
     });
   }
 
@@ -237,7 +233,11 @@ window.WiamBoard = (function () {
     var k = kind();
     var s = slug();
     var copy =
-      "Football only. Ghana Premier League is not in this list yet. Basketball, tennis, athletics, and boxing are on News.";
+      k === "table"
+        ? "How the league stands."
+        : k === "odds"
+          ? "Home, draw and away."
+          : "Live scores and upcoming kick-offs.";
     if (k === "follow") return paintFollow(root);
     if (!s) {
       var prefix = k === "table" ? "/table/" : k === "odds" ? "/odds/" : "/scores/";

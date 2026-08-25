@@ -183,7 +183,7 @@ window.WiamNews = (function () {
     if (!stories.length) {
       root.innerHTML = emptyDesk(
         title,
-        "The desk has not filed this sport yet. When Studio publishes, the story appears here."
+        "Nothing on this desk yet."
       );
       return;
     }
@@ -218,7 +218,7 @@ window.WiamNews = (function () {
         if (!live && !feed.length) {
           root.innerHTML = emptyDesk(
             "WiamSports News",
-            "Live stories land here for 48 hours after the desk publishes. Nothing is invented to fill the page."
+            "The latest stories will show here."
           );
           return;
         }
@@ -244,13 +244,11 @@ window.WiamNews = (function () {
           trending.forEach(function (s) {
             html += storyCard(s, "row", false);
           });
-        } else {
-          html += '<p class="mock-note">Trending fills when people actually open stories. We do not seed it.</p>';
         }
         root.innerHTML = html;
       })
       .catch(function () {
-        root.innerHTML = emptyDesk("WiamSports News", "News is not reachable right now.");
+        root.innerHTML = emptyDesk("WiamSports News", "Please try again shortly.");
       });
   }
 
@@ -265,7 +263,7 @@ window.WiamNews = (function () {
         paintFeedList(root, data.stories || [], title, null);
       })
       .catch(function () {
-        root.innerHTML = emptyDesk(title, "News is not reachable right now.");
+        root.innerHTML = emptyDesk(title, "Please try again shortly.");
       });
   }
 
@@ -278,7 +276,7 @@ window.WiamNews = (function () {
       .then(function (data) {
         var story = data.story;
         if (!story) {
-          root.innerHTML = emptyDesk("Story", "That story is not on the site.");
+          root.innerHTML = emptyDesk("Story", "This story is not available.");
           return;
         }
         paintChrome({ desk: story.desk, sport: story.sport });
@@ -295,7 +293,7 @@ window.WiamNews = (function () {
         fetch(api() + "/v1/public/news/view/" + encodeURIComponent(story.slug), { method: "POST" }).catch(function () {});
       })
       .catch(function () {
-        root.innerHTML = emptyDesk("Story", "News is not reachable right now.");
+        root.innerHTML = emptyDesk("Story", "Please try again shortly.");
       });
   }
 
@@ -312,7 +310,7 @@ window.WiamNews = (function () {
       .then(function (data) {
         var rows = data.stories || [];
         if (!rows.length) {
-          root.innerHTML = emptyDesk("Search", "No story matched “" + q + "”.");
+          root.innerHTML = emptyDesk("Search", "No stories matched that search.");
           return;
         }
         var html = "<h1>Search</h1>";
@@ -322,7 +320,7 @@ window.WiamNews = (function () {
         root.innerHTML = html;
       })
       .catch(function () {
-        root.innerHTML = emptyDesk("Search", "News is not reachable right now.");
+        root.innerHTML = emptyDesk("Search", "Please try again shortly.");
       });
   }
 
