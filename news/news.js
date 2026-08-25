@@ -117,6 +117,14 @@ window.WiamNews = (function () {
         "</a>"
       );
     }
+    if (kind === "trend") {
+      return (
+        '<a class="trend-item" href="' + esc(storyHref(story.slug)) + '">' +
+        '<span class="trend-n">' + esc(live || "") + "</span>" +
+        "<div><h3>" + esc(story.title) + "</h3>" + meta(story, false) + "</div>" +
+        "</a>"
+      );
+    }
     return (
       '<a class="story-row" href="' + esc(storyHref(story.slug)) + '">' +
       pic +
@@ -215,7 +223,10 @@ window.WiamNews = (function () {
         var live = data.live;
         var feed = data.feed || [];
         var trending = data.trending || [];
-        if (!live && !feed.length) {
+        if (!trending.length) {
+          trending = (live ? [live] : []).concat(feed).slice(0, 8);
+        }
+        if (!live && !feed.length && !trending.length) {
           root.innerHTML = emptyDesk(
             "WiamSports News",
             "The latest stories will show here."
@@ -224,6 +235,13 @@ window.WiamNews = (function () {
         }
         var html = "";
         if (live) html += storyCard(live, "hero", true);
+        if (trending.length) {
+          html += '<section class="trending"><h2>Trending</h2>';
+          trending.forEach(function (s, i) {
+            html += storyCard(s, "trend", String(i + 1));
+          });
+          html += "</section>";
+        }
         if (feed.length) {
           html += "<h2>Latest</h2>";
           var grid = feed.slice(0, 2);
@@ -236,12 +254,6 @@ window.WiamNews = (function () {
             html += "</div>";
           }
           list.forEach(function (s) {
-            html += storyCard(s, "row", false);
-          });
-        }
-        if (trending.length) {
-          html += "<h2>Trending</h2>";
-          trending.forEach(function (s) {
             html += storyCard(s, "row", false);
           });
         }
@@ -289,8 +301,23 @@ window.WiamNews = (function () {
           meta(story, false) +
           (img ? '<div class="frame"><img src="' + esc(img) + '" alt=""></div>' : "") +
           '<p class="dek">' + esc(story.summary || "") + "</p>" +
-          '<p class="body">' + esc(story.body || "").replace(/\n/g, "</p><p class=\"body\">") + "</p>";
+          '<p class="body">' + esc(story.body || "").replace(/\n/g, "</p><p class=\"body\">") + "</p>" +
+          '<div id="story-trending"></div>';
         fetch(api() + "/v1/public/news/view/" + encodeURIComponent(story.slug), { method: "POST" }).catch(function () {});
+        getJson("/v1/public/news/trending").then(function (pack) {
+          var box = document.getElementById("story-trending");
+          if (!box) return;
+          var rows = (pack.stories || []).filter(function (s) {
+            return s.slug !== story.slug;
+          });
+          if (!rows.length) return;
+          var html = '<section class="trending"><h2>Trending</h2>';
+          rows.forEach(function (s, i) {
+            html += storyCard(s, "trend", String(i + 1));
+          });
+          html += "</section>";
+          box.innerHTML = html;
+        }).catch(function () {});
       })
       .catch(function () {
         root.innerHTML = emptyDesk("Story", "Please try again shortly.");
