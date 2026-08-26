@@ -9,6 +9,7 @@
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css?v=50">
   <link rel="stylesheet" href="/engines.css">
+  <link rel="stylesheet" href="/boards.css?v=51">
 </head>
 <body>
   <div class="wrap wrap-wide">
@@ -49,6 +50,7 @@
       <p>Your key lives on this account. We mailed the full key once. We only keep a prefix and a hash.</p>
       <p><strong>Key prefix</strong><br><span id="prefix">—</span></p>
       <p><strong>Burst</strong><br><span id="burst">—</span> calls per minute</p>
+      <div class="dash-usage-label"><span id="usage-copy">Usage today</span><span id="usage-pct">—</span></div>
       <div class="usage-bar" aria-hidden="true"><span id="bar" style="width:0%"></span></div>
       <p class="note">Use <code>GET /v1/me</code> with your key for remaining calls in your app. <a href="/docs/">Docs</a> · <a href="/pricing/">Pricing</a>.</p>
       <h3>Recent calls today</h3>
@@ -89,7 +91,7 @@
     </footer>
   </div>
   <script src="/config.js"></script>
-  <script src="/auth.js?v=50"></script>
+  <script src="/auth.js?v=51"></script>
   <script>
     const msg = document.getElementById("msg");
     const sub = document.getElementById("sub");
@@ -152,7 +154,10 @@
         setText("tg", data.telegram_linked ? "Linked" : "Not linked yet. Open the bot and use the same email.");
         const used = Number(data.daily_used || 0);
         const limit = Number(data.daily_limit || 50) || 50;
-        document.getElementById("bar").style.width = Math.min(100, Math.round((used / limit) * 100)) + "%";
+        var pct = Math.min(100, Math.round((used / limit) * 100));
+        document.getElementById("bar").style.width = pct + "%";
+        setText("usage-copy", used + " of " + limit + " requests");
+        setText("usage-pct", pct + "%");
         renderCalls(data.recent_calls);
         const ch = data.channels || {};
         const free = document.getElementById("free-ch");

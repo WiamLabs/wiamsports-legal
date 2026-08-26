@@ -1,4 +1,4 @@
-/* Football Scores / Table / Odds from stored matches. No invented boards. */
+/* Football Scores / Table / Odds from stored matches. NEW1 board CSS. No invented boards. */
 window.WiamBoard = (function () {
   function api() {
     return window.WIAM_ENGINES_API || "";
@@ -32,13 +32,27 @@ window.WiamBoard = (function () {
     if (!t) return "";
     try {
       return new Date(t).toLocaleString("en-GB", {
-        weekday: "short",
         hour: "2-digit",
         minute: "2-digit",
         timeZone: "Africa/Accra",
       });
     } catch (e) {
       return iso;
+    }
+  }
+
+  function dayLabel(iso) {
+    var t = Date.parse(iso || "");
+    if (!t) return "Fixtures";
+    try {
+      return new Date(t).toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "Africa/Accra",
+      });
+    } catch (e) {
+      return "Fixtures";
     }
   }
 
@@ -56,7 +70,7 @@ window.WiamBoard = (function () {
   function paintPicker(root, prefix, title, copy) {
     getJson("/v1/public/catalog").then(function (data) {
       var html = "<h1>" + esc(title) + "</h1>";
-      html += '<p class="dek">' + esc(copy) + "</p>";
+      html += '<p class="subtitle">' + esc(copy) + "</p>";
       html += '<div class="league-list">';
       (data.competitions || []).forEach(function (row) {
         html += '<a href="' + prefix + row.slug + '/">' + esc(row.name) + "</a>";
@@ -68,6 +82,13 @@ window.WiamBoard = (function () {
     });
   }
 
+  function matchState(m) {
+    var st = String(m.status || "").toLowerCase();
+    if (st.indexOf("live") >= 0 || st === "in play" || st === "1h" || st === "2h" || st === "ht") return "live";
+    if (st === "ft" || st.indexOf("full") >= 0 || st === "finished") return "ft";
+    return "up";
+  }
+
   function paintScores(root, s) {
     getJson("/v1/public/scores/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Scores") + "</h1>";
@@ -77,17 +98,31 @@ window.WiamBoard = (function () {
         root.innerHTML = html;
         return;
       }
+      var groups = [];
+      var seen = {};
       rows.forEach(function (m) {
-        var score =
-          m.status === "Upcoming" || m.home_score == null
-            ? esc(m.status || "")
-            : esc(String(m.home_score)) + "–" + esc(String(m.away_score));
-        html +=
-          '<div class="score-row">' +
-          '<div class="side">' + crest(m.home_crest, m.home) + "<span>" + esc(m.home) + "</span></div>" +
-          '<div class="score-mid"><strong>' + score + "</strong><span>" + esc(kick(m.kickoff)) + "</span></div>" +
-          '<div class="side away">' + "<span>" + esc(m.away) + "</span>" + crest(m.away_crest, m.away) + "</div>" +
-          "</div>";
+        var label = dayLabel(m.kickoff);
+        if (!seen[label]) {
+          seen[label] = groups.length;
+          groups.push({ label: label, rows: [] });
+        }
+        groups[seen[label]].rows.push(m);
+      });
+      groups.forEach(function (g) {
+        html += '<div class="match-group"><h3>' + esc(g.label) + "</h3>";
+        g.rows.forEach(function (m) {
+          var state = matchState(m);
+          var klass = "match-row" + (state === "live" ? " is-live" : state === "ft" ? " is-ft" : "");
+          var homeScore = state === "up" || m.home_score == null ? "" : '<span class="score">' + esc(String(m.home_score)) + "</span>";
+          var awayScore = state === "up" || m.away_score == null ? "" : '<span class="score">' + esc(String(m.away_score)) + "</span>";
+          var when = state === "live" ? "LIVE" : state === "ft" ? "FT" : esc(kick(m.kickoff));
+          html +=
+            '<div class="' + klass + '"><div class="clubs">' +
+            '<div class="club-line"><span class="name">' + crest(m.home_crest, m.home) + "<span>" + esc(m.home) + "</span></span>" + homeScore + "</div>" +
+            '<div class="club-line"><span class="name">' + crest(m.away_crest, m.away) + "<span>" + esc(m.away) + "</span></span>" + awayScore + "</div>" +
+            '</div><div class="kickoff">' + when + "</div></div>";
+        });
+        html += "</div>";
       });
       root.innerHTML = html;
     }).catch(function () {
@@ -106,15 +141,19 @@ window.WiamBoard = (function () {
       }
       tables.forEach(function (table) {
         if (table.group) html += "<h2>" + esc(table.group) + "</h2>";
-        html += '<div class="table-wrap"><table><thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>';
+        html += '<div class="table-wrap"><table class="standings-table"><thead><tr><th class="num">#</th><th>Team</th><th class="num">Pld</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="num">GD</th><th class="num">Pts</th></tr></thead><tbody>';
         (table.rows || []).forEach(function (r) {
+          var pos = Number(r.position || 0);
           html +=
-            "<tr><td>" + esc(r.position) + "</td><td>" + esc(r.team) + "</td><td>" +
-            esc(r.played) + "</td><td>" + esc(r.won) + "</td><td>" + esc(r.drawn) +
-            "</td><td>" + esc(r.lost) + "</td><td>" + esc(r.gd) + "</td><td>" +
-            esc(r.points) + "</td></tr>";
+            '<tr class="' + (pos && pos <= 4 ? "zone-top" : "") + '"><td class="num">' +
+            esc(r.position) + '</td><td class="team">' + esc(r.team) +
+            '</td><td class="num">' + esc(r.played) + '</td><td class="num">' + esc(r.won) +
+            '</td><td class="num">' + esc(r.drawn) + '</td><td class="num">' + esc(r.lost) +
+            '</td><td class="num">' + esc(r.gd) + '</td><td class="num"><strong>' +
+            esc(r.points) + "</strong></td></tr>";
         });
         html += "</tbody></table></div>";
+        html += '<p style="font-size:12px;color:var(--label);margin-top:14px;">Green edge = current top four.</p>';
       });
       root.innerHTML = html;
     }).catch(function () {
@@ -125,6 +164,7 @@ window.WiamBoard = (function () {
   function paintOdds(root, s) {
     getJson("/v1/public/odds/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Odds") + "</h1>";
+      html += '<div class="odds-disclaimer">Entertainment only. WiamSports is not a bookmaker and these are not betting advice. 18+. Bet responsibly.</div>';
       var rows = data.matches || [];
       if (!rows.length) {
         html += "<p>No odds for upcoming matches in this competition.</p>";
@@ -133,13 +173,13 @@ window.WiamBoard = (function () {
       }
       rows.forEach(function (m) {
         html +=
-          '<div class="odds-row">' +
-          "<h3>" + esc(m.home) + " vs " + esc(m.away) + "</h3>" +
-          '<p class="meta-line">' + esc(kick(m.kickoff)) + "</p>" +
-          '<div class="odds-three">' +
-          "<span>Home " + esc(Number(m.home_odds).toFixed(2)) + "</span>" +
-          "<span>Draw " + esc(Number(m.draw_odds).toFixed(2)) + "</span>" +
-          "<span>Away " + esc(Number(m.away_odds).toFixed(2)) + "</span>" +
+          '<div class="odds-row"><p class="fixture">' +
+          esc(m.home) + " vs " + esc(m.away) +
+          ' <span class="when">' + esc(kick(m.kickoff)) + "</span></p>" +
+          '<div class="odds-grid">' +
+          '<div class="odds-pill"><p class="k">Home</p><p class="v">' + esc(Number(m.home_odds).toFixed(2)) + "</p></div>" +
+          '<div class="odds-pill"><p class="k">Draw</p><p class="v">' + esc(Number(m.draw_odds).toFixed(2)) + "</p></div>" +
+          '<div class="odds-pill"><p class="k">Away</p><p class="v">' + esc(Number(m.away_odds).toFixed(2)) + "</p></div>" +
           "</div></div>";
       });
       root.innerHTML = html;
@@ -152,20 +192,46 @@ window.WiamBoard = (function () {
     return window.WiamAuth ? window.WiamAuth.headers() : { "Content-Type": "application/json" };
   }
 
+  function paintFollowGate(root) {
+    root.innerHTML =
+      "<h1>Follow</h1>" +
+      '<p class="subtitle">Follow a club you care about.</p>' +
+      '<div class="gate-card"><h2>Sign in required</h2>' +
+      "<p>Following a club saves it to your account, so it is here every time you sign in — on any device.</p>" +
+      '<a class="btn btn-primary" href="/login/?next=' + encodeURIComponent("/follow/") + '">Sign in</a>' +
+      '<p style="margin-top:10px;font-size:13px;">New here? <a href="/register/">Create an account</a>.</p></div>' +
+      "<section><h2>What you will get</h2>" +
+      "<p>Once signed in, pick clubs below and they stay on this account.</p>" +
+      '<div class="club-grid" aria-hidden="true">' +
+      '<div class="club-pick"><div class="crest"></div><p class="name">Arsenal</p></div>' +
+      '<div class="club-pick"><div class="crest"></div><p class="name">Spurs</p></div>' +
+      '<div class="club-pick"><div class="crest"></div><p class="name">Chelsea</p></div>' +
+      '<div class="club-pick picked"><div class="crest"></div><p class="name">Man City</p></div>' +
+      '<div class="club-pick"><div class="crest"></div><p class="name">Liverpool</p></div>' +
+      '<div class="club-pick"><div class="crest"></div><p class="name">Everton</p></div>' +
+      "</div>" +
+      '<p style="font-size:12px;color:var(--label);">Preview only — this grid activates after sign in.</p></section>';
+  }
+
   function paintFollow(root) {
-    if (!window.WiamAuth || !window.WiamAuth.requireSession({ next: "/follow/" })) return;
+    if (!window.WiamAuth || !window.WiamAuth.session()) {
+      paintFollowGate(root);
+      return;
+    }
     Promise.all([
       fetch(api() + "/v1/public/follow", { headers: headers() }).then(function (r) { return r.json(); }),
       getJson("/v1/public/catalog"),
     ]).then(function (pair) {
-      var mine = (pair[0].teams || []);
+      var mine = pair[0].teams || [];
       var comps = pair[1].competitions || [];
-      var html = "<h1>Follow your team</h1>";
-      html += '<p class="dek">Follow a club you care about.</p>';
+      var html = "<h1>Follow</h1>";
+      html += '<p class="subtitle">Follow a club you care about.</p>';
       if (mine.length) {
         html += "<h2>Following</h2><ul class='follow-mine'>";
         mine.forEach(function (row) {
-          html += "<li>" + esc(row.team) + " <button type='button' data-off='" + esc(row.league) + "' data-team='" + esc(row.team) + "'>Remove</button></li>";
+          html +=
+            "<li><span>" + esc(row.team) + "</span>" +
+            "<button type='button' class='btn' data-off='" + esc(row.league) + "' data-team='" + esc(row.team) + "'>Remove</button></li>";
         });
         html += "</ul>";
       }
@@ -174,7 +240,7 @@ window.WiamBoard = (function () {
       comps.forEach(function (c, i) {
         html += '<option value="' + esc(c.slug) + '"' + (i === 0 ? " selected" : "") + ">" + esc(c.name) + "</option>";
       });
-      html += '</select></label><div id="follow-teams"></div>';
+      html += '</select></label><div id="follow-teams" class="club-grid"></div>';
       root.innerHTML = html;
       var sel = document.getElementById("follow-lg");
       function loadTeams() {
@@ -187,9 +253,17 @@ window.WiamBoard = (function () {
             box.innerHTML = "<p>No clubs in this competition yet.</p>";
             return;
           }
+          var followed = {};
+          mine.forEach(function (row) {
+            followed[(row.team || "").toLowerCase()] = 1;
+          });
           box.innerHTML = list
             .map(function (name) {
-              return '<button type="button" class="follow-add" data-lg="' + esc(s) + '" data-team="' + esc(name) + '">' + esc(name) + "</button>";
+              var on = followed[String(name).toLowerCase()] ? " picked" : "";
+              return (
+                '<button type="button" class="club-pick' + on + '" data-lg="' + esc(s) + '" data-team="' + esc(name) + '">' +
+                '<div class="crest"></div><p class="name">' + esc(name) + "</p></button>"
+              );
             })
             .join("");
         });
@@ -200,8 +274,10 @@ window.WiamBoard = (function () {
       }
       root.addEventListener("click", function (ev) {
         var t = ev.target;
-        if (!t || !t.getAttribute) return;
-        if (t.classList.contains("follow-add")) {
+        if (!t) return;
+        if (t.closest) t = t.closest("[data-team]") || t;
+        if (!t.getAttribute) return;
+        if (t.classList.contains("club-pick") && t.getAttribute("data-lg")) {
           fetch(api() + "/v1/public/follow", {
             method: "POST",
             headers: headers(),
@@ -222,7 +298,7 @@ window.WiamBoard = (function () {
   }
 
   function boot() {
-    document.querySelectorAll(".news-boards a").forEach(function (a) {
+    document.querySelectorAll(".board-tabs a, .news-boards a").forEach(function (a) {
       var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
       var here = (location.pathname || "/").replace(/\/+$/, "") || "/";
       var on = href !== "/news" && here.indexOf(href) === 0;
@@ -241,7 +317,7 @@ window.WiamBoard = (function () {
     if (k === "follow") return paintFollow(root);
     if (!s) {
       var prefix = k === "table" ? "/table/" : k === "odds" ? "/odds/" : "/scores/";
-      var title = k === "table" ? "Table" : k === "odds" ? "Odds" : "Scores & fixtures";
+      var title = k === "table" ? "Table" : k === "odds" ? "Odds" : "Scores";
       return paintPicker(root, prefix, title, copy);
     }
     if (k === "table") return paintTable(root, s);

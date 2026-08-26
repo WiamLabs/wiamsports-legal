@@ -1,0 +1,214 @@
+/* WiamSports Boards + Account — extends legal.css/engines.css tokens.
+   Does not redefine --bg/--green/--gold etc. */
+
+.site-shell { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+/* ---------- Board tabs (Scores/Table/Odds/Follow) ---------- */
+.board-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 14px 0 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.board-tabs a {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.board-tabs a.active, .board-tabs a:hover { color: var(--green); border-color: var(--green); }
+
+.board-date-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+}
+.board-date-tabs button {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.board-date-tabs button.active { color: var(--bg); background: var(--green); border-color: var(--green); }
+
+/* ---------- Scores ---------- */
+.match-group { margin-bottom: 22px; }
+.match-group h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--label);
+  margin-bottom: 10px;
+  padding: 0;
+  border: 0;
+}
+.match-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+.match-row .clubs { flex: 1; }
+.match-row .club-line { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); padding: 2px 0; gap: 10px; }
+.match-row .club-line .score { font-weight: 800; color: var(--text); }
+.match-row .club-line .name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.match-row .kickoff {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--label);
+  text-align: right;
+  min-width: 56px;
+}
+.match-row.is-live .kickoff { color: #ff8a73; }
+.match-row.is-ft .kickoff { color: var(--green-dim); }
+.match-row .crest, .match-row .crest-fallback {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+.crest-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--line);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* ---------- Table (league standings) ---------- */
+.standings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.standings-table th {
+  text-align: left;
+  color: var(--label);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.standings-table td { padding: 10px 6px; border-bottom: 1px solid var(--line); color: var(--text); }
+.standings-table td.team { font-weight: 600; }
+.standings-table td.num, .standings-table th.num { text-align: center; }
+.standings-table tr.zone-top td:first-child { box-shadow: inset 3px 0 0 var(--green); }
+.standings-table .crest { width: 20px; height: 20px; border-radius: 50%; background: var(--line); flex: 0 0 auto; }
+.table-wrap { overflow-x: auto; }
+
+/* ---------- Odds ---------- */
+.odds-row {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+.odds-row .fixture { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 600; }
+.odds-row .fixture .when { color: var(--label); font-weight: 500; font-size: 12px; }
+.odds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.odds-pill {
+  text-align: center;
+  background: #08150e;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 6px;
+}
+.odds-pill .k { font-size: 10px; text-transform: uppercase; color: var(--label); letter-spacing: 0.05em; }
+.odds-pill .v { font-size: 15px; font-weight: 800; color: var(--green); margin-top: 2px; }
+.odds-disclaimer {
+  background: #1a180c;
+  border-left: 3px solid var(--gold);
+  padding: 12px 16px;
+  border-radius: 0 12px 12px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 4px 0 22px;
+}
+
+/* ---------- Follow (auth-gated) ---------- */
+.gate-card {
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 40px 24px;
+  margin: 24px 0;
+}
+.gate-card h2 { border: 0; padding: 0; margin-bottom: 8px; }
+.gate-card p { color: var(--muted); max-width: 40ch; margin: 0 auto 18px; }
+.club-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+.club-pick {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 8px;
+  text-align: center;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.club-pick .crest { width: 34px; height: 34px; border-radius: 50%; background: var(--line); margin: 0 auto 6px; }
+.club-pick .name { font-size: 11px; color: var(--muted); }
+.club-pick.picked { border-color: var(--green); }
+.club-pick.picked .name { color: var(--green); }
+.follow-mine { list-style: none; padding: 0; margin: 0 0 18px; }
+.follow-mine li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.follow-label { display: block; margin: 12px 0; color: var(--muted); }
+.follow-label select {
+  margin-left: 8px;
+  font: inherit;
+  padding: 8px 10px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+/* ---------- League picker ---------- */
+.league-list { display: grid; gap: 8px; margin: 12px 0 24px; }
+.league-list a {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.league-list a:hover { border-color: var(--green); color: var(--green); }
+
+/* ---------- Dashboard ---------- */
+.dash-usage-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--label); margin-bottom: 4px; }
+
+@media (max-width: 480px) { .club-grid { grid-template-columns: repeat(3, 1fr); } }

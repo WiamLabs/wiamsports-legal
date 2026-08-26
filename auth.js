@@ -38,28 +38,32 @@ window.WiamAuth = {
     var signed = !!this.session();
     document.querySelectorAll("[data-nav]").forEach(function (nav) {
       var here = activeOverride || nav.getAttribute("data-nav") || "";
-      var links = signed
-        ? [
-            ["/", "Home", "home"],
-            ["/news/", "News", "news"],
-            ["/engines/", "Product", "product"],
-            ["/pricing/", "Pricing", "pricing"],
-            ["/account/", "Dashboard", "account"],
-            ["/legal/", "Legal", "legal"],
-          ]
-        : [
-            ["/", "Home", "home"],
-            ["/news/", "News", "news"],
-            ["/engines/", "Product", "product"],
-            ["/pricing/", "Pricing", "pricing"],
-            ["/register/", "Register", "register"],
-            ["/login/", "Sign in", "login"],
-            ["/legal/", "Legal", "legal"],
-          ];
+      var links = [
+        ["/", "Home", "home"],
+        ["/product/", "Product", "product"],
+        ["/pricing/", "Pricing", "pricing"],
+        ["/news/", "News", "news"],
+        ["/scores/", "Scores", "scores"],
+        ["/table/", "Table", "table"],
+        ["/odds/", "Odds", "odds"],
+        ["/follow/", "Follow", "follow"],
+      ];
+      if (signed) links.push(["/account/", "Dashboard", "account"]);
+      else {
+        links.push(["/register/", "Register", "register"]);
+        links.push(["/login/", "Sign in", "login"]);
+      }
+      var path = (location.pathname || "/").replace(/\/+$/, "") || "/";
       nav.innerHTML = links
         .map(function (row) {
           var on = here === row[2] || here === row[0];
           if (here === "docs" && row[2] === "account") on = true;
+          if (row[2] === "product" && (path === "/engines" || here === "engines")) on = true;
+          if (row[2] === "scores" && path.indexOf("/scores") === 0) on = true;
+          if (row[2] === "table" && path.indexOf("/table") === 0) on = true;
+          if (row[2] === "odds" && path.indexOf("/odds") === 0) on = true;
+          if (row[2] === "follow" && path.indexOf("/follow") === 0) on = true;
+          if (row[2] === "news" && path.indexOf("/news") === 0) on = true;
           return "<a" + (on ? ' class="active"' : "") + ' href="' + row[0] + '">' + row[1] + "</a>";
         })
         .join("");

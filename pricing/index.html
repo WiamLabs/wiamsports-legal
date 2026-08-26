@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Wiam Engines pricing. Free is open. Pro, Pro+, and Ultra are coming soon.">
-  <title>Pricing — Wiam Engines API</title>
+  <meta name="description" content="WiamSports pricing — Free is open today. Paid plans coming soon.">
+  <title>Pricing — WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css?v=50">
   <link rel="stylesheet" href="/engines.css">
+  <link rel="stylesheet" href="/boards.css?v=51">
 </head>
 <body>
   <div class="wrap wrap-wide">
@@ -17,18 +18,21 @@
       </a>
       <nav class="topnav" data-nav="pricing"></nav>
     </header>
-    <div class="badge">Plans</div>
-    <h1>Free is open. Paid plans are coming soon.</h1>
-    <p class="subtitle">You call our API. Prices below are launch placeholders and can change before we take money.</p>
-    <div class="grid-4">
+
+    <div class="badge">Pricing</div>
+    <h1>Simple pricing, honest limits</h1>
+    <p class="subtitle">Free is open today. Paid plans are coming — checkout isn’t live yet, so nothing here can be bought by mistake.</p>
+
+    <div class="grid-3">
       <section class="card">
-        <p class="status">Open</p>
+        <p class="status">Live now</p>
         <h3>Free</h3>
-        <p class="price">$0 <span>/ month</span></p>
+        <p class="price">$0 <span>/ forever</span></p>
         <ul>
-          <li>Tomorrow, one league</li>
-          <li>50 calls / day · 5 / min</li>
-          <li>Hosted JSON read</li>
+          <li>Tomorrow’s matches</li>
+          <li>One league per call</li>
+          <li>50 requests a day</li>
+          <li>Entertainment, not a lock</li>
         </ul>
         <a class="btn btn-primary" href="/register/">Create account</a>
       </section>
@@ -41,8 +45,21 @@
           <li>More leagues</li>
           <li>2 000 calls / day</li>
         </ul>
-        <div class="note"><p>No checkout yet.</p></div>
+        <button class="btn" disabled>Not open yet</button>
       </section>
+      <section class="card soon">
+        <p class="status">Coming soon</p>
+        <h3>Team</h3>
+        <p class="price">TBA</p>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>Multiple keys, one account</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="btn" disabled>Not open yet</button>
+      </section>
+    </div>
+    <div class="grid-3" style="margin-top:14px">
       <section class="card soon">
         <p class="status">Coming soon</p>
         <h3>Pro+</h3>
@@ -52,7 +69,7 @@
           <li>History when we open it</li>
           <li>15 000 calls / day</li>
         </ul>
-        <div class="note"><p>No checkout yet.</p></div>
+        <button class="btn" disabled>Not open yet</button>
       </section>
       <section class="card soon">
         <p class="status">Coming soon</p>
@@ -63,15 +80,26 @@
           <li>SLA + export</li>
           <li>100 000 calls / day</li>
         </ul>
-        <div class="note"><p>No checkout yet.</p></div>
+        <button class="btn" disabled>Not open yet</button>
       </section>
     </div>
+
+    <section>
+      <h2>Questions</h2>
+      <h3>Do I need a card for Free?</h3>
+      <p>No. Free only needs an email and a confirmed inbox.</p>
+      <h3>What happens when Paid plans launch?</h3>
+      <p>Free stays free. You’ll be able to upgrade from your dashboard — nothing changes automatically.</p>
+      <h3>Is this a betting product?</h3>
+      <p>No. WiamSports reads are entertainment, not betting advice, and not a bookmaker. 18+.</p>
+    </section>
     <footer>
       <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
       <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+      <p class="links"><a href="/privacy-policy/">Privacy</a> · <a href="/terms-of-use/">Terms</a></p>
     </footer>
   </div>
   <script src="/config.js"></script>
-  <script src="/auth.js?v=50"></script>
+  <script src="/auth.js?v=51"></script>
 </body>
 </html>

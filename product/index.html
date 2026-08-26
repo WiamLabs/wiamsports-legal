@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How the Wiam Engines API works — one key, one endpoint, hosted football reads.">
+  <title>Product — Wiam Engines API — WiamSports</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=50">
+  <link rel="stylesheet" href="/engines.css">
+  <link rel="stylesheet" href="/boards.css?v=51">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/">
+        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+      </a>
+      <nav class="topnav" data-nav="product"></nav>
+    </header>
+
+    <div class="badge">Product</div>
+    <h1>Wiam Engines API</h1>
+    <p class="subtitle">Football reads, hosted. One key, one endpoint, JSON back. No model to download, no server to run.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/register/">Create a WiamSports account</a>
+      <a class="btn" href="/pricing/">See pricing</a>
+    </div>
+
+    <section>
+      <h2>How it works</h2>
+      <div class="grid-3">
+        <section class="card">
+          <p class="status">1</p>
+          <h3>Create an account</h3>
+          <p>Email and a password on this site. That is the WiamSports account. The key lives on it.</p>
+        </section>
+        <section class="card">
+          <p class="status">2</p>
+          <h3>Confirm the inbox</h3>
+          <p>We mail a confirm link. After you confirm, you are signed in and the Free key is shown once.</p>
+        </section>
+        <section class="card">
+          <p class="status">3</p>
+          <h3>Call the API</h3>
+          <p><code>POST /v1/predict</code> with <code>engine=wiamsports</code>. Remaining calls on <code>GET /v1/me</code>.</p>
+        </section>
+      </div>
+    </section>
+
+    <section>
+      <h2>Example request</h2>
+      <pre>POST /v1/predict
+Authorization: Bearer YOUR_KEY
+Content-Type: application/json
+
+{
+  "engine": "wiamsports",
+  "league": "premier-league",
+  "date": "tomorrow"
+}</pre>
+      <p>Response is plain JSON — no SDK required, call it from anything that can make an HTTP request.</p>
+    </section>
+
+    <section>
+      <h2>What Free can call today</h2>
+      <p>Matches that kick off <strong>tomorrow</strong> (Ghana). <strong>One league</strong> per call. Winner, probabilities, and confidence. Fifty calls a day.</p>
+    </section>
+    <section>
+      <h2>What stays with us</h2>
+      <p>The models stay on our servers. Paid plans, when they open, still call the same hosted API. There is no download.</p>
+    </section>
+    <section>
+      <h2>Honest limits</h2>
+      <p>Some fixtures are not on Free. Asking for them returns 403. We do not invent a pick to fill the gap.</p>
+    </section>
+
+    <section>
+      <h2>Limits</h2>
+      <table>
+        <tr><th>Plan</th><th>Requests / day</th><th>Leagues per call</th></tr>
+        <tr><td>Free</td><td>50</td><td>1</td></tr>
+        <tr><td>Pro (coming soon)</td><td>TBA</td><td>TBA</td></tr>
+      </table>
+      <p>Entertainment. Not a bookmaker. Not a lock. 18+.</p>
+    </section>
+    <footer>
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
+      <p class="links"><a href="/privacy-policy/">Privacy</a> · <a href="/terms-of-use/">Terms</a></p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=51"></script>
+</body>
+</html>
