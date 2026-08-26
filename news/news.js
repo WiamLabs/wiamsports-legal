@@ -205,14 +205,35 @@ window.WiamNews = (function () {
     desks.innerHTML = html;
   }
 
+  function deskParam() {
+    var desk = new URLSearchParams(location.search).get("desk") || "";
+    return desk === "local" || desk === "foreign" ? desk : "";
+  }
+
+  function withDesk(href, desk) {
+    if (!desk) return href;
+    return href + (href.indexOf("?") >= 0 ? "&" : "?") + "desk=" + encodeURIComponent(desk);
+  }
+
   function paintFootballNav(activeCat) {
     var sports = document.getElementById("sports");
     var menu = document.getElementById("menu");
+    var desk = deskParam();
     function links(into) {
       if (!into) return;
-      var html = '<a href="/news/football/"' + (!activeCat ? ' class="active"' : "") + ">Football Home</a>";
+      var html =
+        '<a href="/news/football/"' + (!activeCat && !desk ? ' class="active"' : "") + ">Football Home</a>" +
+        '<a href="' + withDesk("/news/football/", "foreign") + '"' + (!activeCat && desk === "foreign" ? ' class="active"' : "") + ">Foreign Sports</a>" +
+        '<a href="' + withDesk("/news/football/", "local") + '"' + (!activeCat && desk === "local" ? ' class="active"' : "") + ">Local Sports</a>";
       CATS.forEach(function (row) {
-        html += '<a href="' + catHref(row[0]) + '"' + (activeCat === row[0] ? ' class="active"' : "") + ">" + esc(row[1]) + "</a>";
+        html +=
+          '<a href="' +
+          withDesk(catHref(row[0]), desk) +
+          '"' +
+          (activeCat === row[0] ? ' class="active"' : "") +
+          ">" +
+          esc(row[1]) +
+          "</a>";
       });
       into.innerHTML = html;
     }
@@ -367,7 +388,10 @@ window.WiamNews = (function () {
     if (!root) return;
     paintSportNav("football");
     paintFootballNav("");
-    getJson("/v1/public/news/feed?sport=football").then(function (data) {
+    var desk = deskParam();
+    var q = "/v1/public/news/feed?sport=football";
+    if (desk) q += "&desk=" + encodeURIComponent(desk);
+    getJson(q).then(function (data) {
       var stories = data.stories || [];
       if (!stories.length) {
         root.innerHTML = emptyDesk("Football", "Nothing on this desk yet.");
@@ -396,9 +420,9 @@ window.WiamNews = (function () {
     paintFootballNav(cat);
     var title = catLabel(cat);
     var head = sectionHead("Football", title, CAT_DEK[cat] || "") + legend(cat);
-    var desk = new URLSearchParams(location.search).get("desk") || "";
+    var desk = deskParam();
     var q = "/v1/public/news/feed?sport=football&category=" + encodeURIComponent(cat);
-    if (desk === "local" || desk === "foreign") q += "&desk=" + encodeURIComponent(desk);
+    if (desk) q += "&desk=" + encodeURIComponent(desk);
     getJson(q).then(function (data) {
       var stories = data.stories || [];
       if (cat === "live") {
@@ -492,6 +516,84 @@ window.WiamNews = (function () {
     });
   }
 
+  function renderBody(body) {
+    var chunks = String(body || "").trim().split(/\n{2,}/);
+    var html = "";
+    chunks.forEach(function (chunk) {
+      var m = chunk.match(/^##\s+(.+)\n?([\s\S]*)$/);
+      if (m) {
+        html += "<h2>" + esc(m[1].trim()) + "</h2>";
+        if (m[2].trim()) html += '<p class="body">' + esc(m[2].trim()).replace(/\n/g, "<br>") + "</p>";
+      } else if (chunk.trim()) {
+        html += '<p class="body">' + esc(chunk.trim()).replace(/\n/g, "<br>") + "</p>";
+      }
+    });
+    return html || '<p class="body"></p>';
+  }
+
+  function photoFile(src) {
+    if (!src) return Promise.resolve(null);
+    return fetch(src).then(function (r) {
+      return r.blob();
+    }).then(function (blob) {
+      var type = blob.type || "image/jpeg";
+      var name = type.indexOf("png") >= 0 ? "photo.png" : "photo.jpg";
+      return new File([blob], name, { type: type });
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  function bindStoryShare(story, img) {
+    var url = location.href;
+    var title = story.title || "";
+    var copyBtn = document.getElementById("copy-link");
+    var wa = document.getElementById("share-wa");
+    function mark(el, label) {
+      if (el) el.textContent = label;
+    }
+    function shareBoth() {
+      return photoFile(img).then(function (file) {
+        var payload = { title: title, text: title + "\n" + url, url: url };
+        if (file && navigator.canShare) {
+          try {
+            if (navigator.canShare({ files: [file] })) payload.files = [file];
+          } catch (e) {}
+        }
+        if (navigator.share) return navigator.share(payload);
+        if (payload.files && navigator.clipboard && window.ClipboardItem) {
+          var items = { "text/plain": new Blob([url], { type: "text/plain" }) };
+          items[file.type] = file;
+          return navigator.clipboard.write([new ClipboardItem(items)]);
+        }
+        if (navigator.clipboard) return navigator.clipboard.writeText(url);
+      });
+    }
+    if (wa) {
+      wa.addEventListener("click", function (ev) {
+        if (navigator.share) {
+          ev.preventDefault();
+          shareBoth().catch(function () {
+            location.href = "https://wa.me/?text=" + encodeURIComponent(title + " " + url);
+          });
+        }
+      });
+    }
+    if (copyBtn) {
+      copyBtn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        shareBoth()
+          .then(function () {
+            mark(copyBtn, "Copied");
+          })
+          .catch(function () {
+            if (navigator.clipboard) navigator.clipboard.writeText(url);
+            mark(copyBtn, "Link copied");
+          });
+      });
+    }
+  }
+
   function paintStory() {
     var root = document.getElementById("article") || document.getElementById("feed");
     if (!root) return;
@@ -521,22 +623,17 @@ window.WiamNews = (function () {
         badgeHtml(story) +
         '<p class="hero-kicker">' + esc(story.category_label || story.sport_label) + "</p>" +
         "<h1>" + esc(story.title) + "</h1>" +
-        '<div class="byline"><p class="who">' + esc(story.byline || "By WiamSports Staff") +
-        (story.published_display ? " · " + esc(story.published_display) : "") +
-        "</p>" +
-        '<div class="share-row"><a href="https://wa.me/?text=' + encodeURIComponent(share) + '">WhatsApp</a>' +
-        '<a href="#" id="copy-link">Copy link</a></div></div>' +
+        '<div class="byline"><p class="who">' + esc(story.byline || "By WiamSports Staff") + "</p>" +
+        (story.published_display ? '<p class="when">' + esc(story.published_display) + "</p>" : "") +
+        "</div>" +
         (story.subtitle ? '<p class="dek">' + esc(story.subtitle) + "</p>" : "") +
         (img ? '<div class="frame"><img src="' + esc(img) + '" alt=""></div>' : "") +
-        '<p class="body">' + esc(story.body || "").replace(/\n/g, "</p><p class=\"body\">") + "</p>" +
+        renderBody(story.body) +
+        '<div class="share-row share-bottom">' +
+        '<a id="share-wa" href="https://wa.me/?text=' + encodeURIComponent((story.title || "") + " " + share) + '">WhatsApp</a>' +
+        '<a href="#" id="copy-link">Copy link</a></div>' +
         '<div id="story-trending"></div>';
-      var copyBtn = document.getElementById("copy-link");
-      if (copyBtn) {
-        copyBtn.addEventListener("click", function (ev) {
-          ev.preventDefault();
-          if (navigator.clipboard) navigator.clipboard.writeText(share);
-        });
-      }
+      bindStoryShare(story, img);
       fetch(api() + "/v1/public/news/view/" + encodeURIComponent(story.slug), { method: "POST" }).catch(function () {});
       getJson("/v1/public/news/trending").then(function (pack) {
         var box = document.getElementById("story-trending");

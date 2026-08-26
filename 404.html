@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
-  <link rel="stylesheet" href="/legal.css">
-  <link rel="stylesheet" href="/news/news.css?v=49">
-  <link rel="stylesheet" href="/news/news-v2.css?v=49">
+  <link rel="stylesheet" href="/legal.css?v=50">
+  <link rel="stylesheet" href="/news/news.css?v=50">
+  <link rel="stylesheet" href="/news/news-v2.css?v=50">
 </head>
 <body class="news-page">
   <header class="news-top">
@@ -44,13 +44,13 @@
     </div>
   </footer>
   <script src="/config.js"></script>
-  <script src="/auth.js?v=46"></script>
+  <script src="/auth.js?v=50"></script>
   <script>
     (function () {
       var p = location.pathname || "/";
       if (/^\/news\//.test(p) || /^\/search\//.test(p)) {
         var s = document.createElement("script");
-        s.src = "/news/news.js?v=49";
+        s.src = "/news/news.js?v=50";
         document.body.appendChild(s);
         return;
       }

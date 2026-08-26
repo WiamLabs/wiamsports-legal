@@ -180,23 +180,48 @@
   margin-bottom: 8px;
 }
 
+/* Rails sit on the white feed — legal.css paints every <section> dark. */
+.news-page .news-feed section.rail,
+.news-page .news-feed section.trending,
+.news-page .article section.trending {
+  background: #fff;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: var(--bg);
+}
+.news-page .rail-head h2,
+.news-page .card-story h3,
+.news-page .story-row h3,
+.news-page .trending h2,
+.news-page .trending h3,
+.news-page .article .trending h2,
+.news-page .article .trending h3 {
+  color: var(--bg);
+}
+.news-page .rail-head .see-all { color: var(--label); }
+
 /* ---------- Article byline / share ---------- */
 .byline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: block;
   padding: 12px 0 16px;
   margin-bottom: 4px;
   border-bottom: 1px solid color-mix(in srgb, var(--bg) 12%, #fff);
 }
 .byline .who {
   font-size: 13px;
-  color: var(--label);
+  color: var(--bg);
+  font-weight: 700;
+  margin: 0;
 }
-.byline .who strong { color: var(--bg); }
-.share-row { display: flex; gap: 8px; }
+.byline .when {
+  display: block;
+  font-size: 12px;
+  color: var(--label);
+  font-weight: 500;
+  margin: 4px 0 0;
+}
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .share-row a {
   font-size: 11px;
   font-weight: 700;
@@ -208,6 +233,16 @@
   padding: 6px 10px;
 }
 .share-row a:hover { border-color: var(--bg); }
+.share-bottom {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--bg) 12%, #fff);
+}
+.article h2 {
+  color: var(--bg);
+  font-size: 1.15rem;
+  margin: 22px 0 10px;
+}
 
 .tag-row {
   display: flex;

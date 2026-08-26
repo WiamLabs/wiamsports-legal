@@ -17,7 +17,15 @@
   gap: 12px;
   padding: 10px 16px;
 }
+.news-top .masthead {
+  margin: 0;
+  margin-right: auto;
+  text-align: left;
+  flex: 0 0 auto;
+  width: auto;
+}
 .news-top .brand-mark { width: 88px; margin: 0; }
+.news-top .nav-toggle { margin-left: auto; flex: 0 0 auto; }
 .news-top .topnav {
   margin: 0;
   justify-content: flex-end;
@@ -118,6 +126,7 @@
   color: var(--green);
   border-bottom-color: var(--green);
 }
+.news-sports:empty { display: none; }
 
 .news-menu {
   display: none;
@@ -141,9 +150,16 @@
 .news-feed {
   background: #fff;
   color: var(--bg);
-  min-height: 70vh;
+  min-height: 0;
   width: 100%;
   padding: 20px 16px 48px;
+}
+.news-feed:empty,
+.article:empty,
+#board:empty {
+  display: none;
+  min-height: 0;
+  padding: 0;
 }
 .news-feed h1,
 .news-feed h2,
@@ -179,6 +195,7 @@
   height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: top center;
   background: #fff;
 }
 .hero-kicker {
@@ -213,6 +230,7 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: top center;
   background: #fff;
 }
 .card-story h3 {
@@ -234,6 +252,7 @@
   width: 118px;
   height: 78px;
   object-fit: cover;
+  object-position: top center;
   background: #fff;
 }
 .story-row h3 {
@@ -279,6 +298,7 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: top center;
   background: #fff;
 }
 .article h1 { color: var(--bg); font-size: 1.6rem; margin: 0 0 10px; }
