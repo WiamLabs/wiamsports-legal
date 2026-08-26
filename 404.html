@@ -6,7 +6,8 @@
   <title>WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
-  <link rel="stylesheet" href="/news/news.css?v=48">
+  <link rel="stylesheet" href="/news/news.css?v=49">
+  <link rel="stylesheet" href="/news/news-v2.css?v=49">
 </head>
 <body class="news-page">
   <header class="news-top">
@@ -49,7 +50,7 @@
       var p = location.pathname || "/";
       if (/^\/news\//.test(p) || /^\/search\//.test(p)) {
         var s = document.createElement("script");
-        s.src = "/news/news.js?v=48";
+        s.src = "/news/news.js?v=49";
         document.body.appendChild(s);
         return;
       }

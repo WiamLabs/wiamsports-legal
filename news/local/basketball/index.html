@@ -3,34 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WiamSports News — Foreign Sports and Local Sports. Football, basketball, tennis, athletics, boxing.">
-  <title>News — WiamSports</title>
+  <meta name="description" content="WiamSports News — local basketball.">
+  <title>Basketball — WiamSports News</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
-  <link rel="stylesheet" href="/news/news.css?v=48">
+  <link rel="stylesheet" href="/news/news.css?v=49">
+  <link rel="stylesheet" href="/news/news-v2.css?v=49">
 </head>
 <body class="news-page">
   <header class="news-top">
     <div class="news-shell news-top-inner">
-      <a class="masthead" href="/">
-        <img class="brand-mark" src="/logo.png" alt="WiamSports">
-      </a>
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamSports"></a>
       <nav class="topnav" data-nav="news"></nav>
     </div>
     <div class="news-brandbar">
       <div class="news-shell news-brandbar-inner">
-      <a class="news-word" href="/news/"><strong>NEWS</strong></a>
+        <a class="news-word" href="/news/"><strong>NEWS</strong></a>
         <button class="menu-btn" type="button" id="menu-btn">Sports</button>
       </div>
     </div>
-    <nav class="news-boards news-shell" aria-label="News home and boards">
-      <a href="/news/">Home</a>
-      <a href="/scores/">Scores</a>
-      <a href="/table/">Table</a>
-      <a href="/odds/">Odds</a>
-      <a href="/follow/">Follow</a>
-    </nav>
-    <nav class="news-desks news-shell" id="desks"></nav>
+    <nav class="news-desks news-shell" id="desks" aria-label="Sports"></nav>
     <nav class="news-menu" id="menu" aria-label="Sports"></nav>
     <nav class="news-sports news-shell" id="sports"></nav>
     <form class="news-search news-shell" action="/news/search/" method="get">
@@ -45,9 +37,9 @@
         <div>
           <h2>News</h2>
           <a href="/news/">News home</a>
-          <a href="/news/foreign/football/">Foreign Sports</a>
-          <a href="/news/local/football/">Local Sports</a>
-          <a href="/news/local/boxing/">Local boxing</a>
+          <a href="/news/football/">Football</a>
+          <a href="/news/foreign/basketball/">Basketball</a>
+          <a href="/news/trending/">Trending</a>
         </div>
         <div>
           <h2>Boards</h2>
@@ -73,6 +65,6 @@
   </footer>
   <script src="/config.js"></script>
   <script src="/auth.js?v=46"></script>
-  <script src="/news/news.js?v=48"></script>
+  <script src="/news/news.js?v=49"></script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WiamSports News story.">
-  <title>Story — WiamSports News</title>
+  <meta name="description" content="From inside the clubs.">
+  <title>Club News — WiamSports Football</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css">
   <link rel="stylesheet" href="/news/news.css?v=49">
@@ -25,9 +25,12 @@
     <nav class="news-desks news-shell" id="desks" aria-label="Sports"></nav>
     <nav class="news-menu" id="menu" aria-label="Sports"></nav>
     <nav class="news-sports news-shell" id="sports"></nav>
-
+    <form class="news-search news-shell" action="/news/search/" method="get">
+      <input type="search" name="q" placeholder="Search news" aria-label="Search news">
+      <button type="submit">Search</button>
+    </form>
   </header>
-  <article class="article" id="article"></article>
+  <main class="news-feed" id="feed"></main>
   <footer class="news-foot">
     <div class="news-shell">
       <div class="foot-grid">
