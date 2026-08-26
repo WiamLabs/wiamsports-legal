@@ -28,7 +28,7 @@ window.WiamNews = (function () {
     rumours: "What clubs and agents are talking about — labelled, not treated as fact.",
     previews: "What is at stake before kick-off.",
     reports: "What happened after full time.",
-    live: "Minute-by-minute coverage while it is happening.",
+    live: "Matches in play right now, plus live coverage filed from the desk.",
     analysis: "The longer read on tactics, form and decisions.",
     rankings: "Ordered lists, from the newsroom.",
     interviews: "Players, managers and the people around the game.",
@@ -263,9 +263,15 @@ window.WiamNews = (function () {
     });
   }
 
-  function getJson(path) {
+  var _cache = {};
+
+  function getJson(path, fresh) {
+    if (!fresh && _cache[path]) return Promise.resolve(_cache[path]);
     return fetch(api() + path).then(function (r) {
       return r.json();
+    }).then(function (data) {
+      if (!fresh) _cache[path] = data;
+      return data;
     });
   }
 
@@ -426,18 +432,44 @@ window.WiamNews = (function () {
     getJson(q).then(function (data) {
       var stories = data.stories || [];
       if (cat === "live") {
-        var html = head;
-        if (!stories.length) html += '<p class="dek">Nothing on this desk yet.</p>';
-        stories.forEach(function (s) {
-          html +=
-            '<a class="live-row" href="' + esc(storyHref(s.slug)) + '">' +
-            '<span class="live-pill live-now">Live</span><div><h3>' +
-            esc(s.title) +
-            "</h3>" +
-            meta(s) +
-            "</div></a>";
+        getJson("/v1/public/scores/live", true).then(function (live) {
+          var matches = (live && live.matches) || [];
+          var html = head;
+          html += "<h2>Matches in play</h2>";
+          if (!matches.length) {
+            html += '<p class="dek">No matches in play right now. When a fixture kicks off, it shows here automatically.</p>';
+          }
+          matches.forEach(function (m) {
+            html +=
+              '<a class="match-row is-live" href="/scores/' + esc(m.slug || "") + '/">' +
+              '<div class="clubs">' +
+              '<div class="club-line"><span class="name">' +
+              (m.home_crest ? '<img class="crest" src="' + esc(m.home_crest) + '" alt="">' : "") +
+              "<span>" + esc(m.home) + "</span></span>" +
+              (m.home_score == null ? "" : '<span class="score">' + esc(String(m.home_score)) + "</span>") +
+              "</div>" +
+              '<div class="club-line"><span class="name">' +
+              (m.away_crest ? '<img class="crest" src="' + esc(m.away_crest) + '" alt="">' : "") +
+              "<span>" + esc(m.away) + "</span></span>" +
+              (m.away_score == null ? "" : '<span class="score">' + esc(String(m.away_score)) + "</span>") +
+              "</div></div>" +
+              '<div class="kickoff">LIVE</div></a>';
+          });
+          html += "<h2>Live coverage</h2>";
+          if (!stories.length) html += '<p class="dek">No live reports filed yet.</p>';
+          stories.forEach(function (s) {
+            html +=
+              '<a class="live-row" href="' + esc(storyHref(s.slug)) + '">' +
+              '<span class="live-pill live-now">Live</span><div><h3>' +
+              esc(s.title) +
+              "</h3>" +
+              meta(s) +
+              "</div></a>";
+          });
+          root.innerHTML = html;
+        }).catch(function () {
+          root.innerHTML = emptyDesk(title, "Please try again shortly.");
         });
-        root.innerHTML = html;
         return;
       }
       if (cat === "rankings") {
@@ -634,6 +666,7 @@ window.WiamNews = (function () {
         '<a href="#" id="copy-link">Copy link</a></div>' +
         '<div id="story-trending"></div>';
       bindStoryShare(story, img);
+      showMode("story");
       fetch(api() + "/v1/public/news/view/" + encodeURIComponent(story.slug), { method: "POST" }).catch(function () {});
       getJson("/v1/public/news/trending").then(function (pack) {
         var box = document.getElementById("story-trending");
@@ -673,21 +706,174 @@ window.WiamNews = (function () {
     });
   }
 
-  function boot() {
-    bindMenu();
-    var p = parsePath();
-    if (p.mode === "redirect") {
-      location.replace(p.to);
+  function isBoardPath(path) {
+    return /^\/(scores|table|odds|follow)(\/|$)/.test(path || "/");
+  }
+
+  function markBoards() {
+    var path = (location.pathname || "/").replace(/\/+$/, "") || "/";
+    document.querySelectorAll(".news-boards a").forEach(function (a) {
+      var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+      var on = href === "/news" ? path === "/news" : path.indexOf(href) === 0;
+      a.classList.toggle("active", on);
+    });
+  }
+
+  function ensureBoards() {
+    if (document.querySelector(".news-boards")) {
+      markBoards();
       return;
     }
+    var bar = document.querySelector(".news-brandbar");
+    if (!bar) return;
+    var nav = document.createElement("nav");
+    nav.className = "news-boards news-shell";
+    nav.setAttribute("aria-label", "News home and boards");
+    nav.innerHTML =
+      '<a href="/news/">Home</a>' +
+      '<a href="/scores/">Scores</a>' +
+      '<a href="/table/">Table</a>' +
+      '<a href="/odds/">Odds</a>' +
+      '<a href="/follow/">Follow</a>';
+    bar.after(nav);
+    markBoards();
+  }
+
+  function ensureShell() {
+    ensureBoards();
+    if (!document.getElementById("boards-css")) {
+      var link = document.createElement("link");
+      link.id = "boards-css";
+      link.rel = "stylesheet";
+      link.href = "/boards.css?v=51";
+      document.head.appendChild(link);
+    }
+    var head = document.querySelector("header.news-top");
+    var feed = document.getElementById("feed");
+    if (!feed) {
+      feed = document.createElement("main");
+      feed.id = "feed";
+      feed.className = "news-feed";
+      if (head && head.parentNode) head.parentNode.insertBefore(feed, head.nextSibling);
+      else document.body.appendChild(feed);
+    }
+    var article = document.getElementById("article");
+    if (!article) {
+      article = document.createElement("article");
+      article.id = "article";
+      article.className = "article";
+      feed.parentNode.insertBefore(article, feed.nextSibling);
+    }
+    var board = document.getElementById("board");
+    if (!board) {
+      board = document.createElement("main");
+      board.id = "board";
+      board.className = "news-feed news-board";
+      article.parentNode.insertBefore(board, article.nextSibling);
+    }
+  }
+
+  function showMode(mode) {
+    var feed = document.getElementById("feed");
+    var article = document.getElementById("article");
+    var board = document.getElementById("board");
+    if (feed) feed.hidden = mode !== "feed";
+    if (article) article.hidden = mode !== "story";
+    if (board) board.hidden = mode !== "board";
+  }
+
+  function loadBoard() {
+    showMode("board");
+    function run() {
+      if (window.WiamBoard && window.WiamBoard.paint) window.WiamBoard.paint();
+    }
+    if (window.WiamBoard) {
+      run();
+      return;
+    }
+    var existing = document.querySelector('script[src*="board.js"]');
+    if (existing) {
+      existing.addEventListener("load", run);
+      setTimeout(run, 40);
+      return;
+    }
+    var s = document.createElement("script");
+    s.src = "/scores/board.js?v=51";
+    s.onload = run;
+    document.body.appendChild(s);
+  }
+
+  function route() {
+    ensureShell();
+    markBoards();
+    if (isBoardPath(location.pathname || "/")) {
+      loadBoard();
+      return;
+    }
+    var p = parsePath();
+    if (p.mode === "redirect") {
+      history.replaceState({}, "", p.to);
+      p = parsePath();
+    }
     if (p.mode === "none") return;
-    if (p.mode === "story") paintStory();
-    else if (p.mode === "feed") paintFeed();
+    if (p.mode === "story") {
+      paintStory();
+      return;
+    }
+    showMode("feed");
+    if (p.mode === "feed") paintFeed();
     else if (p.mode === "search") paintSearch();
     else if (p.mode === "trending") paintTrending();
     else if (p.mode === "football") paintFootball();
     else if (p.mode === "category") paintCategory(p.category);
     else paintHome();
+  }
+
+  function go(href, push) {
+    var url = new URL(href, location.origin);
+    if (push) history.pushState({}, "", url.pathname + url.search);
+    route();
+  }
+
+  function bindSpa() {
+    if (bindSpa.done) return;
+    bindSpa.done = true;
+    document.addEventListener("click", function (ev) {
+      if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      var a = ev.target.closest("a");
+      if (!a) return;
+      var href = a.getAttribute("href");
+      if (!href || href.charAt(0) === "#" || a.getAttribute("target") === "_blank") return;
+      var url;
+      try {
+        url = new URL(href, location.origin);
+      } catch (e) {
+        return;
+      }
+      if (url.origin !== location.origin) return;
+      if (!/^\/(news|search|scores|table|odds|follow)(\/|$)/.test(url.pathname)) return;
+      ev.preventDefault();
+      go(url.pathname + url.search, true);
+    });
+    document.addEventListener("submit", function (ev) {
+      var form = ev.target;
+      if (!form || (form.method && form.method.toLowerCase() !== "get")) return;
+      var action = form.getAttribute("action") || "";
+      if (action.indexOf("/news/search") !== 0 && action.indexOf("/search") !== 0) return;
+      ev.preventDefault();
+      var field = form.querySelector("[name=q]");
+      var q = field ? field.value || "" : "";
+      go("/news/search/?q=" + encodeURIComponent(q), true);
+    });
+    window.addEventListener("popstate", function () {
+      route();
+    });
+  }
+
+  function boot() {
+    bindMenu();
+    bindSpa();
+    route();
   }
 
   if (document.readyState === "loading") {
@@ -696,5 +882,5 @@ window.WiamNews = (function () {
     boot();
   }
 
-  return { parsePath: parsePath, href: href };
+  return { parsePath: parsePath, href: href, go: go };
 })();

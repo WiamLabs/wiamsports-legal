@@ -326,8 +326,14 @@ window.WiamBoard = (function () {
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
+    document.addEventListener("DOMContentLoaded", function () {
+      var board = document.getElementById("board");
+      if (board && !board.hidden) boot();
+    });
   } else {
-    boot();
+    var board = document.getElementById("board");
+    if (board && !board.hidden) boot();
   }
+
+  return { paint: boot };
 })();

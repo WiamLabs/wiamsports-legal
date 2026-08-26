@@ -178,6 +178,13 @@
 .news-feed h2 { font-size: 1.15rem; margin: 28px 0 14px; }
 .news-feed p { color: var(--label); margin: 0; }
 
+#feed[hidden],
+#article[hidden],
+#board[hidden],
+.article:empty {
+  display: none !important;
+}
+
 .mock-note {
   font-size: 12px;
   color: var(--label);
@@ -193,9 +200,8 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: top center;
+  object-fit: contain;
+  object-position: center;
   background: #fff;
 }
 .hero-kicker {
@@ -228,9 +234,9 @@
 .card-story img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
   background: #fff;
 }
 .card-story h3 {
@@ -250,9 +256,10 @@
 .story-row img {
   display: block;
   width: 118px;
-  height: 78px;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
+  max-height: 160px;
+  object-fit: contain;
+  object-position: center;
   background: #fff;
 }
 .story-row h3 {
@@ -296,9 +303,9 @@
 .article img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
   background: #fff;
 }
 .article h1 { color: var(--bg); font-size: 1.6rem; margin: 0 0 10px; }

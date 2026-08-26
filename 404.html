@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WiamSports</title>
   <link rel="icon" href="/logo.png" type="image/png">
-  <link rel="stylesheet" href="/legal.css?v=50">
+  <link rel="stylesheet" href="/legal.css?v=51">
   <link rel="stylesheet" href="/engines.css">
   <link rel="stylesheet" href="/boards.css?v=51">
-  <link rel="stylesheet" href="/news/news.css?v=50">
-  <link rel="stylesheet" href="/news/news-v2.css?v=50">
+  <link rel="stylesheet" href="/news/news.css?v=51">
+  <link rel="stylesheet" href="/news/news-v2.css?v=51">
 </head>
 <body>
   <div id="news-chrome" hidden>
@@ -38,35 +38,13 @@
       <nav class="news-sports news-shell" id="sports"></nav>
     </header>
     <main class="news-feed" id="feed"></main>
-    <article class="article" id="article"></article>
+    <article class="article" id="article" hidden></article>
+    <main id="board" class="news-feed news-board" hidden></main>
     <footer class="news-foot">
       <div class="news-shell">
         <p class="copy">© 2026 WiamLabs. Entertainment. 18+.</p>
       </div>
     </footer>
-  </div>
-
-  <div id="board-chrome" hidden>
-    <div class="wrap wrap-wide">
-      <header class="site-head">
-        <a class="masthead" href="/">
-          <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
-        </a>
-        <nav class="topnav" data-nav="scores"></nav>
-      </header>
-      <nav class="board-tabs">
-        <a href="/scores/">Scores</a>
-        <a href="/table/">Table</a>
-        <a href="/odds/">Odds</a>
-        <a href="/follow/">Follow</a>
-      </nav>
-      <main id="board"></main>
-      <footer>
-        <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
-        <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
-        <p class="links"><a href="/privacy-policy/">Privacy</a> · <a href="/terms-of-use/">Terms</a></p>
-      </footer>
-    </div>
   </div>
 
   <p id="not-found" hidden style="padding:24px 16px">That page is not on this site. <a href="/">Home</a></p>
@@ -75,22 +53,12 @@
   <script>
     (function () {
       var p = location.pathname || "/";
-      if (/^\/news\//.test(p) || /^\/search\//.test(p)) {
+      if (/^\/(news|search|scores|table|odds|follow)\//.test(p)) {
         document.body.className = "news-page";
         document.getElementById("news-chrome").hidden = false;
         var s = document.createElement("script");
-        s.src = "/news/news.js?v=50";
+        s.src = "/news/news.js?v=51";
         document.body.appendChild(s);
-        return;
-      }
-      if (/^\/(scores|table|odds|follow)\//.test(p)) {
-        document.getElementById("board-chrome").hidden = false;
-        var nav = document.querySelector("#board-chrome [data-nav]");
-        if (nav) nav.setAttribute("data-nav", p.split("/")[1] || "scores");
-        if (window.WiamAuth) window.WiamAuth.paintNav();
-        var b = document.createElement("script");
-        b.src = "/scores/board.js?v=51";
-        document.body.appendChild(b);
         return;
       }
       var nf = document.getElementById("not-found");

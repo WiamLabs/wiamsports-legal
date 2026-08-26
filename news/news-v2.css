@@ -316,6 +316,13 @@
 /* ---------- Interviews / feature cards ---------- */
 .feature-card { display: block; margin-bottom: 18px; }
 .feature-frame { background: #fff; margin: 0 -16px 12px; }
+.feature-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #fff;
+}
 .feature-frame .thumb-empty { min-height: 170px; }
 .feature-lead .feature-frame .thumb-empty { min-height: 210px; }
 .feature-body h1 { font-size: 1.4rem; line-height: 1.25; margin-bottom: 8px; }
