@@ -1,4 +1,4 @@
-/* Session for WiamSports accounts. Never put Telegram here. */
+/* Session for WiamArena accounts. Never put Telegram here. */
 window.WiamAuth = {
   key: "wiam_sess",
   api: function () {

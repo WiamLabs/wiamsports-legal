@@ -164,7 +164,7 @@ window.WiamBoard = (function () {
   function paintOdds(root, s) {
     getJson("/v1/public/odds/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Odds") + "</h1>";
-      html += '<div class="odds-disclaimer">Entertainment only. WiamSports is not a bookmaker and these are not betting advice. 18+. Bet responsibly.</div>';
+      html += '<div class="odds-disclaimer">Entertainment only. WiamArena is not a bookmaker and these are not betting advice. 18+. Bet responsibly.</div>';
       var rows = data.matches || [];
       if (!rows.length) {
         html += "<p>No odds for upcoming matches in this competition.</p>";

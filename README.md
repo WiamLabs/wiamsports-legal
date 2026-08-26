@@ -1,4 +1,4 @@
-WiamSports public host. GitHub Pages → https://sports.wiamlabs.com
+WiamArena public host. GitHub Pages → https://sports.wiamlabs.com
 
 - **/** — Wiam Engines brochure (Free key by email)
 - **/legal** — Privacy and Terms (Telegram product). Do not name Render or Supabase on legal pages.

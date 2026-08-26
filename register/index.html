@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Create a WiamSports account. Confirm your email. Your Free API key lives on the account.">
-  <title>Register — WiamSports</title>
+  <meta name="description" content="Create a WiamArena account. Confirm your email. Your Free API key lives on the account.">
+  <title>Register — WiamArena</title>
   <link rel="icon" href="/logo.png" type="image/png">
   <link rel="stylesheet" href="/legal.css?v=50">
   <link rel="stylesheet" href="/engines.css">
-  <link rel="stylesheet" href="/boards.css?v=52">
+  <link rel="stylesheet" href="/boards.css?v=53">
 </head>
 <body>
   <div class="wrap wrap-wide">
     <header class="site-head">
       <a class="masthead" href="/">
-        <img class="brand-mark" src="/logo.png" alt="WiamSports by WiamLabs">
+        <img class="brand-mark" src="/logo.png" alt="WiamArena by WiamLabs">
       </a>
       <nav class="topnav" data-nav="register"></nav>
     </header>
-    <div class="badge">WiamSports account</div>
+    <div class="badge">WiamArena account</div>
     <h1>Create your account</h1>
     <p class="subtitle">
       One person. One account. Confirm your inbox. Then your Free key lives here. 18+.
@@ -50,7 +50,7 @@
       <p class="note">If that inbox exists, we sent a confirm link. Check spam. Already have an account? <a id="login-link" href="/login/">Sign in</a>. 18+.</p>
     </section>
     <footer>
-      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamSports">
+      <img class="brand-mark footer-mark" src="/logo.png" alt="WiamArena">
       <p>© 2026 WiamLabs. Bet responsibly. 18+.</p>
     </footer>
   </div>
@@ -93,7 +93,7 @@
       const born = Number(document.getElementById("birth_year").value);
       if (age < 18) {
         msg.className = "msg err";
-        msg.textContent = "WiamSports is for people aged 18 and over.";
+        msg.textContent = "WiamArena is for people aged 18 and over.";
         return;
       }
       if (!agesMatch(age, born)) {
@@ -148,7 +148,7 @@
         }
       } catch (err) {
         msg.className = "msg err";
-        msg.textContent = "Could not reach WiamSports. Try again shortly.";
+        msg.textContent = "Could not reach WiamArena. Try again shortly.";
       }
       btn.disabled = false;
     });

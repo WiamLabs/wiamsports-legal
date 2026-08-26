@@ -1,4 +1,4 @@
-/* WiamSports News v2 — live desk. Stories come from Studio, not sample copy. */
+/* WiamArena News v2 — live desk. Stories come from Studio, not sample copy. */
 window.WiamNews = (function () {
   var SPORTS = [
     ["football", "Football"],
@@ -392,7 +392,7 @@ window.WiamNews = (function () {
       var trending = data.trending || [];
       var all = (live ? [live] : []).concat(feed);
       if (!all.length) {
-        root.innerHTML = emptyDesk("WiamSports News", "The latest stories will show here.");
+        root.innerHTML = emptyDesk("WiamArena News", "The latest stories will show here.");
         return;
       }
       if (!trending.length) trending = all.slice(0, 8);
@@ -405,7 +405,7 @@ window.WiamNews = (function () {
       html += trendingBlock(trending);
       root.innerHTML = html;
     }).catch(function () {
-      root.innerHTML = emptyDesk("WiamSports News", "Please try again shortly.");
+      root.innerHTML = emptyDesk("WiamArena News", "Please try again shortly.");
     });
   }
 
@@ -881,7 +881,7 @@ window.WiamNews = (function () {
         "<h1>" + esc(story.title) + "</h1>" +
         (story.subtitle ? '<p class="dek">' + esc(story.subtitle) + "</p>" : "") +
         (img ? '<div class="frame"><img src="' + esc(img) + '" alt=""></div>' : "") +
-        '<div class="byline"><p class="who">' + esc(story.byline || "By WiamSports Staff") + "</p>" +
+        '<div class="byline"><p class="who">' + esc(story.byline || "By WiamArena Staff") + "</p>" +
         (story.published_display ? '<p class="when">' + esc(story.published_display) + "</p>" : "") +
         "</div>" +
         '<div class="story-lock">' + renderBody(story.body, inlineTrend(mid)) + "</div>" +
@@ -977,7 +977,7 @@ window.WiamNews = (function () {
       var link = document.createElement("link");
       link.id = "boards-css";
       link.rel = "stylesheet";
-      link.href = "/boards.css?v=52";
+      link.href = "/boards.css?v=53";
       document.head.appendChild(link);
     }
     var head = document.querySelector("header.news-top");
@@ -1030,7 +1030,7 @@ window.WiamNews = (function () {
       return;
     }
     var s = document.createElement("script");
-    s.src = "/scores/board.js?v=52";
+    s.src = "/scores/board.js?v=53";
     s.onload = run;
     document.body.appendChild(s);
   }
