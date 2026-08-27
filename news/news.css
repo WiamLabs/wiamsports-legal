@@ -562,13 +562,64 @@
   cursor: pointer;
 }
 .comments,
-.share-row {
+.share-row,
+.react-row,
+.action-bar {
   -webkit-user-select: text;
   user-select: text;
 }
+.action-bar {
+  margin-top: 18px;
+}
+.react-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.react-btn {
+  font: inherit;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--bg);
+  cursor: pointer;
+}
+.react-btn.on {
+  border-color: var(--gold);
+  color: var(--bg);
+  background: color-mix(in srgb, var(--gold) 25%, #fff);
+}
+.react-btn span { font-weight: 800; margin-left: 4px; }
+.react-login { font-size: 14px; color: var(--label); }
+.breaking-strip, .breaking-kicker {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 10px;
+}
+.breaking-strip span {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--bg);
+  padding: 2px 8px;
+  margin-right: 8px;
+}
+.empty-desk, .follow-topic { font-size: 14px; color: var(--label); margin: 8px 0 16px; }
+.comment-time { font-size: 12px; color: var(--label); margin-left: 8px; font-weight: 500; }
+.related { margin-top: 28px; }
+.related h2 { font-size: 1.05rem; margin: 0 0 12px; border: 0; }
+.magazine-support { margin: 12px 0 20px; }
 
 @media (max-width: 560px) {
   .news-top-inner { flex-wrap: wrap; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .score-row { grid-template-columns: 1fr; }
+  .react-btn { flex: 1 1 120px; }
 }

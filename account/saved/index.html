@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Saved — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Account</div>
+    <h1>Saved stories</h1>
+    <p class="subtitle" id="sub">Stories you kept.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <div id="list"><p class="note">Loading…</p></div>
+    </div>
+    <footer><p>© 2026 WiamLabs. 18+.</p></footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("saved");
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      return fetch(WiamAuth.api() + "/v1/public/news/saved", { headers: WiamAuth.headers() }).then(function (r) { return r.json(); });
+    }).then(function (pack) {
+      if (!pack) return;
+      var rows = pack.stories || [];
+      var box = document.getElementById("list");
+      if (!rows.length) {
+        box.innerHTML = "<p class=\"note\">Nothing saved yet. Open a story and tap Save.</p>";
+        return;
+      }
+      box.innerHTML = rows.map(function (s) {
+        return "<p><a href=\"" + (s.href || "/news/story/" + s.slug + "/") + "\">" + (s.title || "Story") + "</a></p>";
+      }).join("");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Channels — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Account</div>
+    <h1>Channels</h1>
+    <p class="subtitle" id="sub">Picks are posted on Telegram, not on this page.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <div class="dash-actions">
+        <a class="btn" id="free-ch" href="#">Free Channel</a>
+        <a class="btn" id="vip-ch" href="#">VIP Channel</a>
+      </div>
+    </div>
+    <footer><p>© 2026 WiamLabs. 18+.</p></footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("channels");
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      var ch = data.channels || {};
+      var free = document.getElementById("free-ch");
+      var vip = document.getElementById("vip-ch");
+      if (ch.free) free.href = ch.free; else { free.removeAttribute("href"); free.textContent = "Free Channel — link soon"; }
+      if (ch.vip) vip.href = ch.vip; else { vip.removeAttribute("href"); vip.textContent = "VIP Channel — link soon"; }
+    });
+  </script>
+</body>
+</html>

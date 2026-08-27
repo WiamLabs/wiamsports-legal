@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Affiliate — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Account</div>
+    <h1>Affiliate</h1>
+    <p class="subtitle" id="sub">Share WiamArena. Unique Free and VIP links pay in prediction cards, not cash.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <p><strong>Joins credited</strong><br><span id="aff-joins">—</span></p>
+      <p><strong>Cards waiting</strong><br><span id="aff-wait">—</span></p>
+      <p><strong>Cards sent</strong><br><span id="aff-paid">—</span></p>
+      <p class="note" id="aff-note"></p>
+    </div>
+    <footer><p>© 2026 WiamLabs. 18+.</p></footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("affiliate");
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      var aff = data.affiliate || {};
+      WiamAccount.setText("aff-joins", aff.joins);
+      WiamAccount.setText("aff-wait", aff.waiting);
+      WiamAccount.setText("aff-paid", aff.paid);
+      document.getElementById("aff-note").textContent = aff.open
+        ? "Open the WiamArena bot on Telegram → Affiliate to copy today’s unique links."
+        : "Affiliate is coming soon. Your account is ready when we open the desk.";
+    });
+  </script>
+</body>
+</html>

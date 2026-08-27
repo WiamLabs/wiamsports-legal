@@ -195,22 +195,27 @@ window.WiamBoard = (function () {
   function paintFollowGate(root) {
     root.innerHTML =
       "<h1>Follow</h1>" +
-      '<p class="subtitle">Follow a club you care about.</p>' +
-      '<div class="gate-card"><h2>Sign in required</h2>' +
+      '<p class="subtitle">Follow a club you care about. Sign in to save it on this account.</p>' +
+      '<div class="gate-card"><h2>Sign in to follow</h2>' +
       "<p>Following a club saves it to your account, so it is here every time you sign in — on any device.</p>" +
       '<a class="btn btn-primary" href="/login/?next=' + encodeURIComponent("/follow/") + '">Sign in</a>' +
-      '<p style="margin-top:10px;font-size:13px;">New here? <a href="/register/">Create an account</a>.</p></div>' +
-      "<section><h2>What you will get</h2>" +
-      "<p>Once signed in, pick clubs below and they stay on this account.</p>" +
-      '<div class="club-grid" aria-hidden="true">' +
-      '<div class="club-pick"><div class="crest"></div><p class="name">Arsenal</p></div>' +
-      '<div class="club-pick"><div class="crest"></div><p class="name">Spurs</p></div>' +
-      '<div class="club-pick"><div class="crest"></div><p class="name">Chelsea</p></div>' +
-      '<div class="club-pick picked"><div class="crest"></div><p class="name">Man City</p></div>' +
-      '<div class="club-pick"><div class="crest"></div><p class="name">Liverpool</p></div>' +
-      '<div class="club-pick"><div class="crest"></div><p class="name">Everton</p></div>' +
-      "</div>" +
-      '<p style="font-size:12px;color:var(--label);">Preview only — this grid activates after sign in.</p></section>';
+      '<p style="margin-top:10px;font-size:13px;">New here? <a href="/register/?next=' + encodeURIComponent("/follow/") + '">Create an account</a>.</p></div>' +
+      "<section><h2>Clubs you can follow</h2>" +
+      '<p class="subtitle">Preview — tap Sign in, then these names become live buttons.</p>' +
+      '<div id="follow-preview" class="club-grid" aria-hidden="true"></div></section>';
+    getJson("/v1/public/catalog").then(function (data) {
+      var comps = data.competitions || [];
+      var first = comps[0];
+      if (!first) return;
+      getJson("/v1/public/teams/" + encodeURIComponent(first.slug)).then(function (pack) {
+        var box = document.getElementById("follow-preview");
+        if (!box) return;
+        var list = (pack.teams || []).slice(0, 12);
+        box.innerHTML = list.map(function (name) {
+          return '<div class="club-pick"><div class="crest"></div><p class="name">' + esc(name) + "</p></div>";
+        }).join("") || "<p>Clubs appear here after the next scores sync.</p>";
+      });
+    }).catch(function () {});
   }
 
   function paintFollow(root) {
@@ -301,7 +306,7 @@ window.WiamBoard = (function () {
     document.querySelectorAll(".board-tabs a, .news-boards a").forEach(function (a) {
       var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
       var here = (location.pathname || "/").replace(/\/+$/, "") || "/";
-      var on = href !== "/news" && here.indexOf(href) === 0;
+      var on = href === "/" || href === "/news" ? here === "/" || here === "/news" : href !== "/" && here.indexOf(href) === 0;
       a.classList.toggle("active", on);
     });
     var root = document.getElementById("board");

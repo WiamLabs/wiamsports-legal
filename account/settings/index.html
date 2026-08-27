@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Settings — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Account</div>
+    <h1>Settings</h1>
+    <p class="subtitle" id="sub">Same account on the website and in Telegram.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <section>
+        <h2>Weekly email</h2>
+        <p class="note">A Sunday round-up of Local and Foreign stories. Off unless you turn it on.</p>
+        <label><input type="checkbox" id="digest"> Send me the weekly WiamArena read</label>
+        <p class="msg" id="digest-msg"></p>
+      </section>
+      <section>
+        <h2>Password</h2>
+        <form id="pw-form" class="stack-form">
+          <label for="password">New password</label>
+          <input id="password" type="password" name="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="8 or more characters">
+          <button class="btn btn-primary" type="submit" id="pw-btn">Save password</button>
+        </form>
+        <p class="msg" id="pw-msg"></p>
+      </section>
+      <div class="dash-actions">
+        <button class="btn" type="button" id="out">Sign out</button>
+      </div>
+    </div>
+    <footer><p>© 2026 WiamLabs. 18+.</p></footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("settings");
+    document.getElementById("out").addEventListener("click", function () {
+      WiamAuth.clear();
+      location.replace("/login/");
+    });
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      var box = document.getElementById("digest");
+      box.checked = !!(data.reader && data.reader.digest);
+      box.addEventListener("change", function () {
+        fetch(WiamAuth.api() + "/v1/public/news/digest", {
+          method: "POST",
+          headers: WiamAuth.headers(),
+          body: JSON.stringify({ on: box.checked }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          document.getElementById("digest-msg").textContent = d && d.ok ? (box.checked ? "Weekly email on." : "Weekly email off.") : "Could not save.";
+        }).catch(function () {
+          document.getElementById("digest-msg").textContent = "Could not save.";
+        });
+      });
+    });
+    document.getElementById("pw-form").addEventListener("submit", async function (ev) {
+      ev.preventDefault();
+      var pwMsg = document.getElementById("pw-msg");
+      var btn = document.getElementById("pw-btn");
+      pwMsg.textContent = "";
+      btn.disabled = true;
+      try {
+        var res = await fetch(WiamAuth.api() + "/v1/account/set-password", {
+          method: "POST",
+          headers: WiamAuth.headers(),
+          body: JSON.stringify({ password: document.getElementById("password").value }),
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) {
+          pwMsg.className = "msg err";
+          pwMsg.textContent = data.message || "Could not save the password.";
+        } else {
+          pwMsg.textContent = "Password saved.";
+          document.getElementById("password").value = "";
+        }
+      } catch (err) {
+        pwMsg.className = "msg err";
+        pwMsg.textContent = "Could not reach WiamArena.";
+      }
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>

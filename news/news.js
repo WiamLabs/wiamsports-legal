@@ -102,6 +102,7 @@ window.WiamNews = (function () {
       return { mode: "feed", desk: desk, sport: sport };
     }
     if (parts[0] === "news") return { mode: "home" };
+    if (!parts.length) return { mode: "home" };
     return { mode: "none" };
   }
 
@@ -197,7 +198,7 @@ window.WiamNews = (function () {
   function paintSportNav(active) {
     var desks = document.getElementById("desks");
     if (!desks) return;
-    var html = '<a href="/news/"' + (active === "home" ? ' class="active"' : "") + ">Home</a>";
+    var html = '<a href="/"' + (active === "home" ? ' class="active"' : "") + ">Home</a>";
     html += '<a href="/news/football/"' + (active === "football" || active === "category" ? ' class="active"' : "") + ">Football</a>";
     OTHER.forEach(function (sid) {
       html += '<a href="' + href("foreign", sid) + '"' + (active === sid ? ' class="active"' : "") + ">" + esc(sportLabel(sid)) + "</a>";
@@ -287,7 +288,9 @@ window.WiamNews = (function () {
 
   function getJson(path, fresh) {
     if (!fresh && _cache[path]) return Promise.resolve(_cache[path]);
-    return fetch(api() + path).then(function (r) {
+    var opts = {};
+    if (signedIn()) opts.headers = sessionHeaders();
+    return fetch(api() + path, opts).then(function (r) {
       return r.json();
     }).then(function (data) {
       if (!fresh) _cache[path] = data;
@@ -320,6 +323,47 @@ window.WiamNews = (function () {
     return html;
   }
 
+  function followTopicBtn() {
+    if (!signedIn()) {
+      return '<p class="follow-topic"><a href="/login/?next=' + encodeURIComponent(location.pathname + location.search) + '">Sign in to follow this desk</a></p>';
+    }
+    return '<p class="follow-topic"><button type="button" class="react-btn" id="follow-topic">Follow this desk</button></p>';
+  }
+
+  function bindFollowTopic(desk, sport, category) {
+    var btn = document.getElementById("follow-topic");
+    if (!btn || !signedIn()) return;
+    desk = desk || "";
+    category = category || "";
+    getJson("/v1/public/news/reader", true).then(function (data) {
+      function isOn() {
+        return (data.topics || []).some(function (t) {
+          return (t.desk || "") === desk && t.sport === sport && (t.category || "") === category;
+        });
+      }
+      function paint() {
+        var on = isOn();
+        btn.textContent = on ? "Following" : "Follow this desk";
+        btn.classList.toggle("on", on);
+      }
+      paint();
+      btn.onclick = function () {
+        var on = !isOn();
+        fetch(api() + "/v1/public/news/topics", {
+          method: "POST",
+          headers: sessionHeaders(),
+          body: JSON.stringify({ desk: desk, sport: sport, category: category, on: on }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.ok) return;
+            data.topics = d.topics || [];
+            paint();
+          });
+      };
+    }).catch(function () {});
+  }
+
   function paintStandardList(root, stories, headHtml) {
     var html = headHtml || "";
     if (!stories.length) {
@@ -346,7 +390,7 @@ window.WiamNews = (function () {
 
   function sectionHead(eyebrow, title, dek) {
     return (
-      '<p class="crumb"><a href="/news/">News</a><span class="sep">/</span><a href="/news/football/">Football</a><span class="sep">/</span><span class="here">' +
+      '<p class="crumb"><a href="/">News</a><span class="sep">/</span><a href="/news/football/">Football</a><span class="sep">/</span><span class="here">' +
       esc(title) +
       "</span></p>" +
       '<div class="section-head"><span class="eyebrow">' +
@@ -386,22 +430,64 @@ window.WiamNews = (function () {
     var root = document.getElementById("feed");
     if (!root) return;
     paintSportNav("home");
-    getJson("/v1/public/news/home").then(function (data) {
+    Promise.all([
+      getJson("/v1/public/news/home"),
+      signedIn() ? getJson("/v1/public/news/reader", true).catch(function () { return {}; }) : Promise.resolve({}),
+    ]).then(function (pack) {
+      var data = pack[0] || {};
+      var reader = pack[1] || {};
       var live = data.live;
       var feed = data.feed || [];
       var trending = data.trending || [];
+      var breaking = data.breaking;
       var all = (live ? [live] : []).concat(feed);
       if (!all.length) {
         root.innerHTML = emptyDesk("WiamArena News", "The latest stories will show here.");
         return;
       }
       if (!trending.length) trending = all.slice(0, 8);
+      var topics = reader.topics || [];
+      function topicHit(s) {
+        return topics.some(function (t) {
+          if (t.sport && t.sport !== s.sport) return false;
+          if (t.desk && t.desk !== s.desk) return false;
+          if (t.category && t.category !== s.category) return false;
+          return true;
+        });
+      }
+      if (topics.length) {
+        all = all.slice().sort(function (a, b) {
+          return (topicHit(b) ? 1 : 0) - (topicHit(a) ? 1 : 0);
+        });
+        live = all[0];
+      }
       var football = all.filter(function (s) { return s.sport === "football"; });
+      var local = all.filter(function (s) { return s.desk === "local"; });
       var others = all.filter(function (s) { return s.sport !== "football"; });
       var html = "";
-      if (live) html += storyCard(live, "hero");
-      html += rail("Football", "Most Coverage", "/news/football/", football.slice(live && live.sport === "football" ? 1 : 0));
-      html += rail("Around the World", "Other Sports", "", others);
+      if (breaking && breaking.slug && (!live || breaking.slug !== live.slug)) {
+        html +=
+          '<a class="breaking-strip" href="' +
+          esc(storyHref(breaking.slug)) +
+          '"><span>Live</span> ' +
+          esc(breaking.title) +
+          "</a>";
+      } else if (breaking && live && breaking.slug === live.slug) {
+        html += '<p class="breaking-kicker">Live</p>';
+      }
+      html += storyCard(live || all[0], "hero");
+      var rest = football.filter(function (s) { return live && s.slug === live.slug ? false : true; });
+      var grid = rest.slice(0, 2);
+      if (grid.length) {
+        html += '<div class="grid-2 magazine-support">';
+        grid.forEach(function (s) {
+          html += storyCard(s, "grid");
+        });
+        html += "</div>";
+      }
+      html += rail("Football", "Most coverage", "/news/football/", rest.slice(2));
+      html += rail("Local Sports", "Ghana desk", "/news/football/?desk=local", local.filter(function (s) { return s.slug !== (live && live.slug); }));
+      html += rail("Around the World", "Other sports", "", others);
       html += trendingBlock(trending);
       root.innerHTML = html;
     }).catch(function () {
@@ -423,7 +509,7 @@ window.WiamNews = (function () {
         root.innerHTML = emptyDesk("Football", "Nothing on this desk yet.");
         return;
       }
-      var html = storyCard(stories[0], "hero");
+      var html = followTopicBtn() + storyCard(stories[0], "hero");
       CATS.forEach(function (row) {
         var slice = stories.filter(function (s) { return s.category === row[0]; }).slice(0, 4);
         html += rail(row[1], "", catHref(row[0]), slice);
@@ -431,6 +517,7 @@ window.WiamNews = (function () {
       getJson("/v1/public/news/trending").then(function (pack) {
         html += trendingBlock(pack.stories || [], "Trending in Football");
         root.innerHTML = html;
+        bindFollowTopic(desk, "football", "");
       }).catch(function () {
         root.innerHTML = html;
       });
@@ -445,7 +532,7 @@ window.WiamNews = (function () {
     paintSportNav("category");
     paintFootballNav(cat);
     var title = catLabel(cat);
-    var head = sectionHead("Football", title, CAT_DEK[cat] || "") + legend(cat);
+    var head = sectionHead("Football", title, CAT_DEK[cat] || "") + legend(cat) + followTopicBtn();
     var desk = deskParam();
     var q = "/v1/public/news/feed?sport=football&category=" + encodeURIComponent(cat);
     if (desk) q += "&desk=" + encodeURIComponent(desk);
@@ -487,6 +574,7 @@ window.WiamNews = (function () {
               "</div></a>";
           });
           root.innerHTML = html;
+          bindFollowTopic(desk, "football", cat);
         }).catch(function () {
           root.innerHTML = emptyDesk(title, "Please try again shortly.");
         });
@@ -507,6 +595,7 @@ window.WiamNews = (function () {
             "</div></a>";
         });
         root.innerHTML = html;
+        bindFollowTopic(desk, "football", cat);
         return;
       }
       if (cat === "interviews") {
@@ -524,9 +613,11 @@ window.WiamNews = (function () {
             "</div></a>";
         });
         root.innerHTML = html;
+        bindFollowTopic(desk, "football", cat);
         return;
       }
       paintStandardList(root, stories, head);
+      bindFollowTopic(desk, "football", cat);
     }).catch(function () {
       root.innerHTML = emptyDesk(title, "Please try again shortly.");
     });
@@ -541,7 +632,8 @@ window.WiamNews = (function () {
     var title = (p.desk === "local" ? "Local Sports" : "Foreign Sports") + " · " + sportLabel(p.sport);
     getJson("/v1/public/news/feed?desk=" + encodeURIComponent(p.desk) + "&sport=" + encodeURIComponent(p.sport))
       .then(function (data) {
-        paintStandardList(root, data.stories || [], "<h1>" + esc(title) + "</h1>");
+        paintStandardList(root, data.stories || [], "<h1>" + esc(title) + "</h1>" + followTopicBtn());
+        bindFollowTopic(p.desk, p.sport, "");
       })
       .catch(function () {
         root.innerHTML = emptyDesk(title, "Please try again shortly.");
@@ -555,7 +647,7 @@ window.WiamNews = (function () {
     getJson("/v1/public/news/trending?limit=20").then(function (data) {
       var rows = data.stories || [];
       var html =
-        '<p class="crumb"><a href="/news/">News</a><span class="sep">/</span><span class="here">Trending</span></p>' +
+        '<p class="crumb"><a href="/">News</a><span class="sep">/</span><span class="here">Trending</span></p>' +
         '<div class="section-head"><span class="eyebrow">Right Now</span><h1>Trending</h1>' +
         "<p>The most-read stories across every sport we cover.</p></div>";
       if (!rows.length) html += '<p class="dek">Nothing on this desk yet.</p>';
@@ -700,7 +792,7 @@ window.WiamNews = (function () {
 
   function copyBlocked(node) {
     if (!node || !node.closest) return false;
-    if (node.closest("input, textarea, .comments, .share-row")) return false;
+    if (node.closest("input, textarea, .comments, .share-row, .react-row, .action-bar")) return false;
     return !!node.closest(".story-lock, .article");
   }
 
@@ -784,12 +876,103 @@ window.WiamNews = (function () {
   }
 
   function commentRow(row) {
+    var when = row.at ? ago(row.at) : "";
     return (
       '<div class="comment">' +
       "<strong>" + esc(row.name || "Reader") + "</strong>" +
+      (when ? '<span class="comment-time">' + esc(when) + "</span>" : "") +
       "<p>" + esc(row.text || "") + "</p>" +
       "</div>"
     );
+  }
+
+  function voteButtons(story, login) {
+    var likes = story.likes || 0;
+    var unlikes = story.unlikes || 0;
+    var mine = story.mine || "";
+    var saved = !!story.saved;
+    return (
+      '<div class="action-bar">' +
+      '<div class="react-row" id="react-row">' +
+      '<button type="button" class="react-btn' + (mine === "like" ? " on" : "") + '" id="btn-like" aria-pressed="' + (mine === "like" ? "true" : "false") + '">Like <span id="like-n">' + likes + "</span></button>" +
+      '<button type="button" class="react-btn' + (mine === "unlike" ? " on" : "") + '" id="btn-unlike" aria-pressed="' + (mine === "unlike" ? "true" : "false") + '">Unlike <span id="unlike-n">' + unlikes + "</span></button>" +
+      (signedIn()
+        ? '<button type="button" class="react-btn' + (saved ? " on" : "") + '" id="btn-save">' + (saved ? "Saved" : "Save") + "</button>"
+        : '<a class="react-login" href="' + login + '">Sign in to react</a>') +
+      "</div>" +
+      '<div class="share-row share-bottom">' +
+      '<a href="#" id="share-native">Share</a>' +
+      '<a id="share-wa" href="#">WhatsApp</a>' +
+      '<a href="#" id="copy-link">Copy link</a></div></div>'
+    );
+  }
+
+  function paintVotes(data) {
+    var likeN = document.getElementById("like-n");
+    var unlikeN = document.getElementById("unlike-n");
+    var likeBtn = document.getElementById("btn-like");
+    var unlikeBtn = document.getElementById("btn-unlike");
+    if (likeN) likeN.textContent = String(data.likes || 0);
+    if (unlikeN) unlikeN.textContent = String(data.unlikes || 0);
+    if (likeBtn) {
+      likeBtn.classList.toggle("on", data.mine === "like");
+      likeBtn.setAttribute("aria-pressed", data.mine === "like" ? "true" : "false");
+    }
+    if (unlikeBtn) {
+      unlikeBtn.classList.toggle("on", data.mine === "unlike");
+      unlikeBtn.setAttribute("aria-pressed", data.mine === "unlike" ? "true" : "false");
+    }
+  }
+
+  function bindReactions(slug, story) {
+    paintVotes(story || {});
+    function send(vote) {
+      if (!signedIn()) {
+        location.href = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+        return;
+      }
+      var next = vote;
+      if (story && story.mine === vote) next = "clear";
+      fetch(api() + "/v1/public/news/likes/" + encodeURIComponent(slug), {
+        method: "POST",
+        headers: sessionHeaders(),
+        body: JSON.stringify({ vote: next }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) return;
+          if (story) story.mine = d.mine;
+          paintVotes(d);
+        })
+        .catch(function () {});
+    }
+    var likeBtn = document.getElementById("btn-like");
+    var unlikeBtn = document.getElementById("btn-unlike");
+    if (likeBtn) likeBtn.addEventListener("click", function () { send("like"); });
+    if (unlikeBtn) unlikeBtn.addEventListener("click", function () { send("unlike"); });
+    var saveBtn = document.getElementById("btn-save");
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function () {
+        if (!signedIn()) {
+          location.href = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        var on = saveBtn.textContent !== "Saved";
+        fetch(api() + "/v1/public/news/saved/" + encodeURIComponent(slug), {
+          method: "POST",
+          headers: sessionHeaders(),
+          body: JSON.stringify({ on: on }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.ok) return;
+            saveBtn.textContent = on ? "Saved" : "Save";
+            saveBtn.classList.toggle("on", on);
+            if (story) story.saved = on;
+          })
+          .catch(function () {});
+      });
+    }
   }
 
   function bindComments(slug) {
@@ -862,7 +1045,7 @@ window.WiamNews = (function () {
       paintSportNav(story.sport === "football" ? "football" : story.sport);
       if (story.sport === "football") paintFootballNav(story.category || "");
       else paintOtherNav(story.desk, story.sport);
-      var crumb = '<p class="crumb"><a href="/news/">News</a><span class="sep">/</span>';
+      var crumb = '<p class="crumb"><a href="/">News</a><span class="sep">/</span>';
       if (story.sport === "football") {
         crumb += '<a href="/news/football/">Football</a>';
         if (story.category) crumb += '<span class="sep">/</span><a href="' + catHref(story.category) + '">' + esc(story.category_label) + "</a>";
@@ -871,9 +1054,20 @@ window.WiamNews = (function () {
       }
       crumb += '<span class="sep">/</span><span class="here">' + esc(story.title) + "</span></p>";
       var img = photoSrc(story.photo);
+      var related = data.related || [];
       var share = location.href;
       var mid = pickInline(trendPack.stories || [], story.slug);
       var login = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+      document.title = (story.title || "Story") + " — WiamArena";
+      var desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute("content", (story.subtitle || story.summary || story.title || "").slice(0, 160));
+      var canon = document.querySelector('link[rel="canonical"]');
+      if (!canon) {
+        canon = document.createElement("link");
+        canon.rel = "canonical";
+        document.head.appendChild(canon);
+      }
+      canon.href = "https://wiamarena.com" + storyHref(story.slug);
       root.innerHTML =
         crumb +
         badgeHtml(story) +
@@ -885,10 +1079,7 @@ window.WiamNews = (function () {
         (story.published_display ? '<p class="when">' + esc(story.published_display) + "</p>" : "") +
         "</div>" +
         '<div class="story-lock">' + renderBody(story.body, inlineTrend(mid)) + "</div>" +
-        '<div class="share-row share-bottom">' +
-        '<a href="#" id="share-native">Share</a>' +
-        '<a id="share-wa" href="https://wa.me/?text=' + encodeURIComponent((story.title || "") + " " + share) + '">WhatsApp</a>' +
-        '<a href="#" id="copy-link">Copy link</a></div>' +
+        voteButtons(story, login) +
         '<p class="read-count" id="read-count"></p>' +
         '<section class="comments" id="comments">' +
         "<h2>Comments</h2>" +
@@ -897,11 +1088,22 @@ window.WiamNews = (function () {
           ? '<form id="comment-form"><textarea id="comment-text" maxlength="400" placeholder="Write a comment" rows="3"></textarea><button type="submit">Post</button></form><p class="comment-note" id="comment-note"></p>'
           : '<p class="comment-login"><a href="' + login + '">Sign in to comment</a></p>') +
         "</section>" +
+        '<div id="story-related"></div>' +
         '<div id="story-trending"></div>';
+      var wa = document.getElementById("share-wa");
+      if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((story.title || "") + " " + share);
       bindStoryShare(story, img);
       bindReadTracker(story.slug, story.reads);
+      bindReactions(story.slug, story);
       bindComments(story.slug);
       showMode("story");
+      var relBox = document.getElementById("story-related");
+      if (relBox && related.length) {
+        var relHtml = '<section class="related"><h2>Related</h2>';
+        related.forEach(function (s) { relHtml += storyCard(s, "row"); });
+        relHtml += "</section>";
+        relBox.innerHTML = relHtml;
+      }
       var rows = (trendPack.stories || []).filter(function (s) { return s.slug !== story.slug; });
       var box = document.getElementById("story-trending");
       if (box && rows.length) {
@@ -946,7 +1148,7 @@ window.WiamNews = (function () {
     var path = (location.pathname || "/").replace(/\/+$/, "") || "/";
     document.querySelectorAll(".news-boards a").forEach(function (a) {
       var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
-      var on = href === "/news" ? path === "/news" : path.indexOf(href) === 0;
+      var on = href === "/" || href === "/news" ? path === "/" || path === "/news" : path.indexOf(href) === 0;
       a.classList.toggle("active", on);
     });
   }
@@ -962,7 +1164,7 @@ window.WiamNews = (function () {
     nav.className = "news-boards news-shell";
     nav.setAttribute("aria-label", "News home and boards");
     nav.innerHTML =
-      '<a href="/news/">Home</a>' +
+      '<a href="/">Home</a>' +
       '<a href="/scores/">Scores</a>' +
       '<a href="/table/">Table</a>' +
       '<a href="/odds/">Odds</a>' +
@@ -977,7 +1179,7 @@ window.WiamNews = (function () {
       var link = document.createElement("link");
       link.id = "boards-css";
       link.rel = "stylesheet";
-      link.href = "/boards.css?v=53";
+      link.href = "/boards.css?v=54";
       document.head.appendChild(link);
     }
     var head = document.querySelector("header.news-top");
@@ -1030,7 +1232,7 @@ window.WiamNews = (function () {
       return;
     }
     var s = document.createElement("script");
-    s.src = "/scores/board.js?v=53";
+        s.src = "/scores/board.js?v=54";
     s.onload = run;
     document.body.appendChild(s);
   }
@@ -1083,7 +1285,7 @@ window.WiamNews = (function () {
         return;
       }
       if (url.origin !== location.origin) return;
-      if (!/^\/(news|search|scores|table|odds|follow)(\/|$)/.test(url.pathname)) return;
+      if (!/^\/$|^\/(news|search|scores|table|odds|follow)(\/|$)/.test(url.pathname)) return;
       ev.preventDefault();
       go(url.pathname + url.search, true);
     });

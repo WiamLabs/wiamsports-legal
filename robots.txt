@@ -5,3 +5,4 @@ Disallow: /docs/
 Disallow: /confirm/
 
 Sitemap: https://wiamarena.com/sitemap.xml
+Sitemap: https://wiamatchiq-u7c4.onrender.com/v1/public/news/sitemap

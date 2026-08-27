@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Profile — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Account</div>
+    <h1>Profile</h1>
+    <p class="subtitle" id="sub">Who you are on WiamArena.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <section>
+        <p><strong>Name</strong><br><span id="name">—</span></p>
+        <p><strong>Email</strong><br><span id="email">—</span></p>
+        <p><strong>Country</strong><br><span id="country">—</span></p>
+        <p><strong>Telegram</strong><br><span id="tg">—</span></p>
+        <p><strong>Email confirmed</strong><br><span id="verified">—</span></p>
+      </section>
+    </div>
+    <footer>
+      <p>© 2026 WiamLabs. 18+.</p>
+    </footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("profile");
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      WiamAccount.setText("name", data.full_name);
+      WiamAccount.setText("email", data.email);
+      WiamAccount.setText("country", ((data.country_emoji || "") + " " + (data.country || "")).trim());
+      WiamAccount.setText("tg", data.telegram_linked ? "Linked" : "Not linked yet. Open the bot and use the same email.");
+      WiamAccount.setText("verified", data.email_verified ? "Yes" : "Not yet");
+    });
+  </script>
+</body>
+</html>

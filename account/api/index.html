@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>API — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/engines.css">
+</head>
+<body>
+  <div class="wrap wrap-wide">
+    <header class="site-head">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="topnav" data-nav="account"></nav>
+    </header>
+    <div class="badge">Engines</div>
+    <h1>API</h1>
+    <p class="subtitle" id="sub">Your key lives on this account. We mailed the full key once.</p>
+    <nav class="dash-nav" id="acct-nav" aria-label="Account"></nav>
+    <div id="acct-main">
+      <div class="stat-grid">
+        <div class="stat"><div class="k">Plan</div><div class="v" id="plan">—</div></div>
+        <div class="stat"><div class="k">Calls today</div><div class="v" id="used">—</div></div>
+        <div class="stat"><div class="k">Remaining</div><div class="v" id="left">—</div></div>
+        <div class="stat"><div class="k">Daily limit</div><div class="v" id="limit">—</div></div>
+      </div>
+      <p><strong>Key prefix</strong><br><span id="prefix">—</span></p>
+      <p><strong>Burst</strong><br><span id="burst">—</span> calls per minute</p>
+      <div class="dash-usage-label"><span id="usage-copy">Usage today</span><span id="usage-pct">—</span></div>
+      <div class="usage-bar" aria-hidden="true"><span id="bar" style="width:0%"></span></div>
+      <p class="note">Use <code>GET /v1/me</code> with your key. <a href="/docs/">Docs</a> · <a href="/pricing/">Pricing</a>.</p>
+      <h3>Recent calls today</h3>
+      <div id="calls"><p class="note">No calls yet today.</p></div>
+    </div>
+    <footer><p>© 2026 WiamLabs. 18+.</p></footer>
+  </div>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/account/account.js?v=54"></script>
+  <script>
+    WiamAccount.paintNav("api");
+    WiamAccount.load().then(function (data) {
+      if (!WiamAccount.needVerified(data, document.getElementById("sub"))) return;
+      WiamAccount.setText("plan", data.plan || "free");
+      WiamAccount.setText("prefix", data.key_prefix ? data.key_prefix + "…" : "Confirm your email if you have not yet — then we mail the key once.");
+      WiamAccount.setText("used", data.daily_used);
+      WiamAccount.setText("left", data.daily_remaining);
+      WiamAccount.setText("limit", data.daily_limit);
+      WiamAccount.setText("burst", data.burst_per_min);
+      var used = Number(data.daily_used || 0);
+      var limit = Number(data.daily_limit || 50) || 50;
+      var pct = Math.min(100, Math.round((used / limit) * 100));
+      document.getElementById("bar").style.width = pct + "%";
+      WiamAccount.setText("usage-copy", used + " of " + limit + " requests");
+      WiamAccount.setText("usage-pct", pct + "%");
+      var rows = data.recent_calls;
+      var box = document.getElementById("calls");
+      if (!rows || !rows.length) {
+        box.innerHTML = "<p class=\"note\">No calls yet today.</p>";
+        return;
+      }
+      box.innerHTML = "<table><thead><tr><th>Route</th><th>Status</th><th>Time</th></tr></thead><tbody>" +
+        rows.map(function (r) {
+          var at = r.at ? new Date(r.at).toLocaleTimeString() : "—";
+          return "<tr><td><code>" + (r.route || "—") + "</code></td><td>" + (r.status || "—") + "</td><td>" + at + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    });
+  </script>
+</body>
+</html>

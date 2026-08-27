@@ -39,12 +39,11 @@ window.WiamAuth = {
     document.querySelectorAll("[data-nav]").forEach(function (nav) {
       var here = activeOverride || nav.getAttribute("data-nav") || "";
       var links = [
-        ["/", "Home", "home"],
+        ["/", "News", "news"],
         ["/product/", "Product", "product"],
         ["/pricing/", "Pricing", "pricing"],
-        ["/news/", "News", "news"],
       ];
-      if (signed) links.push(["/account/", "Dashboard", "account"]);
+      if (signed) links.push(["/account/", "Account", "account"]);
       else {
         links.push(["/register/", "Register", "register"]);
         links.push(["/login/", "Sign in", "login"]);
@@ -55,7 +54,19 @@ window.WiamAuth = {
           var on = here === row[2] || here === row[0];
           if (here === "docs" && row[2] === "account") on = true;
           if (row[2] === "product" && (path === "/engines" || here === "engines")) on = true;
-          if (row[2] === "news" && (path.indexOf("/news") === 0 || path.indexOf("/scores") === 0 || path.indexOf("/table") === 0 || path.indexOf("/odds") === 0 || path.indexOf("/follow") === 0 || path.indexOf("/search") === 0)) on = true;
+          if (
+            row[2] === "news" &&
+            (path === "/" ||
+              path.indexOf("/news") === 0 ||
+              path.indexOf("/scores") === 0 ||
+              path.indexOf("/table") === 0 ||
+              path.indexOf("/odds") === 0 ||
+              path.indexOf("/follow") === 0 ||
+              path.indexOf("/search") === 0)
+          ) {
+            on = true;
+          }
+          if (row[2] === "account" && path.indexOf("/account") === 0) on = true;
           return "<a" + (on ? ' class="active"' : "") + ' href="' + row[0] + '">' + row[1] + "</a>";
         })
         .join("");
