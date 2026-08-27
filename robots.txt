@@ -4,4 +4,4 @@ Disallow: /account/
 Disallow: /docs/
 Disallow: /confirm/
 
-Sitemap: https://sports.wiamlabs.com/sitemap.xml
+Sitemap: https://wiamarena.com/sitemap.xml

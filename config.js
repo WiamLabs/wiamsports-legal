@@ -1,3 +1,3 @@
 /* Public API origin used by Register / Confirm / Account. Not shown on legal pages. */
 window.WIAM_ENGINES_API = "https://wiamatchiq-u7c4.onrender.com";
-window.WIAM_ENGINES_SITE = "https://sports.wiamlabs.com";
+window.WIAM_ENGINES_SITE = "https://wiamarena.com";
