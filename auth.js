@@ -93,7 +93,24 @@ window.WiamAuth = {
 };
 
 (function () {
+  function ensureIcons() {
+    if (document.querySelector('link[rel="icon"][sizes="48x48"]')) return;
+    var tags = [
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+      { rel: "icon", href: "/favicon-96.png", type: "image/png", sizes: "96x96" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+    ];
+    tags.forEach(function (row) {
+      var el = document.createElement("link");
+      Object.keys(row).forEach(function (k) {
+        el.setAttribute(k, row[k]);
+      });
+      document.head.appendChild(el);
+    });
+  }
   function go() {
+    ensureIcons();
     if (window.WiamAuth) window.WiamAuth.paintNav();
   }
   if (document.readyState === "loading") {

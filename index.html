@@ -11,9 +11,13 @@
   <meta property="og:url" content="https://wiamarena.com/">
   <meta property="og:title" content="WiamArena — Football News, Scores &amp; Tables">
   <meta property="og:description" content="WiamArena News — football, live scores, league tables, and odds. Local and foreign desks.">
-  <meta property="og:image" content="https://wiamarena.com/logo.png">
+  <meta property="og:image" content="https://wiamarena.com/icon-512.png">
   <meta name="twitter:card" content="summary">
-  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/legal.css?v=54">
   <link rel="stylesheet" href="/news/news.css?v=54">
   <link rel="stylesheet" href="/news/news-v2.css?v=54">
@@ -28,16 +32,18 @@
         "name": "WiamArena",
         "legalName": "WiamLabs",
         "url": "https://wiamarena.com/",
-        "logo": "https://wiamarena.com/logo.png",
-        "email": "sports@wiamlabs.com",
-        "areaServed": "GH",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://wiamarena.com/icon-512.png",
+          "width": 512,
+          "height": 512
+        },
         "sameAs": ["https://wiamlabs.com/"],
         "parentOrganization": {
           "@type": "Organization",
           "@id": "https://wiamlabs.com/#organization",
           "name": "WiamLabs",
-          "url": "https://wiamlabs.com/",
-          "email": "sports@wiamlabs.com"
+          "url": "https://wiamlabs.com/"
         }
       },
       {
@@ -104,7 +110,7 @@
         </div>
         <div>
           <h2>WiamArena</h2>
-          <a href="/about/">About WiamLabs</a>
+          <a href="/about/">About</a>
           <a href="/product/">Engines API</a>
           <a href="/legal/">Legal</a>
         </div>
@@ -119,7 +125,7 @@
     </div>
   </footer>
   <script src="/config.js"></script>
-  <script src="/auth.js?v=54"></script>
+  <script src="/auth.js?v=55"></script>
   <script src="/news/news.js?v=54"></script>
 </body>
 </html>
