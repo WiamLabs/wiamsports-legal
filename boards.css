@@ -143,6 +143,12 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+.news-feed .jump-live:hover { color: #fff; }
+.news-page #board.news-board:empty {
+  display: block;
+  min-height: 8rem;
+  background: #fff;
+}
 .news-feed .match-row,
 .news-feed .match-row .club-line,
 .news-feed .match-row .score {

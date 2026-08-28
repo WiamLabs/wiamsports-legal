@@ -209,6 +209,7 @@ window.WiamBoard = (function () {
 
   function getJson(path) {
     return fetch(api() + path).then(function (r) {
+      if (!r.ok) throw new Error(String(r.status));
       return r.json();
     });
   }
@@ -261,6 +262,8 @@ window.WiamBoard = (function () {
   }
 
   function paintScoresHub(root) {
+    root.hidden = false;
+    if (!root.innerHTML) root.innerHTML = "<h1>Scores</h1><p>Loading scores…</p>";
     Promise.all([loadHub(), loadFollowed()]).then(function (pair) {
       var data = pair[0];
       var mine = pair[1];
@@ -355,6 +358,7 @@ window.WiamBoard = (function () {
   }
 
   function paintScores(root, s) {
+    root.hidden = false;
     Promise.all([
       getJson("/v1/public/scores/" + encodeURIComponent(s)),
       loadFollowed(),

@@ -1179,7 +1179,7 @@ window.WiamNews = (function () {
       var link = document.createElement("link");
       link.id = "boards-css";
       link.rel = "stylesheet";
-      link.href = "/boards.css?v=54";
+      link.href = "/boards.css?v=57";
       document.head.appendChild(link);
     }
     var head = document.querySelector("header.news-top");
@@ -1232,7 +1232,7 @@ window.WiamNews = (function () {
       return;
     }
     var s = document.createElement("script");
-        s.src = "/scores/board.js?v=54";
+        s.src = "/scores/board.js?v=57";
     s.onload = run;
     document.body.appendChild(s);
   }
