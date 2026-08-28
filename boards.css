@@ -62,9 +62,10 @@
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   margin-bottom: 8px;
   text-decoration: none;
+  color: var(--text);
 }
 .match-row .clubs { flex: 1; }
 .match-row .club-line { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); padding: 2px 0; gap: 10px; }
@@ -78,13 +79,121 @@
   text-align: right;
   min-width: 56px;
 }
-.match-row.is-live .kickoff { color: #ff8a73; }
+.match-row.is-live .kickoff { color: #ff5a45; }
 .match-row.is-ft .kickoff { color: var(--green-dim); }
 .match-row .crest, .match-row .crest-fallback {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex: 0 0 auto;
   object-fit: contain;
+}
+.match-row .club-line .name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.match-row .score {
+  min-width: 1.25em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+  line-height: 1;
+}
+.match-row .score.is-empty { visibility: hidden; }
+.match-row.is-live {
+  border-color: #5a241c;
+  box-shadow: inset 3px 0 0 #ff5a45;
+}
+.match-row.is-followed {
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.match-row.is-live.is-followed {
+  box-shadow: inset 3px 0 0 #ff5a45, inset 6px 0 0 var(--gold);
+}
+.match-comp {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label);
+  margin: 0 0 6px;
+}
+.live-stamp {
+  color: #ff5a45;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.live-stamp.is-ht { color: var(--gold); }
+.match-row.is-link { cursor: pointer; }
+
+.jump-live {
+  display: inline-block;
+  position: sticky;
+  top: 10px;
+  z-index: 4;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ff5a45;
+  color: #fff !important;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.news-feed .match-row,
+.news-feed .match-row .club-line,
+.news-feed .match-row .score {
+  color: var(--text);
+}
+.news-feed p.match-comp { color: var(--label); margin: 0 0 6px; }
+
+.scores-block { margin: 8px 0 28px; }
+.news-feed .scores-block h2 {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--label);
+  margin: 0 0 12px;
+}
+.news-feed .match-group h3,
+.news-feed .match-group h3 a {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--label);
+  margin: 0 0 10px;
+}
+.news-feed .match-group h3 a:hover { color: var(--green); }
+
+.scores-leagues { display: grid; gap: 8px; }
+.news-feed .scores-leagues a.scores-league {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.news-feed .scores-leagues a.scores-league:hover {
+  border-color: var(--green);
+  color: var(--text);
+}
+.league-meta { color: var(--label); font-size: 12px; font-weight: 700; }
+.league-meta.is-live { color: #ff5a45; }
+
+@media (max-width: 480px) {
+  .match-row { padding: 12px 12px; gap: 8px; }
+  .match-row .kickoff { min-width: 48px; font-size: 11px; }
 }
 .crest-fallback {
   display: inline-flex;

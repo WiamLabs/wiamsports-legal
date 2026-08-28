@@ -139,12 +139,15 @@ Only after 1 and 2:
 
 ## QA checklist (every Scores ship)
 
-- [ ] Open `/scores/` on a match day: Live now shows real scores, not only the word LIVE.
-- [ ] Open a league with a live match: both crests, both numbers, red LIVE.
-- [ ] Upcoming match in that league: time, no 0–0.
-- [ ] Finished match: FT and the result.
-- [ ] No doubled fixture from `Crystal Palace` vs `Crystal Palace FC`.
-- [ ] Phone width: names do not crush the score; LIVE stays readable.
-- [ ] Desktop: same content, not a different product.
-- [ ] Leave the page: the refresh timer stops.
-- [ ] No Pulse, Tide, warehouse, or confidence on the page.
+- [x] Open `/scores/` on a match day: Live now shows real scores, not only the word LIVE.
+- [x] Open a league with a live match: both crests, both numbers, red LIVE.
+- [x] Upcoming match in that league: time, no 0–0.
+- [x] Finished match: FT and the result.
+- [x] No doubled fixture from `Crystal Palace` vs `Crystal Palace FC`.
+- [x] Phone width: names do not crush the score; LIVE stays readable.
+- [x] Desktop: same content, not a different product.
+- [x] Leave the page: the refresh timer stops.
+- [x] No Pulse, Tide, warehouse, or confidence on the page.
+- [x] Match minute on LIVE when the feed or clock has it; HT when paused.
+- [x] Jump to live on a long league page.
+- [x] Followed clubs get a gold edge on the row (same Follow list, no Follow redesign).
