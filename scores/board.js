@@ -57,8 +57,21 @@ window.WiamBoard = (function () {
   }
 
   function crest(url, name) {
-    if (!url) return '<span class="crest-fallback">' + esc((name || "?").slice(0, 1)) + "</span>";
-    return '<img class="crest" src="' + esc(url) + '" alt="">';
+    var letter = esc((name || "?").slice(0, 1));
+    if (!url) return '<span class="crest-fallback">' + letter + "</span>";
+    return (
+      '<img class="crest" src="' +
+      esc(url) +
+      '" alt="" data-letter="' +
+      letter +
+      '" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'crest-fallback\',textContent:this.getAttribute(\'data-letter\')||\'?\'}))">'
+    );
+  }
+
+  function scoreCell(val, state) {
+    if (state === "up") return "";
+    var n = val == null || val === "" ? "0" : String(val);
+    return '<span class="score">' + esc(n) + "</span>";
   }
 
   function getJson(path) {
@@ -113,8 +126,8 @@ window.WiamBoard = (function () {
         g.rows.forEach(function (m) {
           var state = matchState(m);
           var klass = "match-row" + (state === "live" ? " is-live" : state === "ft" ? " is-ft" : "");
-          var homeScore = state === "up" || m.home_score == null ? "" : '<span class="score">' + esc(String(m.home_score)) + "</span>";
-          var awayScore = state === "up" || m.away_score == null ? "" : '<span class="score">' + esc(String(m.away_score)) + "</span>";
+          var homeScore = scoreCell(m.home_score, state);
+          var awayScore = scoreCell(m.away_score, state);
           var when = state === "live" ? "LIVE" : state === "ft" ? "FT" : esc(kick(m.kickoff));
           html +=
             '<div class="' + klass + '"><div class="clubs">' +
@@ -125,6 +138,12 @@ window.WiamBoard = (function () {
         html += "</div>";
       });
       root.innerHTML = html;
+      if (rows.some(function (m) { return matchState(m) === "live"; })) {
+        window.clearTimeout(window._wiamScoreTimer);
+        window._wiamScoreTimer = window.setTimeout(function () {
+          paintScores(root, s);
+        }, 12000);
+      }
     }).catch(function () {
       root.innerHTML = "<p>Please try again shortly.</p>";
     });

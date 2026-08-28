@@ -7,6 +7,11 @@ Allow: /logo.png
 Disallow: /account/
 Disallow: /docs/
 Disallow: /confirm/
+Disallow: /about/
+Disallow: /legal/
+Disallow: /privacy-policy/
+Disallow: /terms-of-use/
+Disallow: /terms/
 
 Sitemap: https://wiamarena.com/sitemap.xml
 Sitemap: https://wiamatchiq-u7c4.onrender.com/v1/public/news/sitemap
