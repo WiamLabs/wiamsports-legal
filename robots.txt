@@ -7,11 +7,10 @@ Allow: /logo.png
 Disallow: /account/
 Disallow: /docs/
 Disallow: /confirm/
-Disallow: /about/
-Disallow: /legal/
-Disallow: /privacy-policy/
-Disallow: /terms-of-use/
-Disallow: /terms/
+
+# About, Legal, Privacy and Terms carry noindex on the page itself.
+# Do not Disallow them. If Google cannot crawl the page, it cannot see
+# noindex, and the old listings stay in search.
 
 Sitemap: https://wiamarena.com/sitemap.xml
 Sitemap: https://wiamatchiq-u7c4.onrender.com/v1/public/news/sitemap
