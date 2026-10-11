@@ -72,7 +72,76 @@ window.WiamNews = (function () {
     return id || "";
   }
 
+  var SUBDESKS = {
+    football: CATS,
+    basketball: [
+      ["trades", "Trades & Signings"],
+      ["rumours", "Rumours"],
+      ["game-previews", "Game Previews"],
+      ["game-reports", "Game Reports"],
+      ["live", "Live"],
+      ["analysis", "Analysis"],
+      ["rankings", "Rankings"],
+      ["interviews", "Interviews"],
+      ["team-news", "Team News"],
+      ["league-news", "League News"],
+      ["player-news", "Player News"],
+      ["coach-news", "Coach News"],
+      ["controversy", "Controversy"],
+    ],
+    tennis: [
+      ["tournament-previews", "Tournament Previews"],
+      ["match-reports", "Match Reports"],
+      ["live", "Live"],
+      ["draws-results", "Draws & Results"],
+      ["analysis", "Analysis"],
+      ["rankings", "Rankings"],
+      ["interviews", "Interviews"],
+      ["player-news", "Player News"],
+      ["tournament-news", "Tournament News"],
+      ["controversy", "Controversy"],
+    ],
+    athletics: [
+      ["meet-previews", "Meet Previews"],
+      ["meet-results", "Meet Results"],
+      ["live", "Live"],
+      ["records", "Records"],
+      ["analysis", "Analysis"],
+      ["rankings", "Rankings"],
+      ["interviews", "Interviews"],
+      ["athlete-news", "Athlete News"],
+      ["federation-news", "Federation News"],
+      ["controversy", "Controversy"],
+    ],
+    boxing: [
+      ["fight-previews", "Fight Previews"],
+      ["fight-reports", "Fight Reports"],
+      ["live", "Live"],
+      ["fight-announcements", "Fight Announcements"],
+      ["analysis", "Analysis"],
+      ["rankings", "Rankings"],
+      ["interviews", "Interviews"],
+      ["boxer-news", "Boxer News"],
+      ["promoter-news", "Promoter & Camp News"],
+      ["controversy", "Controversy"],
+    ],
+    wrestling: [
+      ["event-previews", "Event Previews"],
+      ["results", "Results"],
+      ["live", "Live"],
+      ["records", "Records"],
+      ["analysis", "Analysis"],
+      ["rankings", "Rankings"],
+      ["interviews", "Interviews"],
+      ["wrestler-news", "Wrestler News"],
+      ["federation-news", "Federation News"],
+      ["controversy", "Controversy"],
+    ],
+  };
+
   function sportLabel(id) {
+    if (id === "all") return "All";
+    if (id === "wrestling") return "Wrestling";
     for (var i = 0; i < SPORTS.length; i++) if (SPORTS[i][0] === id) return SPORTS[i][1];
     return id || "";
   }
@@ -80,10 +149,19 @@ window.WiamNews = (function () {
   function parsePath() {
     var p = (location.pathname || "/").replace(/\/+$/, "") || "/";
     var parts = p.split("/").filter(Boolean);
+    if (parts[0] === "news" && parts[1] === "tag") return { mode: "tag" };
     if (parts[0] === "news" && parts[1] === "story" && parts[2]) {
       return { mode: "story", slug: decodeURIComponent(parts[2]) };
     }
+    if (parts[0] === "news" && (parts[1] === "local" || parts[1] === "foreign") && !parts[2]) {
+      return { mode: "feed", desk: parts[1], sport: "all" };
+    }
+    if (parts[0] === "news" && (parts[1] === "local" || parts[1] === "foreign") && parts[2] === "wrestling") {
+      return { mode: "feed", desk: parts[1], sport: "wrestling" };
+    }
     if (parts[0] === "news" && (parts[1] === "foreign" || parts[1] === "local") && parts[2] === "football") {
+      if (ghanaPage() && parts[1] === "local") return { mode: "feed", desk: "local", sport: "football" };
+      if (internationalPage() && parts[1] === "foreign") return { mode: "feed", desk: "foreign", sport: "football" };
       return { mode: "redirect", to: "/news/football/" };
     }
     if (parts[0] === "news" && parts[1] === "football" && parts[2]) {
@@ -107,7 +185,13 @@ window.WiamNews = (function () {
   }
 
   function href(desk, sport) {
-    if (sport === "football") return "/news/football/";
+    if (sport === "all") return "/news/" + desk + "/";
+    if (sport === "football") {
+      if ((ghanaPage() || internationalPage()) && (desk === "local" || desk === "foreign")) {
+        return "/news/" + desk + "/football/";
+      }
+      return "/news/football/";
+    }
     return "/news/" + desk + "/" + sport + "/";
   }
 
@@ -195,23 +279,60 @@ window.WiamNews = (function () {
     return "<h1>" + esc(title) + "</h1>" + '<p class="dek">' + esc(copy) + "</p>";
   }
 
-  function paintSportNav(active) {
+  function ghanaPage() {
+    return document.body && document.body.classList.contains("page-ghana");
+  }
+
+  function internationalPage() {
+    return document.body && document.body.classList.contains("page-international");
+  }
+
+  function deskPage() {
+    return ghanaPage() || internationalPage();
+  }
+
+  function paintGhanaBar(active) {
     var desks = document.getElementById("desks");
     if (!desks) return;
-    var html = '<a href="/"' + (active === "home" ? ' class="active"' : "") + ">Home</a>";
-    html += '<a href="/news/football/"' + (active === "football" || active === "category" ? ' class="active"' : "") + ">Football</a>";
-    OTHER.forEach(function (sid) {
-      html += '<a href="' + href("foreign", sid) + '"' + (active === sid ? ' class="active"' : "") + ">" + esc(sportLabel(sid)) + "</a>";
-    });
-    html += '<a href="/news/trending/"' + (active === "trending" ? ' class="active"' : "") + ">Trending</a>";
+    var pathDesk = deskParam();
+    var bits = (location.pathname || "").split("/").filter(Boolean);
+    if (bits[0] === "news" && (bits[1] === "local" || bits[1] === "foreign")) pathDesk = bits[1];
+    var here = (location.pathname || "/").replace(/\/+$/, "") || "/";
+    var html = '<a href="/"' + (here === "/" || here === "/news" ? ' class="active"' : "") + ">Home</a>";
+    html += '<a href="/news/foreign/"' + (pathDesk === "foreign" ? ' class="active"' : "") + ">International</a>";
+    html += '<a href="/news/local/"' + (pathDesk === "local" ? ' class="active"' : "") + ">Ghana</a>";
+    html += '<a href="/live/"' + (here === "/live" ? ' class="active"' : "") + ">Live</a>";
+    html += '<a href="/scores/"' + (here.indexOf("/scores") === 0 ? ' class="active"' : "") + ">Scores</a>";
+    html += '<a href="/table/"' + (here.indexOf("/table") === 0 ? ' class="active"' : "") + ">Table</a>";
+    html += '<a href="/goals/"' + (here.indexOf("/goals") === 0 ? ' class="active"' : "") + ">Goals</a>";
+    html += '<a href="/odds/"' + (here.indexOf("/odds") === 0 ? ' class="active"' : "") + ">Odds</a>";
+    html += '<a href="/follow/"' + (here.indexOf("/follow") === 0 ? ' class="active"' : "") + ">Follow</a>";
     desks.innerHTML = html;
-    if (active !== "football" && active !== "category") {
-      var cats = document.getElementById("cats");
-      if (cats) {
-        cats.innerHTML = "";
-        cats.hidden = true;
-      }
-    }
+    paintGhanaMenu();
+  }
+
+  function paintGhanaMenu() {
+    var menu = document.getElementById("menu");
+    if (!menu) return;
+    menu.innerHTML =
+      '<a href="/">Home</a>' +
+      '<a href="/news/foreign/">International</a>' +
+      '<a href="/news/local/">Ghana</a>' +
+      '<a href="/live/">Live</a>' +
+      '<a href="/scores/">Scores</a>' +
+      '<a href="/table/">Table</a>' +
+      '<a href="/goals/">Goals</a>' +
+      '<a href="/odds/">Odds</a>' +
+      '<a href="/follow/">Follow</a>' +
+      '<p class="menu-label">Account</p>' +
+      '<a href="/product/">Product</a><a href="/pricing/">Pricing</a>' +
+      '<a href="/login/">Sign in</a><a href="/register/">Create account</a>';
+  }
+
+  var LEGACY_DESK_NAMES = ["Foreign Sports", "Local Sports"];
+
+  function paintSportNav(active) {
+    paintGhanaBar(active);
   }
 
   function deskParam() {
@@ -224,64 +345,84 @@ window.WiamNews = (function () {
     return href + (href.indexOf("?") >= 0 ? "&" : "?") + "desk=" + encodeURIComponent(desk);
   }
 
-  function paintFootballNav(activeCat) {
+  function clearLegacyStrip() {
     var sports = document.getElementById("sports");
-    var menu = document.getElementById("menu");
     var cats = document.getElementById("cats");
-    if (!cats) {
+    if (!cats && sports && sports.parentNode) {
       cats = document.createElement("nav");
       cats.id = "cats";
       cats.className = "news-cats news-shell";
-      cats.setAttribute("aria-label", "Football categories");
-      if (sports && sports.parentNode) sports.parentNode.insertBefore(cats, sports.nextSibling);
-      else if (menu && menu.parentNode) menu.parentNode.insertBefore(cats, menu.nextSibling);
+      cats.hidden = true;
+      sports.parentNode.insertBefore(cats, sports.nextSibling);
     }
-    var desk = deskParam();
-    var deskHtml =
-      '<a href="/news/football/"' + (!activeCat && !desk ? ' class="active"' : "") + ">Football Home</a>" +
-      '<a href="' + withDesk("/news/football/", "foreign") + '"' + (!activeCat && desk === "foreign" ? ' class="active"' : "") + ">Foreign Sports</a>" +
-      '<a href="' + withDesk("/news/football/", "local") + '"' + (!activeCat && desk === "local" ? ' class="active"' : "") + ">Local Sports</a>";
-    var catHtml = "";
-    CATS.forEach(function (row) {
-      catHtml +=
-        '<a href="' +
-        withDesk(catHref(row[0]), desk) +
-        '"' +
-        (activeCat === row[0] ? ' class="active"' : "") +
-        ">" +
-        esc(row[1]) +
-        "</a>";
-    });
-    if (sports) sports.innerHTML = deskHtml;
+    if (sports) sports.innerHTML = "";
     if (cats) {
-      cats.hidden = false;
-      cats.innerHTML = catHtml;
+      cats.className = "news-cats news-shell";
+      cats.hidden = true;
+      cats.innerHTML = "";
     }
-    if (menu) menu.innerHTML = deskHtml + catHtml;
+    void LEGACY_DESK_NAMES;
+  }
+
+  function paintFootballNav(activeCat) {
+    clearLegacyStrip();
+    void activeCat;
   }
 
   function paintOtherNav(desk, sport) {
-    var sports = document.getElementById("sports");
-    var menu = document.getElementById("menu");
-    var cats = document.getElementById("cats");
-    if (cats) {
-      cats.innerHTML = "";
-      cats.hidden = true;
-    }
-    var html =
-      '<a class="' + (desk === "foreign" ? "active" : "") + '" href="' + href("foreign", sport) + '">Foreign Sports</a>' +
-      '<a class="' + (desk === "local" ? "active" : "") + '" href="' + href("local", sport) + '">Local Sports</a>';
-    if (sports) sports.innerHTML = html;
-    if (menu) menu.innerHTML = html;
+    clearLegacyStrip();
+    void desk;
+    void sport;
   }
 
   function bindMenu() {
     var btn = document.getElementById("menu-btn");
     var menu = document.getElementById("menu");
-    if (!btn || !menu) return;
-    btn.addEventListener("click", function () {
-      menu.classList.toggle("open");
-    });
+    if (btn && menu) {
+      btn.addEventListener("click", function () {
+        menu.classList.toggle("open");
+        var accountMenu = document.getElementById("account-menu");
+        var accountBtn = document.getElementById("account-btn");
+        if (accountMenu) accountMenu.hidden = true;
+        if (accountBtn) accountBtn.setAttribute("aria-expanded", "false");
+      });
+    }
+    var tools = document.querySelector(".ghana-tools");
+    var accountBtn = document.getElementById("account-btn");
+    if (!accountBtn && tools) {
+      var link = tools.querySelector("a.account-link");
+      if (link) {
+        accountBtn = document.createElement("button");
+        accountBtn.className = "account-link";
+        accountBtn.type = "button";
+        accountBtn.id = "account-btn";
+        accountBtn.textContent = "Account";
+        link.replaceWith(accountBtn);
+      }
+    }
+    var accountMenu = document.getElementById("account-menu");
+    if (!accountMenu && accountBtn) {
+      accountMenu = document.createElement("div");
+      accountMenu.className = "account-menu";
+      accountMenu.id = "account-menu";
+      accountMenu.hidden = true;
+      accountMenu.innerHTML =
+        '<a href="/product/">Product</a><a href="/pricing/">Pricing</a><a href="/login/">Sign in</a><a href="/register/">Create account</a>';
+      var header = document.querySelector(".ghana-top");
+      if (header) header.appendChild(accountMenu);
+    }
+    if (accountBtn && accountMenu) {
+      accountBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        accountMenu.hidden = !accountMenu.hidden;
+        accountBtn.setAttribute("aria-expanded", accountMenu.hidden ? "false" : "true");
+        if (menu) menu.classList.remove("open");
+      });
+      document.addEventListener("click", function () {
+        accountMenu.hidden = true;
+        accountBtn.setAttribute("aria-expanded", "false");
+      });
+    }
   }
 
   var _cache = {};
@@ -505,6 +646,11 @@ window.WiamNews = (function () {
     if (desk) q += "&desk=" + encodeURIComponent(desk);
     getJson(q).then(function (data) {
       var stories = data.stories || [];
+      if (desk === "local" || desk === "foreign") {
+        paintDesk(root, desk, "football", stories);
+        bindFollowTopic(desk, "football", "");
+        return;
+      }
       if (!stories.length) {
         root.innerHTML = emptyDesk("Football", "Nothing on this desk yet.");
         return;
@@ -623,21 +769,261 @@ window.WiamNews = (function () {
     });
   }
 
+  var TOP_LEAGUES = [
+    ["premier-league", "Premier League"],
+    ["la-liga", "La Liga"],
+    ["champions-league", "Champions League"],
+    ["serie-a", "Serie A"],
+    ["bundesliga", "Bundesliga"],
+  ];
+
+  function deskBanner(desk) {
+    if (desk === "local") {
+      return (
+        '<header class="desk-banner ghana">' +
+        '<p class="flag-star" aria-hidden="true">★</p>' +
+        "<div><h1>Ghana Sports</h1><p>Local teams. Local stories. Our game.</p></div></header>"
+      );
+    }
+    return (
+      '<header class="desk-banner international">' +
+      "<div><h1>International Sports</h1><p>Global games. Big stories. All in one place.</p></div></header>"
+    );
+  }
+
+  function deskChips(desk, active) {
+    var tabs = [["all", "All"]].concat(SPORTS, [["wrestling", "Wrestling"]]);
+    var html = '<nav class="desk-chips" aria-label="Sports">';
+    tabs.forEach(function (row) {
+      html +=
+        '<a href="' +
+        href(desk, row[0]) +
+        '"' +
+        (row[0] === active ? ' class="on"' : "") +
+        ">" +
+        esc(row[1]) +
+        "</a>";
+    });
+    html += "</nav>";
+    return html;
+  }
+
+  function deskSubs(desk, sport, activeCat) {
+    var rows = SUBDESKS[sport];
+    if (!rows || sport === "all") return "";
+    var html = '<nav class="desk-subs" aria-label="Desks">';
+    rows.forEach(function (row) {
+      html +=
+        '<a href="' +
+        href(desk, sport) +
+        "?category=" +
+        encodeURIComponent(row[0]) +
+        '"' +
+        (row[0] === activeCat ? ' class="on"' : "") +
+        ">" +
+        esc(row[1]) +
+        "</a>";
+    });
+    html += "</nav>";
+    return html;
+  }
+
+  function textStory(story) {
+    var label = story.category_label || sportLabel(story.sport) || "";
+    var copy = story.summary || story.subtitle || "";
+    return (
+      '<a class="text-story" href="' +
+      esc(storyHref(story.slug)) +
+      '"><p class="kicker">' +
+      esc(label) +
+      "</p><h2>" +
+      esc(story.title) +
+      "</h2>" +
+      (copy ? "<p>" + esc(copy) + "</p>" : "") +
+      meta(story) +
+      "</a>"
+    );
+  }
+
+  function imageStory(story, lead) {
+    var src = photoSrc(story.photo);
+    var copy = story.summary || story.subtitle || "";
+    return (
+      '<a class="' +
+      (lead ? "lead-card" : "side-card") +
+      (src ? "" : " no-photo") +
+      '" href="' +
+      esc(storyHref(story.slug)) +
+      '">' +
+      (src ? '<img src="' + esc(src) + '" alt="">' : "") +
+      '<div><p class="kicker">' +
+      esc(story.category_label || sportLabel(story.sport) || "") +
+      "</p>" +
+      (lead ? "<h2>" : "<h3>") +
+      esc(story.title) +
+      (lead ? "</h2>" : "</h3>") +
+      (copy ? "<p>" + esc(copy) + "</p>" : "") +
+      meta(story) +
+      "</div></a>"
+    );
+  }
+
+  function leagueLinks() {
+    var html = "";
+    TOP_LEAGUES.forEach(function (row) {
+      html += '<a class="league-link" href="/table/' + esc(row[0]) + '/">' + esc(row[1]) + "</a>";
+    });
+    return html;
+  }
+
+  function fillScores(box, matches) {
+    if (!box) return;
+    if (!matches.length) {
+      box.innerHTML = '<p class="desk-empty">No scores in yet.</p>';
+      return;
+    }
+    var html = "";
+    matches.slice(0, 5).forEach(function (m) {
+      var hrefScore = m.slug ? "/scores/" + esc(m.slug) + "/" : "/scores/";
+      html +=
+        '<a class="score-line" href="' +
+        hrefScore +
+        '"><span>' +
+        esc(m.home || "") +
+        "</span><b>" +
+        (m.home_score == null ? "–" : esc(String(m.home_score))) +
+        "</b><span>" +
+        esc(m.away || "") +
+        "</span><b>" +
+        (m.away_score == null ? "–" : esc(String(m.away_score))) +
+        "</b><em>" +
+        esc(m.status || "") +
+        "</em></a>";
+    });
+    box.innerHTML = html;
+  }
+
+  function paintDesk(root, desk, sport, stories, activeCat) {
+    var ghana = desk === "local";
+    var main = "";
+    var shown = stories;
+    if (activeCat) {
+      shown = stories.filter(function (s) {
+        return (s.category || "") === activeCat;
+      });
+    }
+    if (!shown.length) {
+      main = '<p class="dek">No stories here yet.</p>';
+    } else if (ghana) {
+      shown.forEach(function (s) {
+        main += textStory(s);
+      });
+    } else {
+      main += imageStory(shown[0], true);
+      shown.slice(1).forEach(function (s) {
+        main += imageStory(s, false);
+      });
+    }
+    main += '<section class="desk-panel desk-trend"><h2>Trending</h2><div id="desk-trending"></div></section>';
+    var popular = "";
+    stories.slice(0, 5).forEach(function (s) {
+      popular +=
+        '<a class="popular-line" href="' +
+        esc(storyHref(s.slug)) +
+        '"><strong>' +
+        esc(s.title) +
+        "</strong>" +
+        meta(s) +
+        "</a>";
+    });
+    if (!popular) popular = '<p class="desk-empty">Stories will show here as they are filed.</p>';
+    var side = ghana
+      ? '<section class="desk-panel"><div class="panel-head"><h2>Latest scores</h2><a href="/scores/">View all</a></div><div id="desk-scores"></div></section>' +
+        '<section class="desk-panel"><div class="panel-head"><h2>Ghana Premier League</h2><a href="/table/">View all</a></div><p class="desk-empty">The table shows here when that competition is on the board.</p></section>' +
+        '<section class="desk-panel"><h2>Quick links</h2><a class="league-link" href="/scores/">Match results</a><a class="league-link" href="/scores/">Fixtures</a><a class="league-link" href="/table/">League table</a></section>'
+      : '<section class="desk-panel"><div class="panel-head"><h2>Live scores</h2><a href="/scores/">View all</a></div><div id="desk-scores"></div></section>' +
+        '<section class="desk-panel"><div class="panel-head"><h2>Top leagues</h2><a href="/table/">View all</a></div>' +
+        leagueLinks() +
+        "</section>" +
+        '<section class="desk-panel"><h2>Popular</h2>' +
+        popular +
+        "</section>";
+    var brand = ghana
+      ? '<aside class="ghana-brand"><img src="/logo.png" alt=""><div><strong>WiamArena</strong><p>Your Home for Ghana Sports</p></div></aside>'
+      : '<aside class="ghana-brand"><img src="/logo.png" alt=""><div><strong>WiamArena</strong><p>Global games. Big stories. All in one place.</p></div></aside>';
+    root.innerHTML =
+      deskBanner(desk) +
+      '<div class="desk-wrap">' +
+      deskChips(desk, sport) +
+      deskSubs(desk, sport, activeCat || "") +
+      followTopicBtn() +
+      '<div class="desk-layout"><div class="desk-main">' +
+      main +
+      brand +
+      '</div><aside class="desk-side">' +
+      side +
+      "</aside></div></div>";
+    var current = root.querySelector(".desk-chips a.on, .desk-subs a.on");
+    if (current && current.scrollIntoView) current.scrollIntoView({ inline: "center", block: "nearest" });
+    getJson("/v1/public/scores/live", true)
+      .then(function (live) {
+        fillScores(document.getElementById("desk-scores"), (live && live.matches) || []);
+      })
+      .catch(function () {
+        var box = document.getElementById("desk-scores");
+        if (box) box.innerHTML = '<p class="desk-empty">Scores are not available right now.</p>';
+      });
+    getJson("/v1/public/news/trending?limit=5")
+      .then(function (data) {
+        var box = document.getElementById("desk-trending");
+        if (!box) return;
+        var rows = (data && data.stories) || [];
+        if (!rows.length) {
+          box.innerHTML = '<p class="desk-empty">Nothing is trending yet.</p>';
+          return;
+        }
+        var html = "";
+        rows.forEach(function (s) {
+          html +=
+            '<a class="popular-line" href="' +
+            esc(storyHref(s.slug)) +
+            '"><strong>' +
+            esc(s.title) +
+            "</strong></a>";
+        });
+        box.innerHTML = html;
+      })
+      .catch(function () {
+        var box = document.getElementById("desk-trending");
+        if (box) box.innerHTML = '<p class="desk-empty">Nothing is trending yet.</p>';
+      });
+  }
+
   function paintFeed() {
     var root = document.getElementById("feed");
     if (!root) return;
     var p = parsePath();
     paintSportNav(p.sport);
     paintOtherNav(p.desk, p.sport);
-    var title = (p.desk === "local" ? "Local Sports" : "Foreign Sports") + " · " + sportLabel(p.sport);
-    getJson("/v1/public/news/feed?desk=" + encodeURIComponent(p.desk) + "&sport=" + encodeURIComponent(p.sport))
-      .then(function (data) {
-        paintStandardList(root, data.stories || [], "<h1>" + esc(title) + "</h1>" + followTopicBtn());
-        bindFollowTopic(p.desk, p.sport, "");
-      })
-      .catch(function () {
-        root.innerHTML = emptyDesk(title, "Please try again shortly.");
-      });
+    var title = (p.desk === "local" ? "Ghana Sports" : "International Sports") + " · " + sportLabel(p.sport);
+    var cat = new URLSearchParams(location.search).get("category") || "";
+    if (p.sport === "wrestling") {
+      paintDesk(root, p.desk, p.sport, [], cat);
+      return;
+    }
+    var loads = p.sport === "all" ? SPORTS.map(function (row) { return row[0]; }) : [p.sport];
+    Promise.all(loads.map(function (sport) {
+      var q = "/v1/public/news/feed?desk=" + encodeURIComponent(p.desk) + "&sport=" + encodeURIComponent(sport);
+      if (cat && sport === "football") q += "&category=" + encodeURIComponent(cat);
+      return getJson(q).then(function (data) { return (data && data.stories) || []; });
+    })).then(function (groups) {
+      var stories = [];
+      groups.forEach(function (rows) { stories = stories.concat(rows); });
+      paintDesk(root, p.desk, p.sport, stories, cat);
+      if (p.sport !== "all") bindFollowTopic(p.desk, p.sport, cat);
+    }).catch(function () {
+      root.innerHTML = emptyDesk(title, "Please try again shortly.");
+    });
   }
 
   function paintTrending() {
@@ -715,8 +1101,6 @@ window.WiamNews = (function () {
   function bindStoryShare(story, img) {
     var url = location.href;
     var title = story.title || "";
-    var copyBtn = document.getElementById("copy-link");
-    var wa = document.getElementById("share-wa");
     function mark(el, label) {
       if (el) el.textContent = label;
     }
@@ -737,38 +1121,28 @@ window.WiamNews = (function () {
         if (navigator.clipboard) return navigator.clipboard.writeText(url);
       });
     }
-    if (wa) {
-      wa.addEventListener("click", function (ev) {
-        if (navigator.share) {
-          ev.preventDefault();
-          shareBoth().catch(function () {
-            location.href = "https://wa.me/?text=" + encodeURIComponent(title + " " + url);
-          });
-        }
-      });
-    }
-    if (copyBtn) {
-      copyBtn.addEventListener("click", function (ev) {
-        ev.preventDefault();
-        shareBoth()
-          .then(function () {
-            mark(copyBtn, "Copied");
-          })
-          .catch(function () {
-            if (navigator.clipboard) navigator.clipboard.writeText(url);
-            mark(copyBtn, "Link copied");
-          });
-      });
-    }
-    var shareBtn = document.getElementById("share-native");
-    if (shareBtn) {
-      shareBtn.addEventListener("click", function (ev) {
+    document.querySelectorAll("#share-native").forEach(function (link) {
+      link.addEventListener("click", function (ev) {
         ev.preventDefault();
         shareBoth().catch(function () {
           if (navigator.clipboard) navigator.clipboard.writeText(url);
+          mark(link, "Link copied");
         });
       });
-    }
+    });
+    document.querySelectorAll(".copy-link").forEach(function (link) {
+      link.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        shareBoth()
+          .then(function () {
+            mark(link, "Copied");
+          })
+          .catch(function () {
+            if (navigator.clipboard) navigator.clipboard.writeText(url);
+            mark(link, "Link copied");
+          });
+      });
+    });
   }
 
   function lockViewport() {
@@ -901,9 +1275,8 @@ window.WiamNews = (function () {
         : '<a class="react-login" href="' + login + '">Sign in to react</a>') +
       "</div>" +
       '<div class="share-row share-bottom">' +
-      '<a href="#" id="share-native">Share</a>' +
-      '<a id="share-wa" href="#">WhatsApp</a>' +
-      '<a href="#" id="copy-link">Copy link</a></div></div>'
+      '<a href="#" id="share-native">Share this story</a>' +
+      '<a class="copy-link" href="#">Copy link</a></div></div>'
     );
   }
 
@@ -1026,6 +1399,92 @@ window.WiamNews = (function () {
     });
   }
 
+  function regionName(story) {
+    return story.desk === "local" ? "Ghana" : "International";
+  }
+
+  function regionHref(story) {
+    return story.desk === "local" ? "/news/local/" : "/news/foreign/";
+  }
+
+  function sportCrumb(story) {
+    if (story.sport === "football") {
+      if (story.desk === "local") return { href: "/news/local/football/", label: "Football" };
+      if (story.desk === "foreign") return { href: "/news/foreign/football/", label: "Football" };
+      return { href: "/news/football/", label: "Football" };
+    }
+    return { href: href(story.desk || "foreign", story.sport), label: story.sport_label || "Sport" };
+  }
+
+  function breakingMark(story) {
+    var label = String(story.status_label || story.status || "").toLowerCase();
+    if (label.indexOf("break") < 0) return "";
+    return '<span class="breaking-badge">Breaking</span>';
+  }
+
+  function sourcesBox(story) {
+    var rows = story.sources || [];
+    var line = rows.length
+      ? "This story was checked before it was published."
+      : "Sources appear here once they are confirmed.";
+    return '<section class="sources"><h2>Sources</h2><p>' + line + "</p></section>";
+  }
+
+  function storyTags(story) {
+    if (story.tags && story.tags.length) return story.tags;
+    var tags = [];
+    if (story.category_label) {
+      var slug = String(story.category_label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      if (slug) tags.push({ type: "topic", label: story.category_label, slug: slug });
+    }
+    return tags;
+  }
+
+  function tagsBox(story) {
+    var tags = storyTags(story);
+    if (!tags.length) return "";
+    var html = '<p class="tag-row">';
+    tags.forEach(function (tag) {
+      var slug = tag.slug || "";
+      if (!slug) return;
+      html += '<a class="tag-chip" href="/news/tag/?t=' + encodeURIComponent(slug) + '">' + esc(tag.label || slug) + "</a>";
+    });
+    return html + "</p>";
+  }
+
+  function paintTag() {
+    var root = document.getElementById("article") || document.getElementById("feed");
+    if (!root) return;
+    paintSportNav("");
+    showMode("story");
+    var slug = String(new URLSearchParams(location.search).get("t") || "").toLowerCase();
+    if (!slug) {
+      root.innerHTML = emptyDesk("Tags", "Choose a tag from a story.");
+      return;
+    }
+    getJson("/v1/public/news/feed").then(function (data) {
+      var rows = (data.stories || []).filter(function (story) {
+        return storyTags(story).some(function (tag) { return String(tag.slug || "") === slug; });
+      });
+      var label = slug.replace(/-/g, " ");
+      if (rows.length) {
+        var hit = storyTags(rows[0]).filter(function (tag) { return tag.slug === slug; })[0];
+        if (hit && hit.label) label = hit.label;
+      }
+      document.title = (label || "Tag") + " — WiamArena";
+      var html = "<h1>" + esc(label || "Tag") + "</h1>";
+      html += '<p class="dek">Stories filed under this tag.</p>';
+      if (!rows.length) {
+        html += '<p class="dek">No stories with this tag yet.</p>';
+      } else {
+        rows.forEach(function (story) { html += storyCard(story, "row"); });
+      }
+      root.innerHTML = html;
+    }).catch(function () {
+      root.innerHTML = emptyDesk("Tags", "Please try again shortly.");
+    });
+  }
+
   function paintStory() {
     var root = document.getElementById("article") || document.getElementById("feed");
     if (!root) return;
@@ -1045,16 +1504,15 @@ window.WiamNews = (function () {
       paintSportNav(story.sport === "football" ? "football" : story.sport);
       if (story.sport === "football") paintFootballNav(story.category || "");
       else paintOtherNav(story.desk, story.sport);
-      var crumb = '<p class="crumb"><a href="/">News</a><span class="sep">/</span>';
-      if (story.sport === "football") {
-        crumb += '<a href="/news/football/">Football</a>';
-        if (story.category) crumb += '<span class="sep">/</span><a href="' + catHref(story.category) + '">' + esc(story.category_label) + "</a>";
-      } else {
-        crumb += '<a href="' + href(story.desk, story.sport) + '">' + esc(story.sport_label) + "</a>";
+      var sportBit = sportCrumb(story);
+      var crumb = '<p class="crumb"><a href="' + regionHref(story) + '">' + esc(regionName(story)) + "</a>";
+      crumb += '<span class="sep">/</span><a href="' + sportBit.href + '">' + esc(sportBit.label) + "</a>";
+      if (story.sport === "football" && story.category && story.category_label) {
+        crumb += '<span class="sep">/</span><a href="' + catHref(story.category) + '">' + esc(story.category_label) + "</a>";
       }
-      crumb += '<span class="sep">/</span><span class="here">' + esc(story.title) + "</span></p>";
+      crumb += "</p>";
       var img = photoSrc(story.photo);
-      var related = data.related || [];
+      var related = (data.related || []).filter(function (row) { return row.slug !== story.slug; }).slice(0, 4);
       var share = location.href;
       var mid = pickInline(trendPack.stories || [], story.slug);
       var login = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
@@ -1070,15 +1528,21 @@ window.WiamNews = (function () {
       canon.href = "https://wiamarena.com" + storyHref(story.slug);
       root.innerHTML =
         crumb +
-        badgeHtml(story) +
-        '<p class="hero-kicker">' + esc(story.category_label || story.sport_label) + "</p>" +
+        '<p class="story-chips">' + breakingMark(story) +
+        (story.category_label ? '<span class="hero-kicker">' + esc(story.category_label) + "</span>" : "") +
+        "</p>" +
         "<h1>" + esc(story.title) + "</h1>" +
-        (story.subtitle ? '<p class="dek">' + esc(story.subtitle) + "</p>" : "") +
+        (story.subtitle || story.summary ? '<p class="dek">' + esc(story.subtitle || story.summary) + "</p>" : "") +
+        '<p class="share-row"><a href="#" id="share-native">Share this story</a>' +
+        '<a class="copy-link" id="copy-link" href="#">Copy link</a></p>' +
         (img ? '<div class="frame"><img src="' + esc(img) + '" alt=""></div>' : "") +
-        '<div class="byline"><p class="who">' + esc(story.byline || "By WiamArena Staff") + "</p>" +
+        '<div class="byline"><p class="who">WiamArena Newsroom</p>' +
         (story.published_display ? '<p class="when">' + esc(story.published_display) + "</p>" : "") +
+        (story.updated_display ? '<p class="when">Updated ' + esc(story.updated_display) + "</p>" : "") +
         "</div>" +
         '<div class="story-lock">' + renderBody(story.body, inlineTrend(mid)) + "</div>" +
+        sourcesBox(story) +
+        tagsBox(story) +
         voteButtons(story, login) +
         '<p class="read-count" id="read-count"></p>' +
         '<section class="comments" id="comments">' +
@@ -1099,7 +1563,7 @@ window.WiamNews = (function () {
       showMode("story");
       var relBox = document.getElementById("story-related");
       if (relBox && related.length) {
-        var relHtml = '<section class="related"><h2>Related</h2>';
+        var relHtml = '<section class="related"><h2>More like this</h2>';
         related.forEach(function (s) { relHtml += storyCard(s, "row"); });
         relHtml += "</section>";
         relBox.innerHTML = relHtml;
@@ -1141,7 +1605,7 @@ window.WiamNews = (function () {
   }
 
   function isBoardPath(path) {
-    return /^\/(scores|table|odds|follow)(\/|$)/.test(path || "/");
+    return /^\/(scores|table|odds|follow|live|goals|match)(\/|$)/.test(path || "/");
   }
 
   function markBoards() {
@@ -1241,6 +1705,7 @@ window.WiamNews = (function () {
     ensureShell();
     markBoards();
     if (isBoardPath(location.pathname || "/")) {
+      paintGhanaBar("");
       loadBoard();
       return;
     }
@@ -1252,6 +1717,10 @@ window.WiamNews = (function () {
     if (p.mode === "none") return;
     if (p.mode === "story") {
       paintStory();
+      return;
+    }
+    if (p.mode === "tag") {
+      paintTag();
       return;
     }
     showMode("feed");
@@ -1285,6 +1754,7 @@ window.WiamNews = (function () {
         return;
       }
       if (url.origin !== location.origin) return;
+      if (/^\/news\/(local|foreign)(\/|$)/.test(url.pathname)) return;
       if (!/^\/$|^\/(news|search|scores|table|odds|follow)(\/|$)/.test(url.pathname)) return;
       ev.preventDefault();
       go(url.pathname + url.search, true);
