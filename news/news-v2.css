@@ -826,6 +826,7 @@
   text-decoration: none;
 }
 .gender-switch a.on { background: var(--bg); color: #fff; }
+.updated-line { margin: 0 0 8px; }
 @media (min-width: 1024px) {
   .story-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; align-items: start; }
   .story-side { margin-top: 12px; }

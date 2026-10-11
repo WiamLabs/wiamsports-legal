@@ -30,6 +30,25 @@ window.WiamBoard = (function () {
     return p[1] || "";
   }
 
+  function boardSide() {
+    return new URLSearchParams(location.search).get("side") === "women" ? "women" : "men";
+  }
+
+  function genderNav() {
+    var base = (location.pathname || "/").replace(/\/+$/, "") + "/";
+    var side = boardSide();
+    return (
+      '<nav class="gender-switch" aria-label="Men and women">' +
+      '<a href="' + esc(base) + '"' + (side === "women" ? "" : ' class="on"') + ">Men</a>" +
+      '<a href="' + esc(base + "?side=women") + '"' + (side === "women" ? ' class="on"' : "") + ">Women</a>" +
+      "</nav>"
+    );
+  }
+
+  function freshLine() {
+    return "<p>Updated just now.</p><p>Scores can take a short time to update.</p>";
+  }
+
   function kick(iso) {
     var t = Date.parse(iso || "");
     if (!t) return "";
@@ -222,6 +241,12 @@ window.WiamBoard = (function () {
     getJson("/v1/public/catalog").then(function (data) {
       var html = "<h1>" + esc(title) + "</h1>";
       html += '<p class="subtitle">' + esc(copy) + "</p>";
+      if (prefix === "/table/") html += genderNav();
+      if (prefix === "/table/" && boardSide() === "women") {
+        html += "<p>No table here yet.</p>";
+        root.innerHTML = html;
+        return;
+      }
       html += '<div class="league-list">';
       (data.competitions || []).forEach(function (row) {
         html += '<a href="' + prefix + row.slug + '/">' + esc(row.name) + "</a>";
@@ -278,6 +303,13 @@ window.WiamBoard = (function () {
       var liveOnly = kind() === "live";
       html += "<h1>" + (liveOnly ? "Live" : "Scores") + "</h1>";
       html += '<p class="subtitle">' + (liveOnly ? "Matches in play." : "Fixtures and results.") + "</p>";
+      html += genderNav();
+      html += freshLine();
+      if (boardSide() === "women") {
+        html += "<p>No matches here yet.</p></div>";
+        keepScroll(function () { root.innerHTML = html; });
+        return;
+      }
       if (liveOnly) {
         html += '<section class="scores-block" id="live-now">';
         html += "<h2>Live now</h2>";
@@ -406,7 +438,14 @@ window.WiamBoard = (function () {
       });
       var html = '<div class="scores-board">';
       html += "<h1>" + esc(data.name || "Scores") + "</h1>";
+      html += genderNav();
+      html += freshLine();
       html += '<p><a href="/goals/' + esc(s) + '/">Goals</a></p>';
+      if (boardSide() === "women") {
+        html += "<p>No matches here yet.</p></div>";
+        root.innerHTML = html;
+        return;
+      }
       if (liveRows.length) {
         html +=
           '<a class="jump-live" href="#live-now">Jump to live</a>';
@@ -459,6 +498,12 @@ window.WiamBoard = (function () {
   function paintTable(root, s) {
     getJson("/v1/public/table/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Table") + "</h1>";
+      html += genderNav();
+      if (boardSide() === "women") {
+        html += "<p>No table here yet.</p>";
+        root.innerHTML = html;
+        return;
+      }
       var tables = data.tables || [];
       if (!tables.length) {
         html += "<p>No table for this competition right now.</p>";
