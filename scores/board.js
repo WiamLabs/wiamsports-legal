@@ -19,6 +19,9 @@ window.WiamBoard = (function () {
     if (p[0] === "table") return "table";
     if (p[0] === "odds") return "odds";
     if (p[0] === "follow") return "follow";
+    if (p[0] === "goals") return "goals";
+    if (p[0] === "live") return "live";
+    if (p[0] === "match") return "match";
     return "scores";
   }
 
@@ -151,6 +154,7 @@ window.WiamBoard = (function () {
       "</div></div>" +
       '<div class="kickoff">' +
       liveStamp(m, state) +
+      '<a class="match-open" href="/match/?k=' + encodeURIComponent(matchKey(m)) + '">Match</a>' +
       "</div></div>"
     );
   }
@@ -271,31 +275,61 @@ window.WiamBoard = (function () {
       var today = data.today || [];
       var comps = data.competitions || [];
       var html = '<div class="scores-hub">';
-      html += "<h1>Scores</h1>";
-      html += '<p class="subtitle">Live scores and upcoming kick-offs.</p>';
-      html += '<section class="scores-block" id="live-now">';
-      html += "<h2>Live now</h2>";
-      if (!live.length) {
-        html += "<p>No live matches.</p>";
-      } else {
-        live.forEach(function (m) {
-          html += matchRowHtml(m, mine, m.slug ? "is-link" : "");
-        });
+      var liveOnly = kind() === "live";
+      html += "<h1>" + (liveOnly ? "Live" : "Scores") + "</h1>";
+      html += '<p class="subtitle">' + (liveOnly ? "Matches in play." : "Fixtures and results.") + "</p>";
+      if (liveOnly) {
+        html += '<section class="scores-block" id="live-now">';
+        html += "<h2>Live now</h2>";
+        if (!live.length) {
+          html += "<p>No matches live right now.</p>";
+          var nextKick = "";
+          today.forEach(function (m) {
+            var st = matchState(m);
+            if (st === "live" || st === "ht" || st === "ft") return;
+            var label = kick(m.kickoff);
+            if (label && !nextKick) nextKick = label;
+          });
+          if (nextKick) html += "<p>Next kick-off " + esc(nextKick) + ".</p>";
+        } else {
+          live.forEach(function (m) {
+            html += matchRowHtml(m, mine, "is-link");
+          });
+        }
+        html += "</section>";
       }
-      html += "</section>";
-      if (today.length) {
-        html += '<section class="scores-block"><h2>Today</h2>';
-        var byComp = [];
-        var seen = {};
+      if (!liveOnly) {
+        var buckets = { today: [], upcoming: [], finished: [] };
+        var nowMs = Date.now();
         today.forEach(function (m) {
-          var label = m.competition || "Fixtures";
-          if (seen[label] == null) {
-            seen[label] = byComp.length;
-            byComp.push({ label: label, slug: m.slug, rows: [] });
-          }
-          byComp[seen[label]].rows.push(m);
+          var st = matchState(m);
+          var when = Date.parse(m.kickoff || "");
+          if (st === "ft" || (when && when < nowMs - 3 * 60 * 60 * 1000 && st !== "live" && st !== "ht")) buckets.finished.push(m);
+          else if (st === "up" && when && when > nowMs + 60 * 60 * 1000) buckets.upcoming.push(m);
+          else buckets.today.push(m);
         });
-        byComp.forEach(function (g) {
+        [
+          ["today", "Today", "No matches today."],
+          ["upcoming", "Upcoming", "No upcoming matches in this window."],
+          ["finished", "Finished", "No finished matches in this window."],
+        ].forEach(function (spec) {
+          var rows = buckets[spec[0]];
+          html += '<section class="scores-block"><h2>' + spec[1] + "</h2>";
+          if (!rows.length) {
+            html += "<p>" + spec[2] + "</p></section>";
+            return;
+          }
+          var byComp = [];
+          var seen = {};
+          rows.forEach(function (m) {
+            var label = m.competition || "Fixtures";
+            if (seen[label] == null) {
+              seen[label] = byComp.length;
+              byComp.push({ label: label, slug: m.slug, rows: [] });
+            }
+            byComp[seen[label]].rows.push(m);
+          });
+          byComp.forEach(function (g) {
           html += '<div class="match-group">';
           html +=
             "<h3>" +
@@ -304,12 +338,14 @@ window.WiamBoard = (function () {
               : esc(g.label)) +
             "</h3>";
           g.rows.forEach(function (m) {
-            html += matchRowHtml(m, mine);
+            html += matchRowHtml(m, mine, "is-link");
           });
           html += "</div>";
         });
         html += "</section>";
+        });
       }
+      if (!liveOnly) {
       html += '<section class="scores-block"><h2>Leagues</h2>';
       html += '<div class="scores-leagues">';
       comps.forEach(function (row) {
@@ -335,18 +371,16 @@ window.WiamBoard = (function () {
             : "") +
           "</a>";
       });
-      html += "</div></section></div>";
+      html += "</div></section>";
+      }
+      html += "</div>";
       keepScroll(function () {
         root.innerHTML = html;
       });
       root.querySelectorAll(".match-row.is-link").forEach(function (el) {
         el.addEventListener("click", function () {
           var key = el.getAttribute("data-match") || "";
-          var slug = "";
-          live.forEach(function (m) {
-            if (matchKey(m) === key) slug = m.slug || "";
-          });
-          if (slug) location.href = "/scores/" + slug + "/#live-now";
+          if (key) location.href = "/match/?k=" + encodeURIComponent(key);
         });
       });
       scheduleScoreRefresh(function () {
@@ -372,6 +406,7 @@ window.WiamBoard = (function () {
       });
       var html = '<div class="scores-board">';
       html += "<h1>" + esc(data.name || "Scores") + "</h1>";
+      html += '<p><a href="/goals/' + esc(s) + '/">Goals</a></p>';
       if (liveRows.length) {
         html +=
           '<a class="jump-live" href="#live-now">Jump to live</a>';
@@ -593,6 +628,84 @@ window.WiamBoard = (function () {
     });
   }
 
+  function paintGoalsHub(root) {
+    root.hidden = false;
+    root.innerHTML = "<h1>Goals</h1><p>Loading scorers…</p>";
+    getJson("/v1/public/goals").then(function (data) {
+      var comps = (data && data.competitions) || [];
+      var html = '<div class="scores-hub"><h1>Goals</h1>';
+      html += '<p class="subtitle">Scorers and goal statistics.</p>';
+      html += '<p><a href="/scores/">Scores</a></p>';
+      html += '<div class="scores-leagues">';
+      comps.forEach(function (row) {
+        html += '<a class="scores-league" href="/goals/' + esc(row.slug) + '/"><span class="league-name">' + esc(row.name) + "</span></a>";
+      });
+      html += "</div></div>";
+      root.innerHTML = html;
+    }).catch(function () {
+      root.innerHTML = "<h1>Goals</h1><p>Please try again shortly.</p>";
+    });
+  }
+
+  function paintGoals(root, s) {
+    root.hidden = false;
+    root.innerHTML = "<h1>Goals</h1><p>Loading scorers…</p>";
+    getJson("/v1/public/goals/" + encodeURIComponent(s)).then(function (data) {
+      var rows = (data && data.scorers) || [];
+      var html = '<div class="scores-board"><h1>' + esc((data && data.name) || "Goals") + "</h1>";
+      html += '<p><a href="/goals/">All competitions</a></p>';
+      if (!rows.length) {
+        html += "<p>Scorers for this competition are not in yet.</p></div>";
+        root.innerHTML = html;
+        return;
+      }
+      html += "<ol>";
+      rows.forEach(function (row) {
+        html += "<li><strong>" + esc(row.player) + "</strong> " + esc(row.team || "") + " — " + esc(String(row.goals || 0)) + "</li>";
+      });
+      html += "</ol></div>";
+      root.innerHTML = html;
+    }).catch(function () {
+      root.innerHTML = "<h1>Goals</h1><p>Please try again shortly.</p>";
+    });
+  }
+
+  function paintMatch(root) {
+    var key = new URLSearchParams(location.search).get("k") || "";
+    root.hidden = false;
+    if (!key) {
+      root.innerHTML = "<h1>Match</h1><p>Choose a match from Scores or Live.</p>";
+      return;
+    }
+    Promise.all([
+      getJson("/v1/public/scores/live").catch(function () { return { matches: [] }; }),
+      getJson("/v1/public/scores/hub").catch(function () { return {}; }),
+    ]).then(function (pair) {
+      var rows = (pair[0].matches || []).concat((pair[1] && pair[1].today) || []);
+      var found = null;
+      rows.forEach(function (m) {
+        if (!found && matchKey(m) === key) found = m;
+      });
+      if (!found) {
+        root.innerHTML = "<h1>Match</h1><p>This match is not on the board yet.</p>";
+        return;
+      }
+      var state = matchState(found);
+      var html = '<div class="scores-board">';
+      html += "<h1>" + esc(found.home || "Home") + " v " + esc(found.away || "Away") + "</h1>";
+      if (found.competition) html += "<p>" + esc(found.competition) + "</p>";
+      html += "<p>" + liveStamp(found, state) + "</p>";
+      html += matchRowHtml(found, []);
+      html += "<h2>Lineups</h2><p>Lineups appear here when the match sheet is in.</p>";
+      html += "<h2>Stats</h2><p>Match stats appear here when they are in.</p>";
+      if (found.slug) html += '<p><a href="/scores/' + esc(found.slug) + '/">Competition scores</a></p>';
+      html += "</div>";
+      root.innerHTML = html;
+    }).catch(function () {
+      root.innerHTML = "<h1>Match</h1><p>Please try again shortly.</p>";
+    });
+  }
+
   function boot() {
     document.querySelectorAll(".board-tabs a, .news-boards a").forEach(function (a) {
       var href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
@@ -611,6 +724,9 @@ window.WiamBoard = (function () {
           ? "Home, draw and away."
           : "Live scores and upcoming kick-offs.";
     if (k === "follow") return paintFollow(root);
+    if (k === "match") return paintMatch(root);
+    if (k === "goals") return s ? paintGoals(root, s) : paintGoalsHub(root);
+    if (k === "live") return paintScoresHub(root);
     if (!s) {
       if (k === "scores") return paintScoresHub(root);
       var prefix = k === "table" ? "/table/" : "/odds/";

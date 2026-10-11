@@ -606,11 +606,11 @@ window.WiamNews = (function () {
       var local = all.filter(function (s) { return s.desk === "local"; });
       var others = all.filter(function (s) { return s.sport !== "football"; });
       var html = "";
-      if (breaking && breaking.slug && (!live || breaking.slug !== live.slug)) {
+      if (breaking && breaking.slug && isBreaking(breaking) && (!live || breaking.slug !== live.slug)) {
         html +=
           '<a class="breaking-strip" href="' +
           esc(storyHref(breaking.slug)) +
-          '"><span>Live</span> ' +
+          '"><span>Breaking</span> ' +
           esc(breaking.title) +
           "</a>";
       } else if (breaking && live && breaking.slug === live.slug) {
@@ -912,8 +912,9 @@ window.WiamNews = (function () {
         return (s.category || "") === activeCat;
       });
     }
+    main = breakingStrip(shown);
     if (!shown.length) {
-      main = '<p class="dek">No stories here yet.</p>';
+      main += '<p class="dek">No stories here yet.</p>';
     } else if (ghana) {
       shown.forEach(function (s) {
         main += textStory(s);
@@ -1416,9 +1417,28 @@ window.WiamNews = (function () {
     return { href: href(story.desk || "foreign", story.sport), label: story.sport_label || "Sport" };
   }
 
+  function breakingFresh(story) {
+    var t = Date.parse(story && story.published_at || "");
+    if (!t) return true;
+    return Date.now() - t < 6 * 60 * 60 * 1000;
+  }
+
+  function isBreaking(story) {
+    var label = String((story && (story.status_label || story.status)) || "").toLowerCase();
+    return label.indexOf("break") >= 0 && breakingFresh(story);
+  }
+
+  function breakingStrip(stories) {
+    var row = null;
+    (stories || []).forEach(function (story) {
+      if (!row && isBreaking(story)) row = story;
+    });
+    if (!row) return "";
+    return '<a class="breaking-strip" href="' + esc(storyHref(row.slug)) + '"><span>Breaking</span> ' + esc(row.title) + "</a>";
+  }
+
   function breakingMark(story) {
-    var label = String(story.status_label || story.status || "").toLowerCase();
-    if (label.indexOf("break") < 0) return "";
+    if (!isBreaking(story)) return "";
     return '<span class="breaking-badge">Breaking</span>';
   }
 
@@ -1553,9 +1573,13 @@ window.WiamNews = (function () {
           : '<p class="comment-login"><a href="' + login + '">Sign in to comment</a></p>') +
         "</section>" +
         '<div id="story-related"></div>' +
-        '<div id="story-trending"></div>';
-      var wa = document.getElementById("share-wa");
-      if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((story.title || "") + " " + share);
+        '<div id="story-trending"></div>' +
+        '</div><aside class="story-side" id="story-side">' +
+        "<h2>Live scores</h2><div id=\"story-live\"><p>Loading scores…</p></div>" +
+        "<h2>Table</h2><p>The table for a competition opens on its own page.</p><p><a href=\"/table/\">Tables</a></p>" +
+        "<h2>Popular</h2><div id=\"story-popular\"></div>" +
+        "</aside></div>";
+      root.innerHTML = '<div class="story-layout"><div class="story-main">' + root.innerHTML;
       bindStoryShare(story, img);
       bindReadTracker(story.slug, story.reads);
       bindReactions(story.slug, story);
@@ -1576,6 +1600,35 @@ window.WiamNews = (function () {
         html += "</section>";
         box.innerHTML = html;
       }
+      var popular = document.getElementById("story-popular");
+      if (popular) {
+        if (!rows.length) {
+          popular.innerHTML = "<p>Popular stories show here from real reading.</p>";
+        } else {
+          var pop = "";
+          rows.slice(0, 4).forEach(function (s) {
+            pop += '<p><a href="' + esc(storyHref(s.slug)) + '">' + esc(s.title) + "</a></p>";
+          });
+          popular.innerHTML = pop;
+        }
+      }
+      getJson("/v1/public/scores/live", true).then(function (live) {
+        var liveBox = document.getElementById("story-live");
+        if (!liveBox) return;
+        var matches = (live && live.matches) || [];
+        if (!matches.length) {
+          liveBox.innerHTML = "<p>No matches live right now.</p>";
+          return;
+        }
+        var list = "";
+        matches.slice(0, 4).forEach(function (m) {
+          list += "<p>" + esc(m.home || "") + " " + esc(m.home_score == null ? "" : m.home_score) + " – " + esc(m.away_score == null ? "" : m.away_score) + " " + esc(m.away || "") + "</p>";
+        });
+        liveBox.innerHTML = list;
+      }).catch(function () {
+        var liveBox = document.getElementById("story-live");
+        if (liveBox) liveBox.innerHTML = "<p>Scores are not available right now.</p>";
+      });
     }).catch(function () {
       root.innerHTML = emptyDesk("Story", "Please try again shortly.");
     });
