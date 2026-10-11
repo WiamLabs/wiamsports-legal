@@ -88,11 +88,18 @@
   flex: 0 0 auto;
   object-fit: contain;
 }
-.match-row .club-line .name span {
+.match-row .club-line .name span,
+.match-row .club-line .name .club-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.match-row .club-line .name .club-name {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 700;
+}
+.match-row .club-line .name .club-name:hover { color: var(--green); }
 .match-row .score {
   min-width: 1.25em;
   text-align: right;
@@ -217,6 +224,26 @@
   color: var(--gold);
   font-size: 10px;
   font-weight: 800;
+}
+.player-photos { display: flex; gap: 16px; margin: 8px 0 12px; }
+.player-silhouette { width: 48px; height: 72px; }
+.player-silhouette::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 6px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.player-silhouette::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 28px;
+  margin: 0 auto;
+  border-radius: 20px 20px 6px 6px;
+  background: var(--line);
 }
 
 /* ---------- Table (league standings) ---------- */
