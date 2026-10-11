@@ -81,6 +81,7 @@
 }
 .match-row.is-live .kickoff { color: #ff5a45; }
 .match-row.is-ft .kickoff { color: var(--green-dim); }
+.match-open { display: block; margin-top: 6px; color: var(--green); font-size: 12px; font-weight: 700; }
 .match-row .crest, .match-row .crest-fallback {
   width: 24px;
   height: 24px;
@@ -200,6 +201,12 @@
 @media (max-width: 480px) {
   .match-row { padding: 12px 12px; gap: 8px; }
   .match-row .kickoff { min-width: 48px; font-size: 11px; }
+}
+.standings-table .crest, .standings-table .crest-fallback {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 .crest-fallback {
   display: inline-flex;

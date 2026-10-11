@@ -117,16 +117,61 @@ window.WiamBoard = (function () {
     return teamKey(m.home) + "|" + teamKey(m.away) + "|" + String(m.kickoff || "").slice(0, 16);
   }
 
-  function crest(url, name) {
-    var letter = esc((name || "?").slice(0, 1).toUpperCase());
-    if (!url) return '<span class="crest-fallback">' + letter + "</span>";
+  function crest(url) {
+    if (!url) return '<span class="crest-fallback" aria-hidden="true"></span>';
     return (
       '<img class="crest" src="' +
       esc(url) +
-      '" alt="" data-letter="' +
-      letter +
-      '" onerror="var s=document.createElement(\'span\');s.className=\'crest-fallback\';s.textContent=this.getAttribute(\'data-letter\')||\'?\';this.replaceWith(s);">'
+      '" alt="" onerror="var s=document.createElement(\'span\');s.className=\'crest-fallback\';this.replaceWith(s);">'
     );
+  }
+
+  function ghanaKey(iso) {
+    var t = Date.parse(iso || "");
+    if (!t) return "";
+    try {
+      return new Date(t).toLocaleDateString("en-CA", { timeZone: "Africa/Accra" });
+    } catch (e) {
+      return String(iso).slice(0, 10);
+    }
+  }
+
+  function boardDay() {
+    return new URLSearchParams(location.search).get("day") || "";
+  }
+
+  function withDay(day) {
+    var q = new URLSearchParams(location.search);
+    if (day) q.set("day", day);
+    else q.delete("day");
+    var base = (location.pathname || "/").replace(/\/+$/, "") + "/";
+    var text = q.toString();
+    return base + (text ? "?" + text : "");
+  }
+
+  function dateNav(rows) {
+    var seen = {};
+    var days = [];
+    rows.forEach(function (m) {
+      var key = ghanaKey(m.kickoff);
+      if (!key || seen[key]) return;
+      seen[key] = m.kickoff;
+      days.push(key);
+    });
+    days.sort();
+    var picked = boardDay();
+    var html = '<nav class="desk-chips" aria-label="Dates">';
+    days.forEach(function (key) {
+      html +=
+        '<a href="' + esc(withDay(key)) + '"' + (key === picked ? ' class="on"' : "") + ">" +
+        esc(dayLabel(seen[key])) + "</a>";
+    });
+    html += "</nav><p>Other days are not in this window.</p>";
+    return html;
+  }
+
+  function clubHref(name, comp) {
+    return "/club/?n=" + encodeURIComponent(name || "") + (comp ? "&c=" + encodeURIComponent(comp) : "");
   }
 
   function scoreCell(val, state) {
@@ -346,6 +391,13 @@ window.WiamBoard = (function () {
         keepScroll(function () { root.innerHTML = html; });
         return;
       }
+      if (!liveOnly) {
+        html += dateNav(today);
+        var pickedDay = boardDay();
+        if (pickedDay) {
+          today = today.filter(function (m) { return ghanaKey(m.kickoff) === pickedDay; });
+        }
+      }
       if (liveOnly) {
         html += '<section class="scores-block" id="live-now">';
         html += "<h2>Live now</h2>";
@@ -553,7 +605,7 @@ window.WiamBoard = (function () {
           var pos = Number(r.position || 0);
           html +=
             '<tr class="' + (pos && pos <= 4 ? "zone-top" : "") + '"><td class="num">' +
-            esc(r.position) + '</td><td class="team"><a href="/club/?n=' + encodeURIComponent(r.team || "") + "&c=" + encodeURIComponent(s) + '">' + esc(r.team) + "</a>" +
+            esc(r.position) + '</td><td class="team">' + crest(r.crest) + '<a href="' + esc(clubHref(r.team, s)) + '">' + esc(r.team) + "</a>" +
             '</td><td class="num">' + esc(r.played) + '</td><td class="num">' + esc(r.won) +
             '</td><td class="num">' + esc(r.drawn) + '</td><td class="num">' + esc(r.lost) +
             '</td><td class="num">' + esc(r.gd) + '</td><td class="num"><strong>' +
@@ -562,6 +614,14 @@ window.WiamBoard = (function () {
         html += "</tbody></table></div>";
         html += '<p style="font-size:12px;color:var(--label);margin-top:14px;">Green edge = current top four.</p>';
       });
+      var hasForm = false;
+      tables.forEach(function (table) {
+        (table.rows || []).forEach(function (r) {
+          if (String(r.form || "").trim()) hasForm = true;
+        });
+      });
+      if (!hasForm) html += "<p>Form is not on this table yet.</p>";
+      html += "<p>Earlier seasons are not in yet.</p>";
       root.innerHTML = html;
     }).catch(function () {
       root.innerHTML = "<p>Please try again shortly.</p>";
@@ -773,7 +833,9 @@ window.WiamBoard = (function () {
       }
       var state = matchState(found);
       var html = '<div class="scores-board">';
-      html += "<h1>" + esc(found.home || "Home") + " v " + esc(found.away || "Away") + "</h1>";
+      html +=
+        "<h1><a href=\"" + esc(clubHref(found.home, found.slug)) + "\">" + esc(found.home || "Home") +
+        "</a> v <a href=\"" + esc(clubHref(found.away, found.slug)) + "\">" + esc(found.away || "Away") + "</a></h1>";
       if (found.competition) html += "<p>" + esc(found.competition) + "</p>";
       html += "<p>" + liveStamp(found, state) + "</p>";
       html += matchRowHtml(found, []);
@@ -848,12 +910,25 @@ window.WiamBoard = (function () {
     }
     document.title = name + " — WiamArena";
     var html = "<h1>" + esc(name) + "</h1>";
+    html += '<p id="club-crest">' + crest("") + "</p>";
     html += '<p><button type="button" id="club-follow">Follow</button></p><p id="club-follow-note"></p>';
     html += "<h2>Today</h2><div id=\"club-today\"><p>Loading…</p></div>";
     html += "<h2>Squad</h2><p>Squad not available yet.</p>";
     if (comp) html += '<p><a href="/table/' + esc(comp) + '/">Competition table</a></p>';
     root.innerHTML = html;
     bindClubFollow(name, comp);
+    if (comp) {
+      getJson("/v1/public/table/" + encodeURIComponent(comp)).then(function (data) {
+        var found = null;
+        (data.tables || []).forEach(function (table) {
+          (table.rows || []).forEach(function (r) {
+            if (!found && String(r.team || "").toLowerCase() === name.toLowerCase()) found = r;
+          });
+        });
+        var slot = document.getElementById("club-crest");
+        if (slot) slot.innerHTML = crest(found && found.crest);
+      }).catch(function () {});
+    }
     getJson("/v1/public/scores/hub")
       .then(function (data) {
         var rows = ((data && data.today) || []).concat((data && data.live) || []);
