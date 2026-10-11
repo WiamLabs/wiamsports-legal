@@ -1269,12 +1269,14 @@ window.WiamNews = (function () {
     return (
       '<div class="action-bar">' +
       '<div class="react-row" id="react-row">' +
-      '<button type="button" class="react-btn' + (mine === "like" ? " on" : "") + '" id="btn-like" aria-pressed="' + (mine === "like" ? "true" : "false") + '">Like <span id="like-n">' + likes + "</span></button>" +
+      '<button type="button" class="react-btn' + (mine === "like" ? " on" : "") + '" id="btn-like" aria-pressed="' + (mine === "like" ? "true" : "false") + '"><span id="like-word">' + (mine === "like" ? "Liked" : "Like") + '</span> <span id="like-n">' + likes + "</span></button>" +
       '<button type="button" class="react-btn' + (mine === "unlike" ? " on" : "") + '" id="btn-unlike" aria-pressed="' + (mine === "unlike" ? "true" : "false") + '">Unlike <span id="unlike-n">' + unlikes + "</span></button>" +
-      (signedIn()
-        ? '<button type="button" class="react-btn' + (saved ? " on" : "") + '" id="btn-save">' + (saved ? "Saved" : "Save") + "</button>"
-        : '<a class="react-login" href="' + login + '">Sign in to react</a>') +
+      '<button type="button" class="react-btn' + (saved ? " on" : "") + '" id="btn-save">' + (saved ? "Saved" : "Save") + "</button>" +
       "</div>" +
+      (signedIn()
+        ? ""
+        : '<p class="react-login"><a href="' + login + '">Sign in to like this story.</a> <a href="' + login + '">Sign in to save it.</a> <a href="' + login + '">Sign in to comment.</a></p>') +
+      '<p class="react-note" id="react-note"></p>' +
       '<div class="share-row share-bottom">' +
       '<a href="#" id="share-native">Share this story</a>' +
       '<a class="copy-link" href="#">Copy link</a></div></div>'
@@ -1286,6 +1288,8 @@ window.WiamNews = (function () {
     var unlikeN = document.getElementById("unlike-n");
     var likeBtn = document.getElementById("btn-like");
     var unlikeBtn = document.getElementById("btn-unlike");
+    var likeWord = document.getElementById("like-word");
+    if (likeWord) likeWord.textContent = data.mine === "like" ? "Liked" : "Like";
     if (likeN) likeN.textContent = String(data.likes || 0);
     if (unlikeN) unlikeN.textContent = String(data.unlikes || 0);
     if (likeBtn) {
@@ -1312,13 +1316,24 @@ window.WiamNews = (function () {
         headers: sessionHeaders(),
         body: JSON.stringify({ vote: next }),
       })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (!d || !d.ok) return;
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (pack) {
+          var d = pack.d || {};
+          if (!pack.ok || !d.ok) {
+            var note = document.getElementById("react-note");
+            var msg = d.message || "";
+            if (/wait/i.test(msg)) msg = "Please wait a moment.";
+            if (/sign in/i.test(msg)) msg = "Sign in to like this story.";
+            if (note) note.textContent = msg || "Could not save that like. Please try again.";
+            return;
+          }
           if (story) story.mine = d.mine;
           paintVotes(d);
         })
-        .catch(function () {});
+        .catch(function () {
+          var note = document.getElementById("react-note");
+          if (note) note.textContent = "Could not save that like. Please try again.";
+        });
     }
     var likeBtn = document.getElementById("btn-like");
     var unlikeBtn = document.getElementById("btn-unlike");
@@ -1337,14 +1352,27 @@ window.WiamNews = (function () {
           headers: sessionHeaders(),
           body: JSON.stringify({ on: on }),
         })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (!d || !d.ok) return;
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (pack) {
+            var d = pack.d || {};
+            if (!pack.ok || !d.ok) {
+              var fail = document.getElementById("react-note");
+              var msg = d.message || "";
+              if (/wait/i.test(msg)) msg = "Please wait a moment.";
+              if (/sign in/i.test(msg)) msg = "Sign in to save this story.";
+              if (fail) fail.textContent = msg || "Could not save that story. Please try again.";
+              return;
+            }
             saveBtn.textContent = on ? "Saved" : "Save";
             saveBtn.classList.toggle("on", on);
             if (story) story.saved = on;
+            var note = document.getElementById("react-note");
+            if (note) note.textContent = on ? "Saved. It is on your Saved stories page." : "Removed from your saved stories.";
           })
-          .catch(function () {});
+          .catch(function () {
+            var note = document.getElementById("react-note");
+            if (note) note.textContent = "Could not save that story. Please try again.";
+          });
       });
     }
   }
@@ -1355,6 +1383,8 @@ window.WiamNews = (function () {
     var note = document.getElementById("comment-note");
     function paint(rows) {
       if (!list) return;
+      var count = document.getElementById("comment-count");
+      if (count) count.textContent = rows && rows.length ? String(rows.length) : "0";
       if (!rows || !rows.length) {
         list.innerHTML = '<p class="comment-empty">No comments yet.</p>';
         return;
@@ -1377,6 +1407,14 @@ window.WiamNews = (function () {
         if (note) note.textContent = "Write a short comment first.";
         return;
       }
+      if (text.length > 400) {
+        if (note) note.textContent = "A comment can be 400 characters.";
+        return;
+      }
+      if (/https?:\/\/|www\./i.test(text)) {
+        if (note) note.textContent = "Links are not allowed in a comment.";
+        return;
+      }
       fetch(api() + "/v1/public/news/comments/" + encodeURIComponent(slug), {
         method: "POST",
         headers: sessionHeaders(),
@@ -1385,7 +1423,10 @@ window.WiamNews = (function () {
         .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (pack) {
           if (!pack.ok) {
-            if (note) note.textContent = (pack.d && pack.d.message) || "Could not post.";
+            var msg = (pack.d && pack.d.message) || "";
+            if (msg === "wait" || /wait a moment/i.test(msg)) msg = "Please wait a moment before commenting again.";
+            if (/sign in/i.test(msg)) msg = "Sign in to comment.";
+            if (note) note.textContent = msg || "Could not post that comment. Please try again.";
             return;
           }
           if (field) field.value = "";
@@ -1395,7 +1436,7 @@ window.WiamNews = (function () {
           });
         })
         .catch(function () {
-          if (note) note.textContent = "Could not post.";
+          if (note) note.textContent = "Could not post that comment. Please try again.";
         });
     });
   }
@@ -1494,14 +1535,63 @@ window.WiamNews = (function () {
       document.title = (label || "Tag") + " — WiamArena";
       var html = "<h1>" + esc(label || "Tag") + "</h1>";
       html += '<p class="dek">Stories filed under this tag.</p>';
+      html += '<p><button type="button" id="tag-follow">Follow</button></p><p id="tag-follow-note"></p>';
       if (!rows.length) {
         html += '<p class="dek">No stories with this tag yet.</p>';
       } else {
         rows.forEach(function (story) { html += storyCard(story, "row"); });
       }
       root.innerHTML = html;
+      bindTagFollow(label);
     }).catch(function () {
       root.innerHTML = emptyDesk("Tags", "Please try again shortly.");
+    });
+  }
+
+  function bindTagFollow(label) {
+    var btn = document.getElementById("tag-follow");
+    var note = document.getElementById("tag-follow-note");
+    if (!btn) return;
+    var team = String(label || "").trim();
+    function say(text) {
+      if (note) note.textContent = text;
+    }
+    if (!signedIn()) {
+      btn.addEventListener("click", function () {
+        location.href = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+      });
+      say("Sign in to follow this.");
+      return;
+    }
+    fetch(api() + "/v1/public/follow", { headers: sessionHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var mine = (data.teams || []).some(function (row) {
+          return String(row.team || "").toLowerCase() === team.toLowerCase();
+        });
+        btn.textContent = mine ? "Following" : "Follow";
+      })
+      .catch(function () {});
+    btn.addEventListener("click", function () {
+      var on = btn.textContent !== "Following";
+      var path = on ? "/v1/public/follow" : "/v1/public/follow/remove";
+      fetch(api() + path, {
+        method: "POST",
+        headers: sessionHeaders(),
+        body: JSON.stringify({ league: "TAG", team: team }),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (pack) {
+          if (!pack.ok) {
+            say((pack.d && pack.d.message) || "Could not follow that. Please try again.");
+            return;
+          }
+          btn.textContent = on ? "Following" : "Follow";
+          say(on ? "Following. It is on your Follow page." : "Removed from your Follow page.");
+        })
+        .catch(function () {
+          say("Could not follow that. Please try again.");
+        });
     });
   }
 
@@ -1566,11 +1656,11 @@ window.WiamNews = (function () {
         voteButtons(story, login) +
         '<p class="read-count" id="read-count"></p>' +
         '<section class="comments" id="comments">' +
-        "<h2>Comments</h2>" +
+        "<h2>Comments <span id=\"comment-count\">0</span></h2>" +
         '<div id="comment-list"></div>' +
         (signedIn()
           ? '<form id="comment-form"><textarea id="comment-text" maxlength="400" placeholder="Write a comment" rows="3"></textarea><button type="submit">Post</button></form><p class="comment-note" id="comment-note"></p>'
-          : '<p class="comment-login"><a href="' + login + '">Sign in to comment</a></p>') +
+          : '<p class="comment-login"><a href="' + login + '">Sign in to comment.</a></p>') +
         "</section>" +
         '<div id="story-related"></div>' +
         '<div id="story-trending"></div>' +
