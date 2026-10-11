@@ -779,6 +779,53 @@
 .story-layout { max-width: 1100px; margin: 0 auto; padding: 8px 16px 32px; }
 .story-side h2 { font-size: 1rem; margin: 18px 0 8px; }
 .story-side { margin-top: 28px; }
+.our-teams { margin: 4px 0 8px; }
+.our-teams-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
+.team-card {
+  flex: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f3faf6;
+  color: var(--bg);
+  border: 1px solid #d5eadc;
+  border-radius: 12px;
+  padding: 12px;
+  text-decoration: none;
+}
+.team-card strong { font-size: 15px; }
+.team-card span { font-size: 13px; color: var(--label); }
+.mini-flag {
+  display: block;
+  width: 42px;
+  height: 28px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ce1126 0 33%, #fcd116 33% 66%, #006b3f 66% 100%);
+  position: relative;
+}
+.mini-flag::after {
+  content: "★";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -58%);
+  color: #111;
+  font-size: 11px;
+  line-height: 1;
+}
+.team-head { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+.team-head .mini-flag { width: 54px; height: 36px; flex: 0 0 auto; }
+.gender-switch { display: flex; gap: 8px; margin: 0 0 14px; }
+.gender-switch a {
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: #fff;
+  color: var(--bg);
+  border: 1px solid #d5eadc;
+  font-weight: 700;
+  text-decoration: none;
+}
+.gender-switch a.on { background: var(--bg); color: #fff; }
 @media (min-width: 1024px) {
   .story-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; align-items: start; }
   .story-side { margin-top: 12px; }

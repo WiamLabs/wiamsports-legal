@@ -150,6 +150,9 @@ window.WiamNews = (function () {
     var p = (location.pathname || "/").replace(/\/+$/, "") || "/";
     var parts = p.split("/").filter(Boolean);
     if (parts[0] === "news" && parts[1] === "tag") return { mode: "tag" };
+    if (parts[0] === "news" && parts[1] === "team" && parts[2]) {
+      return { mode: parts[2] === "premier-league" ? "gpl" : "team", slug: parts[2] };
+    }
     if (parts[0] === "news" && parts[1] === "story" && parts[2]) {
       return { mode: "story", slug: decodeURIComponent(parts[2]) };
     }
@@ -324,6 +327,14 @@ window.WiamNews = (function () {
       '<a href="/goals/">Goals</a>' +
       '<a href="/odds/">Odds</a>' +
       '<a href="/follow/">Follow</a>' +
+      '<p class="menu-label">Ghana</p>' +
+      '<a href="/news/team/black-stars/">Black Stars</a>' +
+      '<a href="/news/team/black-queens/">Black Queens</a>' +
+      '<a href="/news/team/black-satellites/">Black Satellites</a>' +
+      '<a href="/news/team/black-starlets/">Black Starlets</a>' +
+      '<a href="/news/team/black-princesses/">Black Princesses</a>' +
+      '<a href="/news/team/black-maidens/">Black Maidens</a>' +
+      '<a href="/news/team/premier-league/">Ghana Premier League</a>' +
       '<p class="menu-label">Account</p>' +
       '<a href="/product/">Product</a><a href="/pricing/">Pricing</a>' +
       '<a href="/login/">Sign in</a><a href="/register/">Create account</a>';
@@ -769,6 +780,58 @@ window.WiamNews = (function () {
     });
   }
 
+  var OUR_TEAMS = [
+    ["black-stars", "Black Stars", "Ghana's senior men's national team."],
+    ["black-queens", "Black Queens", "Ghana's senior women's national team."],
+    ["black-satellites", "Black Satellites", "Ghana's men's under-20 team."],
+    ["black-starlets", "Black Starlets", "Ghana's men's under-17 team."],
+    ["black-princesses", "Black Princesses", "Ghana's women's under-20 team."],
+    ["black-maidens", "Black Maidens", "Ghana's women's under-17 team."],
+  ];
+
+  function teamBySlug(slug) {
+    for (var i = 0; i < OUR_TEAMS.length; i++) {
+      if (OUR_TEAMS[i][0] === slug) return OUR_TEAMS[i];
+    }
+    return null;
+  }
+
+  function ourTeamsRow() {
+    var html = '<section class="our-teams" aria-label="Our Teams"><h2>Our Teams</h2><div class="our-teams-row">';
+    OUR_TEAMS.forEach(function (row) {
+      html +=
+        '<a class="team-card" href="/news/team/' + row[0] + '/"><span class="mini-flag" aria-hidden="true"></span><strong>' +
+        esc(row[1]) + "</strong><span>" + esc(row[2]) + "</span></a>";
+    });
+    html +=
+      '<a class="team-card" href="/news/team/premier-league/"><span class="mini-flag" aria-hidden="true"></span><strong>Ghana Premier League</strong><span>Ghana\'s top club league.</span></a>';
+    return html + "</div></section>";
+  }
+
+  function storyGender(story) {
+    return String((story && story.gender) || "").toLowerCase() === "women" ? "women" : "men";
+  }
+
+  function genderSwitch(desk, sport, activeCat, side) {
+    var base = href(desk, sport);
+    if (activeCat) base += "?category=" + encodeURIComponent(activeCat);
+    var women = base + (base.indexOf("?") >= 0 ? "&" : "?") + "side=women";
+    return (
+      '<nav class="gender-switch" aria-label="Men and women">' +
+      '<a href="' + esc(base) + '"' + (side === "women" ? "" : ' class="on"') + ">Men</a>" +
+      '<a href="' + esc(women) + '"' + (side === "women" ? ' class="on"' : "") + ">Women</a>" +
+      "</nav>"
+    );
+  }
+
+  function storyMentions(story, name) {
+    var blob = [story.title, story.subtitle, story.summary, story.category_label].join(" ");
+    storyTags(story).forEach(function (tag) {
+      blob += " " + (tag.label || "") + " " + (tag.slug || "");
+    });
+    return blob.toLowerCase().indexOf(String(name || "").toLowerCase()) >= 0;
+  }
+
   var TOP_LEAGUES = [
     ["premier-league", "Premier League"],
     ["la-liga", "La Liga"],
@@ -905,14 +968,18 @@ window.WiamNews = (function () {
 
   function paintDesk(root, desk, sport, stories, activeCat) {
     var ghana = desk === "local";
-    var main = "";
+    var side = "men";
     var shown = stories;
     if (activeCat) {
       shown = stories.filter(function (s) {
         return (s.category || "") === activeCat;
       });
     }
-    main = breakingStrip(shown);
+    if (sport === "football") {
+      side = new URLSearchParams(location.search).get("side") === "women" ? "women" : "men";
+      shown = shown.filter(function (s) { return storyGender(s) === side; });
+    }
+    var main = (sport === "football" ? genderSwitch(desk, sport, activeCat || "", side) : "") + breakingStrip(shown);
     if (!shown.length) {
       main += '<p class="dek">No stories here yet.</p>';
     } else if (ghana) {
@@ -940,7 +1007,7 @@ window.WiamNews = (function () {
     if (!popular) popular = '<p class="desk-empty">Stories will show here as they are filed.</p>';
     var side = ghana
       ? '<section class="desk-panel"><div class="panel-head"><h2>Latest scores</h2><a href="/scores/">View all</a></div><div id="desk-scores"></div></section>' +
-        '<section class="desk-panel"><div class="panel-head"><h2>Ghana Premier League</h2><a href="/table/">View all</a></div><p class="desk-empty">The table shows here when that competition is on the board.</p></section>' +
+        '<section class="desk-panel"><div class="panel-head"><h2>Ghana Premier League</h2><a href="/news/team/premier-league/">View all</a></div><p class="desk-empty">The table is not in yet.</p></section>' +
         '<section class="desk-panel"><h2>Quick links</h2><a class="league-link" href="/scores/">Match results</a><a class="league-link" href="/scores/">Fixtures</a><a class="league-link" href="/table/">League table</a></section>'
       : '<section class="desk-panel"><div class="panel-head"><h2>Live scores</h2><a href="/scores/">View all</a></div><div id="desk-scores"></div></section>' +
         '<section class="desk-panel"><div class="panel-head"><h2>Top leagues</h2><a href="/table/">View all</a></div>' +
@@ -955,6 +1022,7 @@ window.WiamNews = (function () {
     root.innerHTML =
       deskBanner(desk) +
       '<div class="desk-wrap">' +
+      (ghana ? ourTeamsRow() : "") +
       deskChips(desk, sport) +
       deskSubs(desk, sport, activeCat || "") +
       followTopicBtn() +
@@ -1595,6 +1663,129 @@ window.WiamNews = (function () {
     });
   }
 
+  function teamShell(title, line, sections) {
+    var html =
+      '<article class="team-page"><header class="team-head"><span class="mini-flag" aria-hidden="true"></span><div><h1>' +
+      esc(title) + '</h1><p class="dek">' + esc(line) + "</p></div></header>" +
+      '<p><button type="button" id="team-follow">Follow</button></p><p id="team-follow-note"></p>';
+    sections.forEach(function (sec) {
+      html += "<section><h2>" + esc(sec[0]) + "</h2>" + sec[1] + "</section>";
+    });
+    return html + "</article>";
+  }
+
+  function bindNamedFollow(label) {
+    var btn = document.getElementById("team-follow");
+    var note = document.getElementById("team-follow-note");
+    if (!btn) return;
+    var team = String(label || "").trim();
+    function say(text) {
+      if (note) note.textContent = text;
+    }
+    if (!signedIn()) {
+      btn.addEventListener("click", function () {
+        location.href = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+      });
+      say("Sign in to follow this.");
+      return;
+    }
+    fetch(api() + "/v1/public/follow", { headers: sessionHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var mine = (data.teams || []).some(function (row) {
+          return String(row.team || "").toLowerCase() === team.toLowerCase();
+        });
+        btn.textContent = mine ? "Following" : "Follow";
+      })
+      .catch(function () {});
+    btn.addEventListener("click", function () {
+      var on = btn.textContent !== "Following";
+      var path = on ? "/v1/public/follow" : "/v1/public/follow/remove";
+      fetch(api() + path, {
+        method: "POST",
+        headers: sessionHeaders(),
+        body: JSON.stringify({ league: "GHA", team: team }),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (pack) {
+          if (!pack.ok) {
+            say((pack.d && pack.d.message) || "Could not follow that. Please try again.");
+            return;
+          }
+          btn.textContent = on ? "Following" : "Follow";
+          say(on ? "Following. It is on your Follow page." : "Removed from your Follow page.");
+        })
+        .catch(function () {
+          say("Could not follow that. Please try again.");
+        });
+    });
+  }
+
+  function fillTeamNews(boxId, rows, emptyLine) {
+    var box = document.getElementById(boxId);
+    if (!box) return;
+    if (!rows.length) {
+      box.innerHTML = '<p class="dek">' + esc(emptyLine) + "</p>";
+      return;
+    }
+    var html = "";
+    rows.slice(0, 8).forEach(function (story) { html += textStory(story); });
+    box.innerHTML = html;
+  }
+
+  function paintTeam(slug) {
+    var root = document.getElementById("feed") || document.getElementById("article");
+    if (!root) return;
+    showMode("feed");
+    paintSportNav("");
+    var row = teamBySlug(slug);
+    if (!row) {
+      root.innerHTML = emptyDesk("Teams", "That team is not on this list.");
+      return;
+    }
+    document.title = row[1] + " — WiamArena";
+    root.innerHTML = teamShell(row[1], row[2], [
+      ["Latest news", '<div id="team-news"><p class="dek">Loading stories…</p></div>'],
+      ["Fixtures and results", '<p class="dek">Fixtures and results are not in yet.</p>'],
+      ["Squad", '<p class="dek">Squad not available yet.</p>'],
+      ["Table", '<p class="dek">The table is not in yet.</p>'],
+      ["Top scorers", '<p class="dek">Top scorers are not in yet.</p>'],
+      ["Head coach", '<p class="dek">The head coach is not listed yet.</p>'],
+    ]);
+    bindNamedFollow(row[1]);
+    getJson("/v1/public/news/feed?desk=local").then(function (data) {
+      var rows = (data.stories || []).filter(function (story) { return storyMentions(story, row[1]); });
+      fillTeamNews("team-news", rows, "No stories for this team yet.");
+    }).catch(function () {
+      fillTeamNews("team-news", [], "Please try again shortly.");
+    });
+  }
+
+  function paintGpl() {
+    var root = document.getElementById("feed") || document.getElementById("article");
+    if (!root) return;
+    showMode("feed");
+    paintSportNav("");
+    document.title = "Ghana Premier League — WiamArena";
+    root.innerHTML = teamShell("Ghana Premier League", "Ghana's top club league.", [
+      ["Table", '<p class="dek">The table is not in yet.</p>'],
+      ["Fixtures and results", '<p class="dek">Fixtures and results are not in yet.</p>'],
+      ["Top scorers", '<p class="dek">Top scorers are not in yet.</p>'],
+      ["Clubs", '<p class="dek">The club list is not in yet.</p>'],
+      ["Latest news", '<div id="team-news"><p class="dek">Loading stories…</p></div>'],
+    ]);
+    bindNamedFollow("Ghana Premier League");
+    getJson("/v1/public/news/feed?desk=local").then(function (data) {
+      var rows = (data.stories || []).filter(function (story) {
+        var blob = [story.title, story.subtitle, story.summary].join(" ").toLowerCase();
+        return blob.indexOf("ghana premier league") >= 0 || /\bgpl\b/.test(blob);
+      });
+      fillTeamNews("team-news", rows, "No league stories yet.");
+    }).catch(function () {
+      fillTeamNews("team-news", [], "Please try again shortly.");
+    });
+  }
+
   function paintStory() {
     var root = document.getElementById("article") || document.getElementById("feed");
     if (!root) return;
@@ -1864,6 +2055,14 @@ window.WiamNews = (function () {
     }
     if (p.mode === "tag") {
       paintTag();
+      return;
+    }
+    if (p.mode === "team") {
+      paintTeam(p.slug);
+      return;
+    }
+    if (p.mode === "gpl") {
+      paintGpl();
       return;
     }
     showMode("feed");
