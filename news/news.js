@@ -1939,7 +1939,7 @@ window.WiamNews = (function () {
   }
 
   function isBoardPath(path) {
-    return /^\/(scores|table|odds|follow|live|goals|match)(\/|$)/.test(path || "/");
+    return /^\/(scores|table|odds|follow|live|goals|match|club)(\/|$)/.test(path || "/");
   }
 
   function markBoards() {

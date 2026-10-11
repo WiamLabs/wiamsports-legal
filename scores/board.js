@@ -22,6 +22,7 @@ window.WiamBoard = (function () {
     if (p[0] === "goals") return "goals";
     if (p[0] === "live") return "live";
     if (p[0] === "match") return "match";
+    if (p[0] === "club") return "club";
     return "scores";
   }
 
@@ -47,6 +48,35 @@ window.WiamBoard = (function () {
 
   function freshLine() {
     return "<p>Updated just now.</p><p>Scores can take a short time to update.</p>";
+  }
+
+  var BOARD_SPORTS = [
+    ["football", "Football"],
+    ["basketball", "Basketball"],
+    ["tennis", "Tennis"],
+    ["athletics", "Athletics"],
+    ["boxing", "Boxing"],
+    ["wrestling", "Wrestling"],
+  ];
+
+  function boardSport() {
+    var picked = new URLSearchParams(location.search).get("sport") || "football";
+    var known = false;
+    BOARD_SPORTS.forEach(function (row) {
+      if (row[0] === picked) known = true;
+    });
+    return known ? picked : "football";
+  }
+
+  function sportNav() {
+    var base = (location.pathname || "/").replace(/\/+$/, "") + "/";
+    var sport = boardSport();
+    var html = '<nav class="desk-chips" aria-label="Sports">';
+    BOARD_SPORTS.forEach(function (row) {
+      var href = row[0] === "football" ? base : base + "?sport=" + row[0];
+      html += '<a href="' + esc(href) + '"' + (row[0] === sport ? ' class="on"' : "") + ">" + esc(row[1]) + "</a>";
+    });
+    return html + "</nav>";
   }
 
   function kick(iso) {
@@ -303,6 +333,12 @@ window.WiamBoard = (function () {
       var liveOnly = kind() === "live";
       html += "<h1>" + (liveOnly ? "Live" : "Scores") + "</h1>";
       html += '<p class="subtitle">' + (liveOnly ? "Matches in play." : "Fixtures and results.") + "</p>";
+      html += sportNav();
+      if (boardSport() !== "football") {
+        html += "<p>No matches here yet.</p></div>";
+        keepScroll(function () { root.innerHTML = html; });
+        return;
+      }
       html += genderNav();
       html += freshLine();
       if (boardSide() === "women") {
@@ -517,7 +553,7 @@ window.WiamBoard = (function () {
           var pos = Number(r.position || 0);
           html +=
             '<tr class="' + (pos && pos <= 4 ? "zone-top" : "") + '"><td class="num">' +
-            esc(r.position) + '</td><td class="team">' + esc(r.team) +
+            esc(r.position) + '</td><td class="team"><a href="/club/?n=' + encodeURIComponent(r.team || "") + "&c=" + encodeURIComponent(s) + '">' + esc(r.team) + "</a>" +
             '</td><td class="num">' + esc(r.played) + '</td><td class="num">' + esc(r.won) +
             '</td><td class="num">' + esc(r.drawn) + '</td><td class="num">' + esc(r.lost) +
             '</td><td class="num">' + esc(r.gd) + '</td><td class="num"><strong>' +
@@ -743,12 +779,102 @@ window.WiamBoard = (function () {
       html += matchRowHtml(found, []);
       html += "<h2>Lineups</h2><p>Lineups appear here when the match sheet is in.</p>";
       html += "<h2>Stats</h2><p>Match stats appear here when they are in.</p>";
+      html += "<h2>Head to head</h2><p>Head to head is not in yet.</p>";
+      html += "<h2>Form</h2><p>Form is not in yet.</p>";
       if (found.slug) html += '<p><a href="/scores/' + esc(found.slug) + '/">Competition scores</a></p>';
+      if (found.slug) html += '<p><a href="/table/' + esc(found.slug) + '/">Competition table</a></p>';
       html += "</div>";
       root.innerHTML = html;
     }).catch(function () {
       root.innerHTML = "<h1>Match</h1><p>Please try again shortly.</p>";
     });
+  }
+
+  function bindClubFollow(name, comp) {
+    var btn = document.getElementById("club-follow");
+    var note = document.getElementById("club-follow-note");
+    if (!btn) return;
+    function say(text) {
+      if (note) note.textContent = text;
+    }
+    if (!window.WiamAuth || !window.WiamAuth.session()) {
+      btn.addEventListener("click", function () {
+        location.href = "/login/?next=" + encodeURIComponent(location.pathname + location.search);
+      });
+      say("Sign in to follow this.");
+      return;
+    }
+    fetch(api() + "/v1/public/follow", { headers: headers() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var mine = (data.teams || []).some(function (row) {
+          return String(row.team || "").toLowerCase() === name.toLowerCase();
+        });
+        btn.textContent = mine ? "Following" : "Follow";
+      })
+      .catch(function () {});
+    btn.addEventListener("click", function () {
+      var on = btn.textContent !== "Following";
+      var path = on ? "/v1/public/follow" : "/v1/public/follow/remove";
+      var body = comp ? { slug: comp, team: name } : { league: "CLUB", team: name };
+      fetch(api() + path, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(body),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (pack) {
+          if (!pack.ok) {
+            say((pack.d && pack.d.message) || "Could not follow that. Please try again.");
+            return;
+          }
+          btn.textContent = on ? "Following" : "Follow";
+          say(on ? "Following. It is on your Follow page." : "Removed from your Follow page.");
+        })
+        .catch(function () {
+          say("Could not follow that. Please try again.");
+        });
+    });
+  }
+
+  function paintClub(root) {
+    var params = new URLSearchParams(location.search);
+    var name = params.get("n") || "";
+    var comp = params.get("c") || "";
+    root.hidden = false;
+    if (!name) {
+      root.innerHTML = "<h1>Club</h1><p>Choose a club from a table.</p>";
+      return;
+    }
+    document.title = name + " — WiamArena";
+    var html = "<h1>" + esc(name) + "</h1>";
+    html += '<p><button type="button" id="club-follow">Follow</button></p><p id="club-follow-note"></p>';
+    html += "<h2>Today</h2><div id=\"club-today\"><p>Loading…</p></div>";
+    html += "<h2>Squad</h2><p>Squad not available yet.</p>";
+    if (comp) html += '<p><a href="/table/' + esc(comp) + '/">Competition table</a></p>';
+    root.innerHTML = html;
+    bindClubFollow(name, comp);
+    getJson("/v1/public/scores/hub")
+      .then(function (data) {
+        var rows = ((data && data.today) || []).concat((data && data.live) || []);
+        var mine = rows.filter(function (m) {
+          var want = name.toLowerCase();
+          return String(m.home || "").toLowerCase() === want || String(m.away || "").toLowerCase() === want;
+        });
+        var box = document.getElementById("club-today");
+        if (!box) return;
+        if (!mine.length) {
+          box.innerHTML = "<p>No fixture in this window.</p>";
+          return;
+        }
+        var list = "";
+        mine.forEach(function (m) { list += matchRowHtml(m, [], "is-link"); });
+        box.innerHTML = list;
+      })
+      .catch(function () {
+        var box = document.getElementById("club-today");
+        if (box) box.innerHTML = "<p>Please try again shortly.</p>";
+      });
   }
 
   function boot() {
@@ -770,6 +896,7 @@ window.WiamBoard = (function () {
           : "Live scores and upcoming kick-offs.";
     if (k === "follow") return paintFollow(root);
     if (k === "match") return paintMatch(root);
+    if (k === "club") return paintClub(root);
     if (k === "goals") return s ? paintGoals(root, s) : paintGoalsHub(root);
     if (k === "live") return paintScoresHub(root);
     if (!s) {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Match centre.">
+  <title>Match — WiamArena</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="stylesheet" href="/legal.css?v=54">
+  <link rel="stylesheet" href="/news/news.css?v=56">
+  <link rel="stylesheet" href="/news/news-v2.css?v=62">
+  <link rel="stylesheet" href="/boards.css?v=62">
+</head>
+<body class="news-page">
+  <header class="news-top ghana-top">
+    <div class="ghana-bar">
+      <a class="masthead" href="/"><img class="brand-mark" src="/logo.png" alt="WiamArena"></a>
+      <nav class="ghana-nav" id="desks" aria-label="Sports"></nav>
+      <div class="ghana-tools">
+        <a class="icon-btn" href="/news/search/" aria-label="Search"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M16 16l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></a>
+        <button class="account-link" type="button" id="account-btn" aria-expanded="false">Account</button>
+        <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></button>
+      </div>
+    </div>
+    <div class="account-menu" id="account-menu" hidden>
+      <a href="/product/">Product</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/login/">Sign in</a>
+      <a href="/register/">Create account</a>
+    </div>
+    <nav class="news-menu" id="menu" aria-label="Menu"></nav>
+    <nav class="news-sports" id="sports" hidden></nav>
+  </header>
+  <main id="board" class="news-feed news-board"></main>
+  <footer class="news-foot">
+    <div class="news-shell">
+      <p class="copy">© 2026 WiamLabs. Entertainment. 18+.</p>
+    </div>
+  </footer>
+  <script src="/config.js"></script>
+  <script src="/auth.js?v=54"></script>
+  <script src="/news/news.js?v=62"></script>
+  <script src="/scores/board.js?v=66"></script>
+</body>
+</html>
