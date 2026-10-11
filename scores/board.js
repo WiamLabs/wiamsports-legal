@@ -327,16 +327,17 @@ window.WiamBoard = (function () {
   function paintPicker(root, prefix, title, copy) {
     var html = "<h1>" + esc(title) + "</h1>";
     html += '<p class="subtitle">' + esc(copy) + "</p>";
-    if (prefix === "/table/") {
+    if (prefix === "/table/" || prefix === "/odds/") {
+      var empty = prefix === "/odds/" ? "No odds here yet." : "No table here yet.";
       html += sportNav();
       if (boardSport() !== "football") {
-        html += "<p>No table here yet.</p>";
+        html += "<p>" + empty + "</p>";
         root.innerHTML = html;
         return;
       }
       html += genderNav();
       if (boardSide() === "women") {
-        html += "<p>No table here yet.</p>";
+        html += "<p>" + empty + "</p>";
         root.innerHTML = html;
         return;
       }
@@ -550,7 +551,7 @@ window.WiamBoard = (function () {
       html += "<h1>" + esc(data.name || "Scores") + "</h1>";
       html += genderNav();
       html += freshLine();
-      html += '<p><a href="/goals/' + esc(s) + '/">Goals</a></p>';
+      html += '<p><a href="/goals/' + esc(s) + '/">Goals</a> · <a href="/table/' + esc(s) + '/">Table</a></p>';
       if (boardSide() === "women") {
         html += "<p>No matches here yet.</p></div>";
         root.innerHTML = html;
@@ -662,8 +663,15 @@ window.WiamBoard = (function () {
   }
 
   function paintOdds(root, s) {
+    var shell = "<h1>Odds</h1>" + genderNav();
+    shell += '<div class="odds-disclaimer">Entertainment only. WiamArena is not a bookmaker and these are not betting advice. 18+. Bet responsibly.</div>';
+    if (boardSide() === "women") {
+      root.innerHTML = shell + "<p>No odds here yet.</p>";
+      return;
+    }
     getJson("/v1/public/odds/" + encodeURIComponent(s)).then(function (data) {
       var html = "<h1>" + esc(data.name || "Odds") + "</h1>";
+      html += genderNav();
       html += '<div class="odds-disclaimer">Entertainment only. WiamArena is not a bookmaker and these are not betting advice. 18+. Bet responsibly.</div>';
       var rows = data.matches || [];
       if (!rows.length) {
@@ -674,7 +682,8 @@ window.WiamBoard = (function () {
       rows.forEach(function (m) {
         html +=
           '<div class="odds-row"><p class="fixture">' +
-          esc(m.home) + " vs " + esc(m.away) +
+          '<a href="' + esc(clubHref(m.home, s)) + '">' + esc(m.home) + "</a> vs " +
+          '<a href="' + esc(clubHref(m.away, s)) + '">' + esc(m.away) + "</a>" +
           ' <span class="when">' + esc(kick(m.kickoff)) + "</span></p>" +
           '<div class="odds-grid">' +
           '<div class="odds-pill"><p class="k">Home</p><p class="v">' + esc(Number(m.home_odds).toFixed(2)) + "</p></div>" +
@@ -884,9 +893,20 @@ window.WiamBoard = (function () {
       html +=
         "<h1><a href=\"" + esc(clubHref(found.home, found.slug)) + "\">" + esc(found.home || "Home") +
         "</a> v <a href=\"" + esc(clubHref(found.away, found.slug)) + "\">" + esc(found.away || "Away") + "</a></h1>";
-      if (found.competition) html += "<p>" + esc(found.competition) + "</p>";
-      html += "<p>" + liveStamp(found, state) + "</p>";
+      if (found.slug && found.competition) {
+        html += '<p><a href="/scores/' + esc(found.slug) + '/">' + esc(found.competition) + "</a></p>";
+      } else if (found.competition) {
+        html += "<p>" + esc(found.competition) + "</p>";
+      }
+      if (state === "up") {
+        html += "<p>" + esc(dayLabel(found.kickoff)) + ", " + esc(kick(found.kickoff)) + ".</p>";
+      } else {
+        html += "<p>" + liveStamp(found, state) + "</p>";
+        html += "<p>" + esc(dayLabel(found.kickoff)) + ".</p>";
+      }
       html += matchRowHtml(found, []);
+      html += "<h2>Venue</h2><p>Venue is not on this match yet.</p>";
+      html += "<h2>Referee</h2><p>The referee is not on this match yet.</p>";
       html += "<h2>Preview</h2><p>The preview is not in yet.</p>";
       html += "<h2>Pitch</h2><p>The pitch appears when the lineup is in.</p>";
       html += "<h2>Lineups</h2><p>Lineups appear here when the match sheet is in.</p>";
@@ -1013,7 +1033,11 @@ window.WiamBoard = (function () {
     html += '<p><button type="button" id="club-follow">Follow</button></p><p id="club-follow-note"></p>';
     html += "<h2>Today</h2><div id=\"club-today\"><p>Loading…</p></div>";
     html += "<h2>Squad</h2><p>Squad not available yet.</p>";
-    if (comp) html += '<p><a href="/table/' + esc(comp) + '/">Competition table</a></p>';
+    html += "<p>The coach is not on this page yet.</p>";
+    if (comp) {
+      html += '<p><a href="/scores/' + esc(comp) + '/">Competition scores</a></p>';
+      html += '<p><a href="/table/' + esc(comp) + '/">Competition table</a></p>';
+    }
     root.innerHTML = html;
     bindClubFollow(name, comp);
     if (comp) {
